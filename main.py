@@ -1,3 +1,4 @@
+import sys; sys.dont_write_bytecode = True
 from lexer.lexer import Lexer
 from parser.parser import Parser
 
