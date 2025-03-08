@@ -2,14 +2,16 @@ import sys; sys.dont_write_bytecode = True
 from typing import *
 from lexer.tokens import TokenType, Token
 from ..ast import *
+from backend.typecheck import enforce_types
 
+@enforce_types
 def parse_stmt(self: Self) -> Stmt:
     self.remove_trailing_new_lines()
     match self.at().type:
         case TokenType.Decorator:
             decorators: Set[Token] = {self.eat()}
             while self.at().type == TokenType.Decorator:
-                decorators.add(self.eat().value[1:])
+                decorators.add(self.parse_decorators())
             match self.at().type:
                 case TokenType.Fn:
                     return self.parse_fn_declaration(decorators)
@@ -26,6 +28,11 @@ def parse_stmt(self: Self) -> Stmt:
         case _:
             return self.parse_assignment()
 
+@enforce_types
+def parse_decorators(self: Self) -> Decorator:
+    return ...
+
+@enforce_types
 def parse_var_declaration(self: Self):
     is_constant = self.eat().type == TokenType.Const
     name = self.assrt(TokenType.Identifier, "placeholder")
@@ -38,13 +45,15 @@ def parse_var_declaration(self: Self):
 def parse_fn_declaration(self: Self) -> FunctionDeclaration: ...
 
 @overload
-def parse_fn_declaration(self: Self, decorators: Set[]) -> FunctionDeclaration: ...
+def parse_fn_declaration(self: Self, decorators: Set[Decorator]) -> FunctionDeclaration: ...
 
+@enforce_types
 def parse_fn_declaration(self: Self) -> FunctionDeclaration:
     self.eat() # Eat the fn
     
     return FunctionDeclaration()
 
+@enforce_types
 def parse_assignment(self: Self, *, force_expr: bool = False) -> VarAssignmentStmt | VarAssignmentExpr | Expr:
     self.remove_trailing_new_lines()
     left = self.parse_collections_expr()

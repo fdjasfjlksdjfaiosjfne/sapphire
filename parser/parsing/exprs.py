@@ -2,6 +2,7 @@ import sys; sys.dont_write_bytecode = True
 from typing import *
 from lexer.tokens import TokenType, Token
 from ..ast import *
+from backend.typecheck import enforce_types
 
 # TODO
 #^ Orders Of Precedence:
@@ -26,9 +27,11 @@ from ..ast import *
 ## [1, 2, 3, 4] {1, 2, 3, 4} {"a": "b"} {a: "b"}
 ## Assignment Operator (:=)
 
-def parse_type_hints(self: Self):
+@enforce_types
+def parse_type_hints(self: Self) -> TypeHint:
     pass
 
+@enforce_types
 def parse_collections_expr(self: Self) -> ArrayLiteral | SetLiteral | MapLiteral | ObjLiteral | Expr:
     self.remove_trailing_new_lines()
     match self.at().type:
@@ -47,6 +50,7 @@ def parse_collections_expr(self: Self) -> ArrayLiteral | SetLiteral | MapLiteral
         case _:
             return self.parse_ternary_expr()
 
+@enforce_types
 def parse_lists(self: Self) -> ArrayLiteral | SetLiteral:
     match self.at.type:
         case TokenType.OpenCurlyBrace: 
@@ -68,6 +72,7 @@ def parse_lists(self: Self) -> ArrayLiteral | SetLiteral:
     self.assrt(end_token, "placeholder")
     return NodeClass(props)
 
+@enforce_types
 def parse_map_or_obj_expr(self: Self) -> MapLiteral | ObjLiteral:
     self.eat() ## Eat the {
     props = {}
@@ -95,6 +100,7 @@ def parse_map_or_obj_expr(self: Self) -> MapLiteral | ObjLiteral:
         props.setdefault(key, value)
     return NodeExpr([Property(key, value) for key, value in props.items()])
 
+@enforce_types
 def parse_ternary_expr(self: Self) -> TernaryExpr | Expr:
     left = self.parse_logical_expr()
     if self.at().type == TokenType.QuestionMark:
@@ -105,6 +111,7 @@ def parse_ternary_expr(self: Self) -> TernaryExpr | Expr:
         left = TernaryExpr(left, true_expr, false_expr)
     return left
 
+@enforce_types
 def parse_logical_expr(self) -> BinaryExpr | Expr:
     left = self.parse_binary_expr()
     if self.at().type == TokenType.LogicalOper:
@@ -114,6 +121,7 @@ def parse_logical_expr(self) -> BinaryExpr | Expr:
     return left
 
 ## b^ b| b&
+@enforce_types
 def parse_binary_expr(self) -> BinaryExpr | Expr:
     left = self.parse_condition_expr()
     if self.at().type == TokenType.BinaryOper:
@@ -122,6 +130,7 @@ def parse_binary_expr(self) -> BinaryExpr | Expr:
         left = BinaryExpr(left, oper, right)
     return left
 
+@enforce_types
 def parse_condition_expr(self) -> BinaryExpr | Expr:
     left = self.parse_additive_expr()
     if self.at().type == TokenType.CompOper:
@@ -130,7 +139,8 @@ def parse_condition_expr(self) -> BinaryExpr | Expr:
         left = BinaryExpr(left, oper, right)
     return left
 
-def parse_additive_expr(self) -> BinaryExpr | Expr:
+@enforce_types
+def parse_additive_expr(self: Self) -> BinaryExpr | Expr:
     left = self.parse_multiplicative_expr()
     if self.at().type in {TokenType.Plus, TokenType.Minus}:
         oper = self.eat().value
@@ -138,7 +148,8 @@ def parse_additive_expr(self) -> BinaryExpr | Expr:
         left = BinaryExpr(left, oper, right)
     return left
 
-def parse_multiplicative_expr(self) -> BinaryExpr | Expr:
+@enforce_types
+def parse_multiplicative_expr(self: Self) -> BinaryExpr | Expr:
     left = self.parse_exponentiative_expr()
     if self.at().type in {TokenType.Asterisk, TokenType.Divide, TokenType.Modulus}:
         oper = self.eat().value
@@ -146,7 +157,8 @@ def parse_multiplicative_expr(self) -> BinaryExpr | Expr:
         left = BinaryExpr(left, oper, right)
     return left
 
-def parse_exponentiative_expr(self) -> BinaryExpr | Expr:
+@enforce_types
+def parse_exponentiative_expr(self: Self) -> BinaryExpr | Expr:
     left = self.parse_unary_expr()
     if self.at().type == TokenType.Exponentiation:
         oper = self.eat().value
@@ -154,7 +166,8 @@ def parse_exponentiative_expr(self) -> BinaryExpr | Expr:
         left = BinaryExpr(left, oper, right)
     return left
 
-def parse_unary_expr(self) -> UnaryExpr | Expr:
+@enforce_types
+def parse_unary_expr(self: Self) -> UnaryExpr | Expr:
     if self.at().type in {TokenType.Tilda, TokenType.Minus, TokenType.Plus, TokenType.Exclamation, TokenType.Not}:
         return UnaryExpr(symbol = self.eat(), expr = self.eat())
     expr = self.parse_member_expr()
@@ -162,31 +175,36 @@ def parse_unary_expr(self) -> UnaryExpr | Expr:
         return UnaryExpr(expr, self.eat().value)
     return expr
 
-def parse_call_member_expr(self) -> CallExpr | MemberExpr | Expr:
+@enforce_types
+def parse_call_member_expr(self: Self) -> CallExpr | MemberExpr | Expr:
     member = self.parse_member_expr()
     if self.at().type == TokenType.OpenParenthesis:
         self.parse_call_expr(member)
     return member
 
-def parse_call_expr(self, caller: Expr) -> CallExpr | Expr:
+@enforce_types
+def parse_call_expr(self: Self, caller: Expr) -> CallExpr | Expr:
     call_expr = CallExpr(caller, self.parse_args())
     if self.at().type == TokenType.OpenParenthesis:
         call_expr = self.parse_call_expr(call_expr)
     return call_expr
 
-def parse_call_args(self) -> List[CallArgument]:
+@enforce_types
+def parse_call_args(self: Self) -> List[CallArgument]:
     self.assrt(TokenType.OpenParenthesis, "placeholder")
     args = [] if self.at().type == TokenType.CloseParenthesis else self.parse_arguments_list()
     self.assrt(TokenType.CloseParenthesis, "placeholder")
     return args
 
-def parse_arguments_list(self) -> List[CallArgument]:
+@enforce_types
+def parse_arguments_list(self: Self) -> List[CallArgument]:
     args: List[CallArgument] = [self.parse_argument()]
     while self.at().type == TokenType.Comma and self.eat():
         args.append(self.parse_argument)
     return args
 
-def parse_argument(self) -> CallArgument:
+@enforce_types
+def parse_argument(self: Self) -> CallArgument:
     a = self.parse_assignment(force_expr = True)
     ## Keyword arguments
     if (a.kind == NodeType.Identifier and 
@@ -197,7 +215,8 @@ def parse_argument(self) -> CallArgument:
         return CallArgument(name = a, value = b)
     return CallArgument(value = a)
 
-def parse_member_expr(self):
+@enforce_types
+def parse_member_expr(self: Self):
     obj = self.parse_primary_expr()
     while self.at().type in {TokenType.Dot, TokenType.OpenSquareBracket}:
         operator = self.eat()
@@ -213,7 +232,8 @@ def parse_member_expr(self):
             self.assrt(TokenType.CloseSquareBracket, "placehler")
         return MemberExpr(obj, property, computed)
 
-def parse_primary_expr(self, *, primitives_only: bool = False) -> Identifier | IntLiteral | FloatLiteral | StrLiteral | BoolLiteral | NullLiteral | Expr:
+@enforce_types
+def parse_primary_expr(self: Self, *, primitives_only: bool = False) -> Identifier | IntLiteral | FloatLiteral | StrLiteral | BoolLiteral | NullLiteral | Expr:
     """Parse primary expressions including literals, identifiers, and grouped expressions.
 
     Args:

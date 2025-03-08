@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from regex import compile, Pattern
 from enum import Enum
 from typing import *
+from backend.typecheck import enforce_types
 
 Union
 
@@ -9,7 +10,8 @@ Union
 class Token:
     type: "TokenType"
     value: str | None = None
-    def __repr__(self) -> str:
+    @enforce_types
+    def __repr__(self: Self) -> str:
         return f"\nToken(type={self.type.name}{"" if self.value is None else f", value={self.value}"})"
 
 @dataclass

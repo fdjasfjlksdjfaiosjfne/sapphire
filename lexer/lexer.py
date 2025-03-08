@@ -2,16 +2,18 @@ import sys; sys.dont_write_bytecode = True
 from typing import *
 from .tokens import *
 import regex as re
-
+from backend.typecheck import enforce_types
 class _TokenizeReturnValue_(TypedDict):
     tokens: List[Token]
     directives: List[Directive]
 
 class Lexer:
+    @enforce_types
     def __init__(self):
         self.tokens: List[Token] = []
         self.directives: List[Directive] = []
     
+    @enforce_types
     def tokenize(self, src: str) -> _TokenizeReturnValue_:
         self.src = src
         self.tokens = []
@@ -28,7 +30,7 @@ class Lexer:
                 
                 # > Directives
                 elif match := re.match(f"#{regex_patterns[TokenType.Identifier]}"):
-                    self.parse_directives()
+                    self.resolve_directives()
             # > Comments
             elif (match := compile("//.*").match(self.src)) or (match := compile(r"/\*[.\s]*(\*/)?").match(self.src)):
                 self.src = self.src[len(match):]
@@ -42,12 +44,15 @@ class Lexer:
         self.tokens.append(Token(TokenType.EoF))
         return {"tokens": self.tokens, "directives": self.directives}
     
-    def parse_directives(self):
-        self.tokens
+    @enforce_types
+    def resolve_directives(self: Self):
+        ...
     
+    @enforce_types
     def snap(self, match, token_type: TokenType, include_match: bool = True) -> NoReturn:
         self.src = self.src[len(match):]
         self.tokens.append(Token(token_type, match if include_match else None))
     
+    @enforce_types
     @property
-    def last_token(self) -> Token: return self.tokens[-1] if self.tokens else Token(TokenType.NOTHING)
+    def last_token(self: Self) -> Token: return self.tokens[-1] if self.tokens else Token(TokenType.NOTHING)

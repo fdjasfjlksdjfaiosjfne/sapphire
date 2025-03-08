@@ -2,6 +2,7 @@ import sys; sys.dont_write_bytecode = True
 from typing import *
 from lexer.tokens import TokenType, Token
 from .ast import *
+from backend.typecheck import enforce_types
 from parsing import stmts, exprs
 
 class Parser:
@@ -31,7 +32,8 @@ class Parser:
         self.parse_unary_expr = exprs.parse_unary_expr
         self.parse_member_expr = exprs.parse_member_expr
 
-    def produce_ast(self, tokens: List[Token]) -> Program:
+    @enforce_types
+    def produce_ast(self: Self, tokens: List[Token]) -> Program:
         self.tokens = tokens
         program = Program()
         while self.at().type != TokenType.EoF:
@@ -39,12 +41,13 @@ class Parser:
         return program
     
     @overload
-    def assrt(self, token_types: Set[TokenType], err: str, remove_trailing_new_line: bool = False) -> Token: ...
+    def assrt(self: Self, token_types: Set[TokenType], err: str, remove_trailing_new_line: bool = False) -> Token: ...
     
     @overload
-    def assrt(self, token_types: TokenType, err: str, remove_trailing_new_line: bool = False) -> Token: ...
+    def assrt(self: Self, token_types: TokenType, err: str, remove_trailing_new_line: bool = False) -> Token: ...
     
-    def assrt(self, token_types: TokenType | Set[TokenType], err: str, remove_trailing_new_line: bool = False) -> Token:
+    @enforce_types
+    def assrt(self: Self, token_types: TokenType | Set[TokenType], err: str, remove_trailing_new_line: bool = False) -> Token:
         if isinstance(token_types, TokenType):
             token_types = {TokenType}
         if remove_trailing_new_line:
@@ -53,16 +56,19 @@ class Parser:
             raise Exception(str)
         return t
     
-    def at(self, remove_trailing_new_line: bool = False) -> Token:
+    @enforce_types
+    def at(self: Self, remove_trailing_new_line: bool = False) -> Token:
         if remove_trailing_new_line and self.at(False).type == TokenType.NewLine:
             self.tokens.pop(0)
         return self.tokens[0]
     
-    def eat(self, remove_trailing_new_line: bool = False) -> Token:
+    @enforce_types
+    def eat(self: Self, remove_trailing_new_line: bool = False) -> Token:
         if remove_trailing_new_line and self.at(False).type == TokenType.NewLine:
             self.tokens.pop(0)
         return self.tokens.pop(0)
     
-    def remove_trailing_new_lines(self) -> NoReturn:
+    @enforce_types
+    def remove_trailing_new_lines(self: Self) -> NoReturn:
         if self.at().type == TokenType.NewLine:
             self.eat()
