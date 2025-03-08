@@ -1,33 +1,33 @@
 from __future__ import annotations
 from typing import *
 from dataclasses import dataclass
-from enum import Enum
+from enum import *
 from backend.typecheck import enforce_types
 
+@unique
 class NodeType(Enum):
-    # ^ Exprs
-    BinaryExpr = -1
-    Int = -2
-    Float = -3
-    Str = -4
-    Bool = -5
-    Null = -6
-    Array = -7
-    Set = -8
-    Map = -9
-    Object = -10
-    Property = -11
-    VarDeclarationExpr = -12
-    Argument = -13
-    Ternary = -14
-    Unary = -15
-    Identifier = -16
-    Member = -17
-    # ^ Stmts
-    Program = 1
-    VarDeclarationStmt = 2
-    FunctionDeclaration = 3
-    Decorator = 4
+    BinaryExpr = auto()
+    Int = auto()
+    Float = auto()
+    Str = auto()
+    Bool = auto()
+    Null = auto()
+    Array = auto()
+    Set = auto()
+    Map = auto()
+    Object = auto()
+    Property = auto()
+    VarDeclarationExpr = auto()
+    Argument = auto()
+    Ternary = auto()
+    Unary = auto()
+    Identifier = auto()
+    Member = auto()
+    Program = auto()
+    VarDeclarationStmt = auto()
+    FunctionDeclaration = auto()
+    Decorator = auto()
+    TypeHint = auto()
 
 class Stmt:
     @enforce_types
@@ -81,6 +81,8 @@ class VarAssignmentStmt(Stmt):
         self.oper = oper
         self.value = value
 
+Literal[...]
+
 @dataclass
 class TypeHint(Expr):
     @enforce_types
@@ -89,10 +91,18 @@ class TypeHint(Expr):
 
 @dataclass
 class DeclarationArgument(Expr):
+    @overload
+    def __init__(self: Self, name: Literal["*", "/"]): ...
+    
+    @overload
+    def __init__(self: Self, name: str, type_hint: TypeHint = TypeHint("Any"), default: Optional[Expr] = None): ...
+    
     @enforce_types
-    def __init__(self, name: str, type_hint: TypeHint):
+    def __init__(self, name: str, type_hint: TypeHint = TypeHint("Any"), default: Optional[Expr] = None):
         self.name = name
-        self.type_hint = type_hint
+        if name in {"*", "/"}:
+            self.type_hint = type_hint
+            self.default = default
 
 @dataclass
 class CallArgument(Expr):

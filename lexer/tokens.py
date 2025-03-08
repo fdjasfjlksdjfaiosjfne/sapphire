@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from regex import compile, Pattern
-from enum import Enum
+from enum import *
 from typing import *
 from backend.typecheck import enforce_types
 
@@ -19,55 +19,55 @@ class Directive:
     name: str
     args: List[str]
 
+@unique
 class TokenType(Enum):
-    NOTHING = None # Used for tricking the lexer ig idk
-    EoF = "EoF"
-    Decorator = "@Decorator"
-    Label = "Label:"
-    Directive = "#Directive"
-    Identifier = "identifier"
-    NewLine = r"\n"
+    NOTHING = auto() # Used for tricking the lexer ig idk
+    EoF = auto()
+    Decorator = auto()
+    Label = auto()
+    Identifier = auto()
+    NewLine = auto()
     # ^ Parentheses
-    OpenParenthesis = "("
-    CloseParenthesis = ")"
-    OpenSquareBracket = "["
-    CloseSquareBracket = "]"
-    OpenCurlyBrace = "{"
-    CloseCurlyBrace = "}"
+    OpenParenthesis = auto()
+    CloseParenthesis = auto()
+    OpenSquareBracket = auto()
+    CloseSquareBracket = auto()
+    OpenCurlyBrace = auto()
+    CloseCurlyBrace = auto()
     # ^ Keywords
-    Let = "let"
-    Const = "const"
-    Fn = "fn"
-    Class = "class"
-    Not = "not"
+    Let = auto()
+    Const = auto()
+    Fn = auto()
+    Class = auto()
+    Not = auto()
     # ^ Symbols
-    Plus = "+"
-    Minus = "-"
-    Asterisk = "*"
-    Divide = "/"
-    Modulus = "%"
-    Exponentiation = "**"
-    Comma = ","
-    Dot = "."
-    Colon = ":"
-    GDCologne = ":"
-    Semicolon = ";"
-    QuestionMark = "?"
-    Tilda = "~"
-    Exclamation = "!"
-    Incre = "++"
-    Decre = "--"
-    AssignOper = ("=", "c=", "i=", ":=")
-    CompOper = (">=, <=, ==, !=, <, >")
-    LogicalOper = ("&", "^", "|")
-    BinaryOper = ("b^", "b&", "b|", "<<", ">>")
+    Plus = auto()
+    Minus = auto()
+    Asterisk = auto()
+    Divide = auto()
+    Modulus = auto()
+    Exponentiation = auto()
+    Comma = auto()
+    Dot = auto()
+    Colon = auto()
+    GDCologne = auto()
+    Semicolon = auto()
+    QuestionMark = auto()
+    Tilda = auto()
+    Exclamation = auto()
+    Incre = auto()
+    Decre = auto()
+    AssignOper = auto()
+    CompOper = auto()
+    LogicalOper = auto()
+    BinaryOper = auto()
     # ^ Primitives
-    Bool = ("true", "false")
-    Null = "null"
-    Int = "int"
-    Float = "float"
-    Str = "str"
-    Ellipsis = "ellipsis"
+    Bool = auto()
+    Null = auto()
+    Int = auto()
+    Float = auto()
+    Str = auto()
+    Ellipsis = auto()
 
 class RegExDictConfiguration(TypedDict):
     patterns: List[Pattern]
