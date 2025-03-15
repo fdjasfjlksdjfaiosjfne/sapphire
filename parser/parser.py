@@ -1,74 +1,129 @@
-import sys; sys.dont_write_bytecode = True
 from typing import *
-from lexer.tokens import TokenType, Token
-from .ast import *
-from backend.typecheck import enforce_types
-from parsing import stmts, exprs
+from lexer.lexer import Token
+from lexer.tokens import TokenType
+from .nodes import *
 
 class Parser:
-    def __init__(self):
-        self.parse_stmt = stmts.parse_stmt
-        self.parse_fn_declaration = stmts.parse_fn_declaration
-        self.parse_var_declaration = stmts.parse_var_declaration
-        self.parse_assignment = stmts.parse_assignment
-        # ^ EXPR
-        self.parse_collections_expr = exprs.parse_collections_expr
-        self.parse_type_hints = exprs.parse_type_hints
-        self.parse_call_expr = exprs.parse_call_expr
-        self.parse_call_member_expr = exprs.parse_call_member_expr
-        self.parse_lists = exprs.parse_lists
-        self.parse_condition_expr = exprs.parse_condition_expr
-        self.parse_binary_expr = exprs.parse_binary_expr
-        self.parse_exponentiaitive_expr = exprs.parse_exponentiative_expr
-        self.parse_multiplicative_expr = exprs.parse_multiplicative_expr
-        self.parse_additive_expr = exprs.parse_additive_expr
-        self.parse_call_args = exprs.parse_call_args
-        self.parse_argument = exprs.parse_argument
-        self.parse_arguments_list = exprs.parse_arguments_list
-        self.parse_primary_expr = exprs.parse_primary_expr
-        self.parse_map_or_obj_expr = exprs.parse_map_or_obj_expr
-        self.parse_ternary_expr = exprs.parse_ternary_expr
-        self.parse_logical_expr = exprs.parse_logical_expr
-        self.parse_unary_expr = exprs.parse_unary_expr
-        self.parse_member_expr = exprs.parse_member_expr
-
-    @enforce_types
-    def produce_ast(self: Self, tokens: List[Token]) -> Program:
-        self.tokens = tokens
-        program = Program()
-        while self.at().type != TokenType.EoF:
-            program.body.append(self.parse_stmt())
+    @classmethod
+    def produce_ast(cls, tokens: List[Token]) -> ProgramNode:
+        cls.tokens = tokens
+        program = ProgramNode([])
+        while cls.at() != TokenType.EoF:
+            program.body.append(cls.parse_stmt())
+        del cls.tokens
         return program
+
+    @classmethod
+    def at(cls) -> Token:
+        return cls.tokens[0]
+
+    @classmethod
+    def eat(cls) -> Token:
+        return cls.tokens.pop(0)
     
-    @overload
-    def assrt(self: Self, token_types: Set[TokenType], err: str, remove_trailing_new_line: bool = False) -> Token: ...
+    @classmethod
+    def asrt(cls, type: TokenType) -> Token:
+        if (tkn := cls.eat()) != type:
+            raise ValueError("e")
+        return tkn
     
-    @overload
-    def assrt(self: Self, token_types: TokenType, err: str, remove_trailing_new_line: bool = False) -> Token: ...
+    @classmethod
+    def remove_new_lines(cls) -> None:
+        if cls.at() == TokenType.NewLine:
+            cls.eat()
+
+    @classmethod
+    def parse_stmt(cls) -> Stmt:
+        match cls.at():
+            case TokenType.Fn:
+                return cls.parse_fn_declaration()
+            case _:
+                return cls.parse_assignment_stmt()
     
-    @enforce_types
-    def assrt(self: Self, token_types: TokenType | Set[TokenType], err: str, remove_trailing_new_line: bool = False) -> Token:
-        if isinstance(token_types, TokenType):
-            token_types = {TokenType}
-        if remove_trailing_new_line:
-            token_types.add(TokenType.NewLine)
-        if t := self.eat().type not in token_types:
-            raise Exception(str)
-        return t
+    @classmethod
+    def parse_assignment_stmt(cls) -> AssignmentNode | Expr:
+        lhs = cls.parse_assignment_expr()
+        if cls.at() == TokenType.AssignOper:
+            return AssignmentNode(lhs, cls.eat().value, cls.parse_assignment_expr())
+        return lhs
     
-    @enforce_types
-    def at(self: Self, remove_trailing_new_line: bool = False) -> Token:
-        if remove_trailing_new_line and self.at(False).type == TokenType.NewLine:
-            self.tokens.pop(0)
-        return self.tokens[0]
+    @classmethod
+    def parse_expr(cls) -> Expr:
+        return cls.parse_assignment_expr()
     
-    @enforce_types
-    def eat(self: Self, remove_trailing_new_line: bool = False) -> Token:
-        if remove_trailing_new_line and self.at(False).type == TokenType.NewLine:
-            self.tokens.pop(0)
-        return self.tokens.pop(0)
+    @classmethod
+    def parse_assignment_expr(cls):
+        lhs = cls.parse_collections_expr()
+        if cls.at() == TokenType.WalrusOper:
+            return WalrusExprNode(lhs, cls.eat().value, cls.parse_collections_expr())
+        return lhs
     
-    @enforce_types
-    def remove_trailing_new_lines(self: Self) -> NoReturn:
-        if self.at().type == TokenType.NewLine:
-            self.eat()
+    @classmethod
+    def parse_collections_expr(cls):
+        match cls.at():
+            case TokenType.OpenCurlyBrace:
+                cls.eat()
+                raise Exception()
+            case TokenType.OpenSquareBracket:
+                cls.eat()
+                raise Exception()
+            case _:
+                return cls.parse_additive_expr()
+    
+    @classmethod
+    def parse_additive_expr(cls) -> BinaryExprNode | Expr:
+        lhs = cls.parse_multiplicative_expr()
+        if cls.at()._in(TokenType.Plus, TokenType.Minus):
+            return BinaryExprNode(lhs, cls.eat().type, cls.parse_additive_expr())
+        return lhs
+    
+    @classmethod
+    def parse_multiplicative_expr(cls) -> BinaryExprNode | Expr:
+        lhs = cls.parse_exponentiative_expr()
+        if cls.at()._in(TokenType.Asterisk, TokenType.Divide, TokenType.Modulus):
+            return BinaryExprNode(lhs, cls.eat().type, cls.parse_multiplicative_expr())
+        return lhs
+    
+    @classmethod
+    def parse_exponentiative_expr(cls) -> BinaryExprNode | Expr:
+        lhs = cls.parse_primary_expr()
+        if cls.at() == TokenType.Exponentiation:
+            return BinaryExprNode(lhs, cls.eat().type, cls.parse_exponentiative_expr())
+        return lhs
+    
+    @classmethod
+    def parse_primary_expr(
+        cls, 
+        exclude: Set[
+            Literal[
+                TokenType.Identifier, 
+                TokenType.Int, 
+                TokenType.Float, 
+                TokenType.Str, 
+                TokenType.Bool, 
+                TokenType.Null, 
+                TokenType.OpenParenthesis
+                ]
+            ] = {}
+        ) -> IntNode | FloatNode | StrNode | BoolNode | NullNode | IdentifierNode:
+        match cls.at().type:
+            case TokenType.Identifier if TokenType.Identifier not in exclude:
+                return IdentifierNode(cls.eat().value)
+            case TokenType.Int if TokenType.Int not in exclude:
+                return IntNode(cls.eat().value)
+            case TokenType.Float if TokenType.Float not in exclude:
+                return FloatNode(cls.eat().value)
+            case TokenType.Str if TokenType.Str not in exclude:
+                return StrNode(cls.eat().value)
+            case TokenType.Bool if TokenType.Bool not in exclude:
+                return BoolNode(cls.eat().value)
+            case TokenType.Null if TokenType.Null not in exclude:
+                cls.eat()
+                return NullNode()
+            case TokenType.OpenParenthesis if TokenType.OpenParenthesis not in exclude:
+                cls.eat()
+                expr = cls.parse_expr()
+                cls.asrt(TokenType.CloseParenthesis)
+                return expr
+            case _:
+                raise Exception(...) 

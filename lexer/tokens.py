@@ -1,23 +1,30 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from regex import compile, Pattern
 from enum import *
 from typing import *
-from backend.typecheck import enforce_types
-
-Union
+from functools import *
 
 @dataclass
 class Token:
-    type: "TokenType"
+    type: TokenType
     value: str | None = None
-    @enforce_types
+    # @enforce_types
     def __repr__(self: Self) -> str:
         return f"\nToken(type={self.type.name}{"" if self.value is None else f", value={self.value}"})"
-
-@dataclass
-class Directive:
-    name: str
-    args: List[str]
+    
+    def __ne__(self: Self, value: TokenType) -> bool:
+        if isinstance(value, TokenType):
+            return self.type != value
+        return NotImplemented
+    
+    def __eq__(self: Self, value: TokenType) -> bool:
+        if isinstance(value, TokenType):
+            return self.type == value
+        return NotImplemented
+    
+    def _in(self: Self, *types: Tuple[TokenType, ...]):
+        return self.type in set(types)
 
 @unique
 class TokenType(Enum):
@@ -34,6 +41,8 @@ class TokenType(Enum):
     CloseSquareBracket = auto()
     OpenCurlyBrace = auto()
     CloseCurlyBrace = auto()
+    OpenAngleBracket = auto()
+    CloseAngleBracket = auto()
     # ^ Keywords
     Let = auto()
     Const = auto()
@@ -61,6 +70,7 @@ class TokenType(Enum):
     CompOper = auto()
     LogicalOper = auto()
     BinaryOper = auto()
+    WalrusOper = auto()
     # ^ Primitives
     Bool = auto()
     Null = auto()
@@ -74,7 +84,23 @@ class RegExDictConfiguration(TypedDict):
     include_value: bool = True
 
 regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
-    TokenType.NewLine: {"patterns": [compile(r"[\n\r]+[\t ]*")], "include_value": False},
+    TokenType.Decorator: {"patterns": [compile(r"[\n\r]+[\t ]*")]},
+    TokenType.Label: {"patterns": [compile(r"[\n\r]+[\t ]*")]},
+    TokenType.NewLine: {
+        "patterns": [
+            compile(r"[\r\n]+"),
+        ], 
+        "include_value": False
+    },
+    TokenType.NOTHING: {
+        "patterns": [
+            compile(r"\t+"),
+            compile(r" +"),
+            compile("//.*"),
+            compile(r"/\*[.\s]*(\*/)?")
+        ],
+        "include_value": False 
+    },
     # ^ Keywords
     TokenType.Let: {"patterns": [compile("let")], "include_value": False},
     TokenType.Const: {"patterns": [compile("const")], "include_value": False},
@@ -97,8 +123,17 @@ regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
             compile("xor")
         ]
     },
+    TokenType.OpenParenthesis: {"patterns": [compile(r"\(")], "include_value": False},
+    TokenType.CloseParenthesis: {"patterns": [compile(r"\)")], "include_value": False},
+    TokenType.OpenSquareBracket: {"patterns": [compile(r"\[")], "include_value": False},
+    TokenType.CloseSquareBracket: {"patterns": [compile(r"\]")], "include_value": False},
+    TokenType.OpenCurlyBrace: {"patterns": [compile(r"\{")], "include_value": False},
+    TokenType.CloseCurlyBrace: {"patterns": [compile(r"\}")], "include_value": False},
+    TokenType.OpenAngleBracket: {"patterns": [compile("<")], "include_value": False},
+    TokenType.CloseAngleBracket: {"patterns": [compile(">")], "include_value": False},
     TokenType.CompOper: {
         "patterns": [
+        compile(r"<=>"),
         compile(r">="),
         compile(r"<="),
         compile(r"=="),
@@ -119,10 +154,13 @@ regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
         compile("/="),
         compile(r"\*{2}="),
         ## Exprs
-        compile(":="),
-        compile("c:="),
-        compile("i:=")
-    ]
+    ]},
+    TokenType.WalrusOper: {
+        "patterns": [
+            compile(":="),
+            compile("c:="),
+            compile("i:=")
+        ]
     },
     TokenType.Plus: {"patterns": [compile(r"\+")], "include_value": False},
     TokenType.Minus: {"patterns": [compile("-")], "include_value": False},
@@ -157,4 +195,3 @@ regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
         ]
     },
 }
-
