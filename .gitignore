@@ -1,5 +1,4 @@
 */__pycache__
-test.py
-ideas.md
 .gitignore
-parser/parser (2).py
+*.ignore.*
+*.code-workspace
