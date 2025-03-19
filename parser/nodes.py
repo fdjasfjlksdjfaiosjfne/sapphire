@@ -7,6 +7,7 @@ from lexer.lexer import Token
 
 class NodeType(Enum):
     Program = auto()
+    Return = auto()
     Assignment = auto()
     WalrusExpr = auto()
     Int = auto()
@@ -17,6 +18,8 @@ class NodeType(Enum):
     Identifier = auto()
     BinaryExpr = auto()
     CodeBlock = auto()
+    Ternary = auto()
+    Comparison = auto()
 
 class Stmt(ABC):
     kind: NodeType
@@ -24,55 +27,83 @@ class Stmt(ABC):
     def __init_subclass__(cls):
         if cls.__name__ != "Expr":
             setattr(cls, "kind", getattr(NodeType, cls.__name__.removesuffix("Node")))
+    @final
+    def __ne__(self, value: NodeType) -> bool:
+        if isinstance(value, NodeType):
+            return self.kind != value
+        return NotImplemented
+    @final
+    def __eq__(self, value: NodeType) -> bool:
+        if isinstance(value, NodeType):
+            return self.kind == value
+        return NotImplemented
 
 class Expr(Stmt): pass
 
-@dataclass
+@dataclass(eq = False)
 class ProgramNode(Stmt):
-    body: CodeBlock
+    body: CodeBlockNode
+    def __iter__(self):
+        yield iter(self.body)
 
-@dataclass
+@dataclass(eq = False)
 class AssignmentNode(Stmt):
     assignee: Expr
     assign_oper: str
     value: Expr
 
-@dataclass
+@dataclass(eq = False)
+class ReturnNode(Stmt):
+    value: Expr
+
+@dataclass(eq = False)
+class TernaryNode(Expr):
+    cond: Expr
+    true: Expr
+    false: Expr
+
+@dataclass(eq = False)
+class ComparisonNode(Expr):
+    left: Expr
+    operators: List[Token]
+    exprs: List[Expr]
+
+@dataclass(eq = False)
 class WalrusExprNode(AssignmentNode, Expr):
     pass
 
-@dataclass
+@dataclass(eq = False)
 class BinaryExprNode(Expr):
     left: Expr
     oper: Token
     right: Expr
 
-@dataclass
+@dataclass(eq = False)
 class IntNode(Expr):
     value: int
 
-@dataclass
+@dataclass(eq = False)
 class FloatNode(Expr):
     value: float
 
-@dataclass
+@dataclass(eq = False)
 class StrNode(Expr):
     value: str
 
-@dataclass
+@dataclass(eq = False)
 class BoolNode(Expr):
     value: bool
 
-@dataclass
+@dataclass(eq = False)
 class NullNode(Expr): pass
 
-@dataclass
+@dataclass(eq = False)
 class IdentifierNode(Expr):
-    name: str
+    symbol: str
 
-@dataclass
-class CodeBlock(Expr):
-    body: List[str]
+@dataclass(eq = False)
+class CodeBlockNode(Expr):
+    body: List[Stmt]
     def append(self, object: Stmt, /):
         # Scrolling to find every subclass of Stmt and beyond
         t = type(object)

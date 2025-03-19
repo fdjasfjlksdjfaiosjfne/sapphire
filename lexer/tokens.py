@@ -23,8 +23,11 @@ class Token:
             return self.type == value
         return NotImplemented
     
-    def _in(self: Self, *types: Tuple[TokenType, ...]):
-        return self.type in set(types)
+    def __matmul__(self: Self, types: Set[TokenType]):
+        """
+        # This is NOT used to matrix multiplication. Please don't get mistaken. Thank you.
+        """
+        return self.type in types
 
 @unique
 class TokenType(Enum):
@@ -41,14 +44,15 @@ class TokenType(Enum):
     CloseSquareBracket = auto()
     OpenCurlyBrace = auto()
     CloseCurlyBrace = auto()
-    OpenAngleBracket = auto()
-    CloseAngleBracket = auto()
     # ^ Keywords
     Let = auto()
     Const = auto()
     Fn = auto()
     Class = auto()
     Not = auto()
+    And = auto()
+    Or = auto()
+    Xor = auto()
     # ^ Symbols
     Plus = auto()
     Minus = auto()
@@ -56,9 +60,9 @@ class TokenType(Enum):
     Divide = auto()
     Modulus = auto()
     Exponentiation = auto()
+    At = auto()
     Comma = auto()
     Dot = auto()
-    Colon = auto()
     GDCologne = auto()
     Semicolon = auto()
     QuestionMark = auto()
@@ -66,10 +70,21 @@ class TokenType(Enum):
     Exclamation = auto()
     Incre = auto()
     Decre = auto()
+    Andpersand = auto()
+    VerticalBar = auto()
+    Caret = auto()
+    Equal = auto()
+    NotEqual = auto()
+    LessThan = auto()
+    GreaterThan = auto()
+    LessEqualThan = auto()
+    GreaterEqualThan = auto()
+    Spaceship = auto()
+    BinaryXor = auto()
+    BinaryOr = auto()
+    BinaryAnd = auto()
     AssignOper = auto()
-    CompOper = auto()
-    LogicalOper = auto()
-    BinaryOper = auto()
+    ModifierAssignOper = auto()
     WalrusOper = auto()
     # ^ Primitives
     Bool = auto()
@@ -84,8 +99,6 @@ class RegExDictConfiguration(TypedDict):
     include_value: bool = True
 
 regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
-    TokenType.Decorator: {"patterns": [compile(r"[\n\r]+[\t ]*")]},
-    TokenType.Label: {"patterns": [compile(r"[\n\r]+[\t ]*")]},
     TokenType.NewLine: {
         "patterns": [
             compile(r"[\r\n]+"),
@@ -102,10 +115,14 @@ regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
         "include_value": False 
     },
     # ^ Keywords
-    TokenType.Let: {"patterns": [compile("let")], "include_value": False},
-    TokenType.Const: {"patterns": [compile("const")], "include_value": False},
-    TokenType.Fn: {"patterns": [compile("fn")], "include_value": False},
-    TokenType.Class: {"patterns": [compile("class")], "include_value": False},
+    TokenType.Let: {"patterns": [compile("let")]},
+    TokenType.Const: {"patterns": [compile("const")]},
+    TokenType.Fn: {"patterns": [compile("fn")]},
+    TokenType.Class: {"patterns": [compile("class")]},
+    TokenType.And: {"patterns": [compile("and")]},
+    TokenType.Or: {"patterns": [compile("or")]},
+    TokenType.Xor: {"patterns": [compile("xor")]},
+    TokenType.Not: {"patterns": [compile("not")]},
     # ^ Symbols
     
     # match a {
@@ -113,85 +130,70 @@ regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
     #   case 6..14: print("6 to 14")
     # }
     
-    TokenType.LogicalOper: {
+    TokenType.LessEqualThan: {"patterns": [compile("<=")]},
+    TokenType.GreaterEqualThan: {"patterns": [compile(">=")]},
+    TokenType.Equal: {"patterns": [compile("==")]},
+    TokenType.NotEqual: {"patterns": [compile("!=")]},
+    TokenType.Spaceship: {"patterns": [compile("<=>")]},
+    TokenType.OpenParenthesis: {"patterns": [compile(r"\(")]},
+    TokenType.CloseParenthesis: {"patterns": [compile(r"\)")]},
+    TokenType.OpenSquareBracket: {"patterns": [compile(r"\[")]},
+    TokenType.CloseSquareBracket: {"patterns": [compile(r"\]")]},
+    TokenType.OpenCurlyBrace: {"patterns": [compile(r"\{")]},
+    TokenType.CloseCurlyBrace: {"patterns": [compile(r"\}")]},
+    TokenType.LessThan: {"patterns": [compile("<")]},
+    TokenType.GreaterThan: {"patterns": [compile(">")]},
+    TokenType.AssignOper: {"patterns": [compile("=")]},
+    
+    TokenType.ModifierAssignOper: {
         "patterns": [
-            compile("&"),
-            compile("and"),
-            compile(r"\|"),
-            compile("or"),
-            compile(r"\^"),
-            compile("xor")
-        ]
+            compile("c="),
+            compile(r"\+="),
+            compile("-="),
+            compile(r"\*="),
+            compile("/="),
+            compile(r"\*{2}="),
+        ],
+        "include_value": True
     },
-    TokenType.OpenParenthesis: {"patterns": [compile(r"\(")], "include_value": False},
-    TokenType.CloseParenthesis: {"patterns": [compile(r"\)")], "include_value": False},
-    TokenType.OpenSquareBracket: {"patterns": [compile(r"\[")], "include_value": False},
-    TokenType.CloseSquareBracket: {"patterns": [compile(r"\]")], "include_value": False},
-    TokenType.OpenCurlyBrace: {"patterns": [compile(r"\{")], "include_value": False},
-    TokenType.CloseCurlyBrace: {"patterns": [compile(r"\}")], "include_value": False},
-    TokenType.OpenAngleBracket: {"patterns": [compile("<")], "include_value": False},
-    TokenType.CloseAngleBracket: {"patterns": [compile(">")], "include_value": False},
-    TokenType.CompOper: {
-        "patterns": [
-        compile(r"<=>"),
-        compile(r">="),
-        compile(r"<="),
-        compile(r"=="),
-        compile(r"!="),
-        compile(r">"),
-        compile(r"<")
-        ]
-    },
-    TokenType.AssignOper: {
-        "patterns": [
-        ## Statements
-        compile("="),
-        compile("c="),
-        compile("i="),
-        compile(r"\+="),
-        compile("-="),
-        compile(r"\*="),
-        compile("/="),
-        compile(r"\*{2}="),
-        ## Exprs
-    ]},
-    TokenType.WalrusOper: {
-        "patterns": [
-            compile(":="),
-            compile("c:="),
-            compile("i:=")
-        ]
-    },
-    TokenType.Plus: {"patterns": [compile(r"\+")], "include_value": False},
-    TokenType.Minus: {"patterns": [compile("-")], "include_value": False},
-    TokenType.Exponentiation: {"patterns": [compile(r"\*{2}")], "include_value": False},
-    TokenType.Asterisk: {"patterns": [compile(r"\*")], "include_value": False},
-    TokenType.Divide: {"patterns": [compile("/")], "include_value": False},
-    TokenType.Modulus: {"patterns": [compile("%")], "include_value": False},
-    TokenType.Comma: {"patterns": [compile(",")], "include_value": False},
-    TokenType.GDCologne: {"patterns": [compile(":")], "include_value": False},
-    TokenType.Colon: {"patterns": [compile(":")], "include_value": False},
-    TokenType.Ellipsis: {"patterns": [compile(r"\.{3}")], "include_value": False},
-    TokenType.Dot: {"patterns": [compile(r"\.")], "include_value": False},
-    TokenType.QuestionMark: {"patterns": [compile(r"\?")], "include_value": False},
-    TokenType.Semicolon: {"patterns": [compile(";")], "include_value": False},
+    
+    TokenType.WalrusOper: {"patterns": [compile(":=")]},
+    TokenType.At: {"patterns": [compile("@")]},
+    TokenType.Plus: {"patterns": [compile(r"\+")]},
+    TokenType.Minus: {"patterns": [compile("-")]},
+    TokenType.Exponentiation: {"patterns": [compile(r"\*{2}")]},
+    TokenType.Asterisk: {"patterns": [compile(r"\*")]},
+    TokenType.Divide: {"patterns": [compile("/")]},
+    TokenType.Modulus: {"patterns": [compile("%")]},
+    TokenType.Comma: {"patterns": [compile(",")]},
+    TokenType.GDCologne: {"patterns": [compile(":")]},
+    TokenType.Ellipsis: {"patterns": [compile(r"\.{3}")]},
+    TokenType.Dot: {"patterns": [compile(r"\.")]},
+    TokenType.QuestionMark: {"patterns": [compile(r"\?")]},
+    TokenType.Semicolon: {"patterns": [compile(";")]},
+    TokenType.Andpersand: {"patterns": [compile("&")]},
+    TokenType.VerticalBar: {"patterns": [compile(r"\|")]},
+    TokenType.Caret: {"patterns": [compile(r"\^")]},
+    
     # ^ Primitives and identifiers
-    TokenType.Bool: {"patterns": [compile("true"), compile("false")]},
-    TokenType.Null: {"patterns": [compile("null")], "include_value": False},
+    TokenType.Bool: {"patterns": [compile("true"), compile("false")], "include_value": True},
+    TokenType.Null: {"patterns": [compile("null")]},
     TokenType.Str: {
         "patterns": [
         compile(r"(?:r|f|fr|rf)?([\"'`])((?:[^\\]|\\.)*?)\1"),
         compile(r"(?:r|f|fr|rf)?([\"'`]{3})((?:[^\\]|\\.|\n|\r)*?)\1")
-        ]
+        ],
+        "include_value": True
     },
-    TokenType.Identifier: {"patterns": [compile(r"[\p{L}_][\p{L}_\d]*")]},
-    TokenType.Float: {"patterns": [compile(r"\d*\.\d+(e\d+)?")]},
+    TokenType.Identifier: {"patterns": [compile(r"[\p{L}_][\p{L}_\d]*")], "include_value": True},
+    TokenType.Float: {"patterns": [compile(r"\d*\.\d+(e\d+)?")], "include_value": True},
     TokenType.Int: {
         "patterns": [
             compile(r"\d+"),
             compile(r"0x[\da-fA-F]+"), # Hexadecimals
             compile(r"0o[0-7]+"), # Octals
             compile(r"0b[01]+") # Binary
-        ]
+        ],
+        "include_value": True
     },
 }

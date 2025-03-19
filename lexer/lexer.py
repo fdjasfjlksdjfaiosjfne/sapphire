@@ -1,4 +1,3 @@
-import sys; sys.dont_write_bytecode = True
 from typing import *
 from .tokens import *
 import regex as re
@@ -27,7 +26,7 @@ class Lexer:
                 for token_type, dict_ in regex_patterns.items():
                     for pattern in dict_["patterns"]:
                         if match := pattern.match(cls.src):
-                            cls.snap(match.group(), token_type, dict_.get("include_value", True))
+                            cls.snap(match.group(), token_type, dict_.get("include_value", False))
                             break
                     else:
                         continue
