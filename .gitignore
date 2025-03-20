@@ -2,3 +2,5 @@
 .gitignore
 *.ignore.*
 *.code-workspace
+*/tempCodeRunnerFile.*
+backend/typechecker
