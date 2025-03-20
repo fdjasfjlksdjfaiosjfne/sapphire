@@ -1,5 +1,5 @@
-from typing import *
-from .tokens import *
+from typing import List
+from .tokens import Token, regex_patterns, TokenType
 import regex as re
 
 

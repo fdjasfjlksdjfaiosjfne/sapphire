@@ -1,6 +1,7 @@
 from __future__ import annotations
-from parser.nodes import *
-from enum import *
+from enum import Enum, unique, auto
+from typing import List, Tuple, Set, Callable
+from dataclasses import dataclass
 
 @unique
 class ValueType(Enum):

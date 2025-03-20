@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC
-from typing import *
+from typing import final, List
 from enum import Enum, auto
 from dataclasses import dataclass
 from lexer.lexer import Token

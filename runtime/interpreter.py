@@ -1,23 +1,23 @@
-from runtime.values import *
-from parser.nodes import *
+import runtime.values as V
+from parser.nodes import NodeType, Stmt
 from runtime.env import Environment
 
-def evaluate(node: Stmt, env: Environment) -> RuntimeVal:
+def evaluate(node: Stmt, env: Environment) -> V.RuntimeVal:
     import runtime.eval.exprs as exprs
     import runtime.eval.stmts as stmts
     match node.kind:
         case NodeType.Identifier:
             return exprs.eval_identifier(node, env)
         case NodeType.Int:
-            return IntVal(node.value)
+            return V.IntVal(node.value)
         case NodeType.Float:
-            return FloatVal(node.value)
+            return V.FloatVal(node.value)
         case NodeType.Str:
-            return StrVal(node.value)
+            return V.StrVal(node.value)
         case NodeType.Bool:
-            return BoolVal(node.value)
+            return V.BoolVal(node.value)
         case NodeType.Null:
-            return NullVal()
+            return V.NullVal()
         case NodeType.CodeBlock:
             code_block_env = Environment(env)
             return exprs.eval_code_block(node, code_block_env)

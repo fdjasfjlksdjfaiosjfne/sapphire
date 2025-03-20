@@ -1,20 +1,22 @@
-from parser.nodes import *
-from runtime.values import *
+import parser.nodes as N
+from parser.nodes import NodeType
+import runtime.values as V
 from runtime.env import Environment
 from lexer.tokens import TokenType
 import runtime.eval.binops as binops
-import runtime.eval.conversions as conversions
+import runtime.eval.conversions as converts
+from typing import overload, Literal
 
 @overload
-def eval_code_block(code_block: CodeBlockNode, env: Environment) -> RuntimeVal: ...
+def eval_code_block(code_block: N.CodeBlockNode, env: Environment) -> V.RuntimeVal: ...
 
 @overload
-def eval_code_block(code_block: CodeBlockNode, env: Environment, function: Literal[False] = False) -> RuntimeVal: ...
+def eval_code_block(code_block: N.CodeBlockNode, env: Environment, function: Literal[False] = False) -> V.RuntimeVal: ...
 
 @overload
-def eval_code_block(code_block: CodeBlockNode, env: Environment, function: Literal[True]) -> UnusableVal: ...
+def eval_code_block(code_block: N.CodeBlockNode, env: Environment, function: Literal[True]) -> N.UnusableVal: ...
 
-def eval_code_block(code_block: CodeBlockNode, env: Environment, function: bool = False) -> RuntimeVal:
+def eval_code_block(code_block: N.CodeBlockNode, env: Environment, function: bool = False) -> V.RuntimeVal:
     from runtime.interpreter import evaluate
     for stmt in code_block:
         if stmt == NodeType.Return:
@@ -23,14 +25,14 @@ def eval_code_block(code_block: CodeBlockNode, env: Environment, function: bool 
             raise Exception()
         print("stmt: " + repr(stmt))
         print("parsed: " + repr(evaluate(stmt, env)))
-    return UnusableVal()
+    return V.UnusableVal()
 
-def eval_identifier(ident: IdentifierNode, env: Environment) -> RuntimeVal:
+def eval_identifier(ident: N.IdentifierNode, env: Environment) -> V.RuntimeVal:
     if ident.symbol in env:
         return env[ident.symbol]
     raise Exception()
 
-def eval_binary_expr(binop: BinaryExprNode, env: Environment) -> RuntimeVal:
+def eval_binary_expr(binop: N.BinaryExprNode, env: Environment) -> V.RuntimeVal:
     from runtime.interpreter import evaluate
     lhs, rhs = evaluate(binop.left, env), evaluate(binop.right, env)
     match binop.oper:
@@ -43,7 +45,7 @@ def eval_binary_expr(binop: BinaryExprNode, env: Environment) -> RuntimeVal:
         case TokenType.Spaceship: return binops.eval_spaceship(lhs, rhs, env)
         case _: raise Exception()
 
-def eval_comparison_expr(comp_expr: ComparisonNode, env: Environment) -> RuntimeVal:
+def eval_comparison_expr(comp_expr: N.ComparisonNode, env: Environment) -> V.RuntimeVal:
     from runtime.interpreter import evaluate
     current = evaluate(comp_expr.left, env)
     for i, op in enumerate(comp_expr.operators):
@@ -64,19 +66,19 @@ def eval_comparison_expr(comp_expr: ComparisonNode, env: Environment) -> Runtime
             case _:
                 raise Exception()
         
-        if not conversions.bool(result).value:
-            return BoolVal(False)
+        if not converts.bool(result).value:
+            return V.BoolVal(False)
         else: pass
         
         current = comparator
-    return BoolVal(True)
+    return V.BoolVal(True)
 
-def eval_ternary_expr(expr: TernaryNode, env: Environment) -> RuntimeVal:
+def eval_ternary_expr(expr: N.TernaryNode, env: Environment) -> V.RuntimeVal:
     from runtime.interpreter import evaluate
-    cond = conversions.bool(evaluate(expr.cond, env))
+    cond = converts.bool(evaluate(expr.cond, env))
     if cond.value:
         return evaluate(expr.true, env)
     return evaluate(expr.false, env)
 
-def eval_call_expr(expr, env: Environment) -> RuntimeVal:
+def eval_call_expr(expr, env: Environment) -> V.RuntimeVal:
     raise Exception()

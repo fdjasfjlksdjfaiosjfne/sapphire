@@ -1,52 +1,53 @@
-from parser.nodes import *
-from runtime.values import *
+import parser.nodes as N
+import runtime.values as V
+from runtime.values import ValueType
 from lexer.tokens import TokenType
 
-def bool(value: RuntimeVal) -> BoolVal | NotImplementedVal:
+def bool(value: V.RuntimeVal) -> V.BoolVal | V.NotImplementedVal:
     match value:
         case ValueType.Bool: 
             return value
         case ValueType.Int | ValueType.Float:
-            return BoolVal(False) if value == 0 else BoolVal(True)
+            return V.BoolVal(False) if value == 0 else V.BoolVal(True)
         case ValueType.Str:
-            return BoolVal(False) if value == "" else BoolVal(True)
+            return V.BoolVal(False) if value == "" else V.BoolVal(True)
         case ValueType.Null:
-            return BoolVal(False)
+            return V.BoolVal(False)
         case _:
-            return NotImplementedVal()
+            return V.NotImplementedVal()
 
-def int(value: RuntimeVal) -> IntVal | NotImplementedVal:
+def int(value: V.RuntimeVal) -> V.IntVal | V.NotImplementedVal:
     match value:
         case ValueType.Int:
             return value
         case ValueType.Bool: 
-            return IntVal(0)
+            return V.IntVal(1) if value.value else V.IntVal(0)
         case ValueType.Float:
-            return IntVal(float(value.value))
+            return V.IntVal(int(value.value))
         case ValueType.Str:
             try:
-                return IntVal(int(value.value))
+                return V.IntVal(int(value.value))
             except ValueError: 
                 raise Exception()
         case ValueType.Null:
-            return IntVal(0)
+            return V.IntVal(0)
         case _:
-            return NotImplementedVal()
+            return V.NotImplementedVal()
 
-def float(value: RuntimeVal) -> IntVal | NotImplementedVal:
+def float(value: V.RuntimeVal) -> V.IntVal | V.NotImplementedVal:
     match value:
         case ValueType.Float:
             return value
         case ValueType.Int:
-            return FloatVal(value)
+            return V.FloatVal(float(value))
         case ValueType.Bool: 
-            return FloatVal(.0)
+            return V.FloatVal(1.) if value.value else V.FloatVal(0.)
         case ValueType.Str:
             try:
-                return FloatVal(float(value.value))
+                return V.FloatVal(float(value.value))
             except ValueError:
                 raise Exception()
         case ValueType.Null:
-            return IntVal(0)
+            return V.FloatVal(0)
         case _:
-            return NotImplementedVal()
+            return V.NotImplementedVal()

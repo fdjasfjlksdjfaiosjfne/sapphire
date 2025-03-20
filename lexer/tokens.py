@@ -1,9 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from regex import compile, Pattern
-from enum import *
-from typing import *
-from functools import *
+from enum import Enum, auto, unique
+from typing import Self, TypedDict, Set, Dict, List
 
 @dataclass
 class Token:
