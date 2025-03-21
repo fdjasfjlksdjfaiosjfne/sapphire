@@ -33,7 +33,7 @@ class RuntimeVal:
         return NotImplemented
     
     def __ne__(self, value):
-        if hasattr(self, "value"): 
+        if hasattr(self, "value"):
             return self.value != value
         return NotImplemented
 
@@ -60,14 +60,6 @@ class NullVal(RuntimeVal): pass
 class NativeFnVal(RuntimeVal):
     from runtime.env import Environment
     caller: Callable[[List[RuntimeVal], Environment], RuntimeVal]
-    def __bool__(self):
-        return True
-
-@dataclass(eq = False)
-class UnusableVal(RuntimeVal):
-    """
-    This class is used specifically for things that cannot be used as expressions (stmts, program's code blocks, etc)
-    """
 
 @dataclass(eq = False)
 class NotImplementedVal(RuntimeVal): pass

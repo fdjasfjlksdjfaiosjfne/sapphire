@@ -48,11 +48,12 @@ class Environment:
     def __setitem__(self, key: str, value: V.RuntimeVal) -> None:
         self.variables.setdefault(key, value)
     
-    def __contains__(self, value: str) -> bool:
+    def __contains__(self, ident: str) -> bool:
         """
         :)
         """
-        return value in self.variables
+        
+        return ident in self.resolve(ident).variables
 
 def setup_global_scope():
     env = Environment()

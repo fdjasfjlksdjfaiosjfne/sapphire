@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from regex import compile, Pattern
 from enum import Enum, auto, unique
-from typing import Self, TypedDict, Set, Dict, List
+from typing import Self, TypedDict, Dict, List
 
 @dataclass
 class Token:
@@ -21,12 +21,6 @@ class Token:
         if isinstance(value, TokenType):
             return self.type == value
         return NotImplemented
-    
-    def __matmul__(self: Self, types: Set[TokenType]):
-        """
-        # This is NOT used to matrix multiplication. Please don't get mistaken. Thank you.
-        """
-        return self.type in types
 
 @unique
 class TokenType(Enum):
@@ -52,6 +46,12 @@ class TokenType(Enum):
     And = auto()
     Or = auto()
     Xor = auto()
+    If = auto()
+    Elif = auto()
+    Else = auto()
+    While = auto()
+    Match = auto()
+    Case = auto()
     # ^ Symbols
     Plus = auto()
     Minus = auto()
@@ -85,6 +85,7 @@ class TokenType(Enum):
     AssignOper = auto()
     ModifierAssignOper = auto()
     WalrusOper = auto()
+    Arrow = auto()
     # ^ Primitives
     Bool = auto()
     Null = auto()
@@ -122,6 +123,11 @@ regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
     TokenType.Or: {"patterns": [compile("or")]},
     TokenType.Xor: {"patterns": [compile("xor")]},
     TokenType.Not: {"patterns": [compile("not")]},
+    TokenType.If: {"patterns": [compile("if")]},
+    TokenType.Elif: {"patterns": [compile("elif")]},
+    TokenType.Else: {"patterns": [compile("else")]},
+    TokenType.Match: {"patterns": [compile("match")]},
+    TokenType.Case: {"patterns": [compile("case")]},
     # ^ Symbols
     
     # match a {
@@ -158,6 +164,7 @@ regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
     
     TokenType.WalrusOper: {"patterns": [compile(":=")]},
     TokenType.At: {"patterns": [compile("@")]},
+    TokenType.Arrow: {"patterns": [compile("->")]},
     TokenType.Plus: {"patterns": [compile(r"\+")]},
     TokenType.Minus: {"patterns": [compile("-")]},
     TokenType.Exponentiation: {"patterns": [compile(r"\*{2}")]},

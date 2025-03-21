@@ -1,11 +1,11 @@
 from __future__ import annotations
 from abc import ABC
-from typing import final, List
+from typing import final, List, Optional
 from enum import Enum, auto
 from dataclasses import dataclass
 from lexer.lexer import Token
 
-class NodeType(Enum):
+class NT(Enum):
     Program = auto()
     Return = auto()
     Assignment = auto()
@@ -20,21 +20,25 @@ class NodeType(Enum):
     CodeBlock = auto()
     Ternary = auto()
     Comparison = auto()
+    WhileLoop = auto()
+    ForLoop = auto()
+    MatchCase = auto()
+    Conditional = auto()
 
 class Stmt(ABC):
-    kind: NodeType
+    kind: NT
     @final
     def __init_subclass__(cls):
         if cls.__name__ != "Expr":
-            setattr(cls, "kind", getattr(NodeType, cls.__name__.removesuffix("Node")))
+            setattr(cls, "kind", getattr(NT, cls.__name__.removesuffix("Node")))
     @final
-    def __ne__(self, value: NodeType) -> bool:
-        if isinstance(value, NodeType):
+    def __ne__(self, value: NT) -> bool:
+        if isinstance(value, NT):
             return self.kind != value
         return NotImplemented
     @final
-    def __eq__(self, value: NodeType) -> bool:
-        if isinstance(value, NodeType):
+    def __eq__(self, value: NT) -> bool:
+        if isinstance(value, NT):
             return self.kind == value
         return NotImplemented
 
@@ -55,6 +59,19 @@ class AssignmentNode(Stmt):
 @dataclass(eq = False)
 class ReturnNode(Stmt):
     value: Expr
+
+# x = if x == 2 { return 420 } else { return 69 }
+@dataclass(eq = False)
+class ConditionalNode(Expr):
+    condition: Expr
+    code_block: CodeBlockNode
+    otherwise: Optional[ConditionalNode | CodeBlockNode] = None
+
+@dataclass(eq = False)
+class MatchCaseNode(Expr):
+    # This is way too complicated for now
+    # TODO
+    pass
 
 @dataclass(eq = False)
 class TernaryNode(Expr):
@@ -103,7 +120,8 @@ class IdentifierNode(Expr):
 
 @dataclass(eq = False)
 class CodeBlockNode(Expr):
-    body: List[Stmt]
+    def __init__(self):
+        self.body: List[Stmt] = []
     def append(self, object: Stmt, /):
         # Scrolling to find every subclass of Stmt and beyond
         t = type(object)

@@ -4,9 +4,6 @@ import regex as re
 
 
 class Lexer:
-    # @enforce_types
-    
-    # @enforce_types
     @classmethod
     def tokenize(cls, src: str) -> List[Token]:
         cls.src = src

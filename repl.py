@@ -2,9 +2,9 @@
 
 import sys; sys.dont_write_bytecode = True
 from lexer.lexer import Lexer
-from parser.parser import *
+from parser.parser import Parser
 from runtime.interpreter import evaluate
-from runtime.env import *
+from runtime.env import setup_global_scope
 
 while True:
     global_env = setup_global_scope()

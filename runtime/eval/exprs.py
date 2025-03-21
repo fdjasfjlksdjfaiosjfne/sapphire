@@ -1,39 +1,28 @@
 import parser.nodes as N
-from parser.nodes import NodeType
+from parser.nodes import NT
 import runtime.values as V
+from runtime.values import RuntimeVal, ValueType as VT
 from runtime.env import Environment
 from lexer.tokens import TokenType
 import runtime.eval.binops as binops
-import runtime.eval.conversions as converts
-from typing import overload, Literal
+import runtime.eval.conversions as convert
+from runtime.interpreter import evaluate
+from typing import Union
 
-@overload
-def eval_code_block(code_block: N.CodeBlockNode, env: Environment) -> V.RuntimeVal: ...
-
-@overload
-def eval_code_block(code_block: N.CodeBlockNode, env: Environment, function: Literal[False] = False) -> V.RuntimeVal: ...
-
-@overload
-def eval_code_block(code_block: N.CodeBlockNode, env: Environment, function: Literal[True]) -> N.UnusableVal: ...
-
-def eval_code_block(code_block: N.CodeBlockNode, env: Environment, function: bool = False) -> V.RuntimeVal:
-    from runtime.interpreter import evaluate
+def eval_code_block(code_block: N.CodeBlockNode, env: Environment) -> RuntimeVal:
     for stmt in code_block:
-        if stmt == NodeType.Return:
-            if function:
-                return stmt.value
-            raise Exception()
+        e = evaluate(stmt, env)
         print("stmt: " + repr(stmt))
-        print("parsed: " + repr(evaluate(stmt, env)))
-    return V.UnusableVal()
+        print("parsed: " + repr(e))
+    return None
 
-def eval_identifier(ident: N.IdentifierNode, env: Environment) -> V.RuntimeVal:
+def eval_identifier(ident: N.IdentifierNode, env: Environment) -> RuntimeVal:
     if ident.symbol in env:
         return env[ident.symbol]
-    raise Exception()
+    
 
-def eval_binary_expr(binop: N.BinaryExprNode, env: Environment) -> V.RuntimeVal:
-    from runtime.interpreter import evaluate
+def eval_binary_expr(binop: N.BinaryExprNode, env: Environment) -> RuntimeVal:
+    
     lhs, rhs = evaluate(binop.left, env), evaluate(binop.right, env)
     match binop.oper:
         case TokenType.Plus: return binops.eval_add(lhs, rhs, env)
@@ -45,8 +34,8 @@ def eval_binary_expr(binop: N.BinaryExprNode, env: Environment) -> V.RuntimeVal:
         case TokenType.Spaceship: return binops.eval_spaceship(lhs, rhs, env)
         case _: raise Exception()
 
-def eval_comparison_expr(comp_expr: N.ComparisonNode, env: Environment) -> V.RuntimeVal:
-    from runtime.interpreter import evaluate
+def eval_comparison_expr(comp_expr: N.ComparisonNode, env: Environment) -> RuntimeVal:
+    
     current = evaluate(comp_expr.left, env)
     for i, op in enumerate(comp_expr.operators):
         comparator = evaluate(comp_expr.exprs[i], env)
@@ -66,19 +55,31 @@ def eval_comparison_expr(comp_expr: N.ComparisonNode, env: Environment) -> V.Run
             case _:
                 raise Exception()
         
-        if not converts.bool(result).value:
+        if not convert.bool(result).value:
             return V.BoolVal(False)
         else: pass
         
         current = comparator
     return V.BoolVal(True)
 
-def eval_ternary_expr(expr: N.TernaryNode, env: Environment) -> V.RuntimeVal:
-    from runtime.interpreter import evaluate
-    cond = converts.bool(evaluate(expr.cond, env))
+def eval_ternary_expr(expr: N.TernaryNode, env: Environment) -> RuntimeVal:
+    cond = convert.bool(evaluate(expr.cond, env))
     if cond.value:
         return evaluate(expr.true, env)
     return evaluate(expr.false, env)
 
-def eval_call_expr(expr, env: Environment) -> V.RuntimeVal:
+def eval_call_expr(expr, env: Environment) -> RuntimeVal:
     raise Exception()
+
+def eval_conditional(node: N.ConditionalNode, env: Environment) -> RuntimeVal:
+    cond = convert.bool(evaluate(node.condition, env))
+    if cond != VT.NotImplemented and cond == True:
+        print("TRUE")
+        eval_code_block(node.code_block, env)
+    elif cond == VT.NotImplemented:
+        raise Exception()
+    else:
+        print("FALSE")
+        if node.otherwise == NT.CodeBlock:
+            eval_code_block(node.otherwise, env)
+        eval_conditional(node.otherwise)
