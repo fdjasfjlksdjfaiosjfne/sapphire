@@ -1,6 +1,14 @@
 from __future__ import annotations
 from enum import Enum, unique, auto
-from typing import List, Tuple, Set, Callable
+from typing import (
+    List, 
+    Tuple, 
+    Set, 
+    Callable, 
+    Generic, 
+    TypeVar, 
+    Union
+)
 from dataclasses import dataclass
 
 @unique
@@ -14,7 +22,6 @@ class ValueType(Enum):
     Null = auto()
     NativeFn = auto()
     Fn = auto()
-    NotImplemented = auto()
     
     def __matmul__(self, runtime_vals: List[RuntimeVal]|Tuple[RuntimeVal]|Set[RuntimeVal]):
         return all([val == self for val in runtime_vals])
@@ -38,28 +45,33 @@ class RuntimeVal:
         return NotImplemented
 
 @dataclass(eq = False)
-class IntVal(RuntimeVal):
+class Int(RuntimeVal):
     value: int
 
 @dataclass(eq = False)
-class FloatVal(RuntimeVal):
+class Float(RuntimeVal):
     value: float
 
 @dataclass(eq = False)
-class StrVal(RuntimeVal):
+class Str(RuntimeVal):
     value: str
 
 @dataclass(eq = False)
-class BoolVal(RuntimeVal):
+class Bool(RuntimeVal):
     value: bool
 
 @dataclass(eq = False)
-class NullVal(RuntimeVal): pass
-
+class Null(RuntimeVal):
+    def __init__(self): 
+        self.value = None
 @dataclass(eq = False)
-class NativeFnVal(RuntimeVal):
-    from runtime.env import Environment
-    caller: Callable[[List[RuntimeVal], Environment], RuntimeVal]
+class NativeFn(RuntimeVal):
+    def __init__(self, caller):
+        from runtime.nativefns import BuiltInFunction
+        self.caller: BuiltInFunction
 
-@dataclass(eq = False)
-class NotImplementedVal(RuntimeVal): pass
+T = TypeVar("T")
+
+class Maybe(Generic[T]):
+    def __class_getitem__(cls, hint: T) -> Union[T, RuntimeVal]:
+        return Union[hint, RuntimeVal]

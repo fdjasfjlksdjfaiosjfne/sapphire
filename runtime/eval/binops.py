@@ -1,116 +1,193 @@
-import parser.nodes as N
-import runtime.values as V
-from runtime.values import ValueType
-from runtime.env import Environment
+"""
+This file consists of functions that process unary and binary operations, mainly using raw runtime values.
+"""
+import runtime.values as Value
+from runtime.eval.conversions import bool
+from runtime.values import ValueType, RuntimeVal
 
-def eval_add(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_add(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the addition operator (`+`).
+    """
     # num + num
     if ValueType.Number @ [lhs, rhs]:
         result = lhs.value + rhs.value
         if isinstance(result, float): 
-            return V.FloatVal(result)
-        return V.IntVal(result)
+            return Value.Float(result)
+        return Value.Int(result)
 
 
-def eval_sub(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_sub(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the subtraction operator (`-`).
+    """
     # num - num
     if ValueType.Number @ [lhs, rhs]:
         result = lhs.value - rhs.value
         if isinstance(result, float): 
-            return V.FloatVal(result)
-        return V.IntVal(result)
+            return Value.Float(result)
+        return Value.Int(result)
 
-def eval_mul(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_mul(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the multiplication operator (`*`).
+    """
     # num * num
     if ValueType.Number @ [lhs, rhs]:
         result = lhs.value * rhs.value
         if isinstance(result, float): 
-            return V.FloatVal(result)
-        return V.IntVal(result)
+            return Value.Float(result)
+        return Value.Int(result)
 
-def eval_div(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_true_div(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the floating-point, otherwise known as the true division operator (`/`).
+    """
     # num / num
     if ValueType.Number @ [lhs, rhs]:
         result = lhs.value / rhs.value
-        if isinstance(result, float): 
-            return V.FloatVal(result)
-        return V.IntVal(result)
+        return Value.Float(result)
 
-def eval_mod(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_floor_div(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the integer, or float division operator (`//`).
+    """
+    # num // num
+    if ValueType.Number @ [lhs, rhs]:
+        result = lhs.value // rhs.value
+        return Value.Float(result)
+
+def eval_mod(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the modulus operator (`%`).
+    """
     # num % num
     if ValueType.Number @ [lhs, rhs]:
         result = lhs.value % rhs.value
         if isinstance(result, float): 
-            return V.FloatVal(result)
-        return V.IntVal(result)
+            return Value.Float(result)
+        return Value.Int(result)
 
-def eval_exp(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_pow(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the exponentiation operator (`**`).
+    """
     # num ** num
     if ValueType.Number @ [lhs, rhs]:
         result = lhs.value ** rhs.value
         if isinstance(result, float):
-            return V.FloatVal(result)
-        return V.IntVal(result)
+            return Value.Float(result)
+        return Value.Int(result)
 
-def eval_lt(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_lt(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the less operator (`<`).
+    """
     # num < num
     if ValueType.Number @ [lhs, rhs]:
         result = lhs.value < rhs.value
         
         if result:
-            return V.BoolVal(True)
-        return V.BoolVal(False)
+            return Value.Bool(True)
+        return Value.Bool(False)
 
-def eval_gt(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_gt(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the greater operator (`>`).
+    """
     # num > num
     if ValueType.Number @ [lhs, rhs]:
         result = lhs.value > rhs.value
         
         if result:
-            return V.BoolVal(True)
-        return V.BoolVal(False)
+            return Value.Bool(True)
+        return Value.Bool(False)
 
-def eval_le(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_le(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the less-or-equal operator (`<=`).
+    """
     # num <= num
     if ValueType.Number @ [lhs, rhs]:
         result = lhs.value <= rhs.value
         
         if result:
-            return V.BoolVal(True)
-        return V.BoolVal(False)
+            return Value.Bool(True)
+        return Value.Bool(False)
 
-def eval_ge(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_ge(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the greater-or-equal operator (`>=`).
+    """
     # num >= num
     if ValueType.Number @ [lhs, rhs]:
         result = lhs.value >= rhs.value
         
         if result:
-            return V.BoolVal(True)
-        return V.BoolVal(False)
+            return Value.Bool(True)
+        return Value.Bool(False)
 
-def eval_eq(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_eq(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the equality operator (`==`).
+    """
     # num == num
     if ValueType.Number @ [lhs, rhs]:
         result = lhs.value == rhs.value
         
         if result:
-            return V.BoolVal(True)
-        return V.BoolVal(False)
+            return Value.Bool(True)
+        return Value.Bool(False)
 
-def eval_ne(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_ne(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the inequality operator (`!=`).
+    """
     # num != num
     if ValueType.Number @ [lhs, rhs]:
         result = lhs.value != rhs.value
         
         if result:
-            return V.BoolVal(True)
-        return V.BoolVal(False)
+            return Value.Bool(True)
+        return Value.Bool(False)
 
-def eval_spaceship(lhs: V.RuntimeVal, rhs: V.RuntimeVal, env: Environment) -> V.RuntimeVal:
+def eval_spaceship(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the spaceship operator (`<=>`).
+    """
     # num <=> num
     if ValueType.Number @ [lhs, rhs]:
         if lhs.value < rhs.value:
-            return V.IntVal(-1)
+            return Value.Int(-1)
         if lhs.value == rhs.value:
-            return V.IntVal(0)
-        return V.IntVal(1)
+            return Value.Int(0)
+        return Value.Int(1)
+
+def eval_concat(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the string concatenation operator (`..`).
+    """
+    # str .. str
+    if ValueType.Str @ [lhs, rhs]:
+        return Value.Str(lhs.value + rhs.value)
+
+def eval_matmul(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the matrix multiplication operator (`@`).
+    """
+
+def eval_coalescing(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the null coalescing operator (`??`).
+    """
+    if lhs == ValueType.Null:
+        return rhs
+    return lhs
+
+def eval_elvis(lhs: RuntimeVal, rhs: RuntimeVal) -> RuntimeVal:
+    """
+    Processes operations using the Elvis operator (`?:`).
+    """
+    if bool(lhs).value:
+        return lhs
+    return rhs

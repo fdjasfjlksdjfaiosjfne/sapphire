@@ -56,7 +56,8 @@ class TokenType(Enum):
     Plus = auto()
     Minus = auto()
     Asterisk = auto()
-    Divide = auto()
+    TrueDivision = auto()
+    FloorDivision = auto()
     Modulus = auto()
     Exponentiation = auto()
     At = auto()
@@ -85,6 +86,7 @@ class TokenType(Enum):
     AssignOper = auto()
     ModifierAssignOper = auto()
     WalrusOper = auto()
+    Concanentation = auto()
     Arrow = auto()
     # ^ Primitives
     Bool = auto()
@@ -109,8 +111,8 @@ regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
         "patterns": [
             compile(r"\t+"),
             compile(r" +"),
-            compile("//.*"),
-            compile(r"/\*[.\s]*(\*/)?")
+            compile("#.*"),
+            compile(r"/\*[.\r\n]*(\*/)?")
         ],
         "include_value": False 
     },
@@ -152,7 +154,6 @@ regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
     
     TokenType.ModifierAssignOper: {
         "patterns": [
-            compile("c="),
             compile(r"\+="),
             compile("-="),
             compile(r"\*="),
@@ -169,11 +170,13 @@ regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
     TokenType.Minus: {"patterns": [compile("-")]},
     TokenType.Exponentiation: {"patterns": [compile(r"\*{2}")]},
     TokenType.Asterisk: {"patterns": [compile(r"\*")]},
-    TokenType.Divide: {"patterns": [compile("/")]},
+    TokenType.FloorDivision: {"patterns": [compile("/{2}")]},
+    TokenType.TrueDivision: {"patterns": [compile("/")]},
     TokenType.Modulus: {"patterns": [compile("%")]},
     TokenType.Comma: {"patterns": [compile(",")]},
     TokenType.GDCologne: {"patterns": [compile(":")]},
     TokenType.Ellipsis: {"patterns": [compile(r"\.{3}")]},
+    TokenType.Concanentation: {"patterns": [compile(r"\.{2}")]},
     TokenType.Dot: {"patterns": [compile(r"\.")]},
     TokenType.QuestionMark: {"patterns": [compile(r"\?")]},
     TokenType.Semicolon: {"patterns": [compile(";")]},

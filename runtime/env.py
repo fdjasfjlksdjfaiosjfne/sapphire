@@ -1,51 +1,45 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import TypedDict, Optional, overload, Dict, Literal, NoReturn
-import runtime.values as V
+import runtime.values as Value
 
 class __(TypedDict):
-    value: V.RuntimeVal
+    value: Value.RuntimeVal
     constant: bool
 
 @dataclass
-class Environment:
-    def __init__(self, parent: Optional[Environment] = None):
+class Env:
+    def __init__(self, parent: Optional[Env] = None):
         self.parent = parent
         self.variables: Dict[str, __] = {}
 
-    def declare(self, name: str, value: V.RuntimeVal, const: bool = False) -> None:
+    def declare(self, name: str, value: Value.RuntimeVal | None = None, const: bool = False) -> None:
         if name in self.variables:
+            raise Exception()
+        if const and value is None:
             raise Exception()
         self.variables.setdefault(name, {"value": value, "constant": const})
     
-    @overload
-    def assign(self, name: str, value: V.RuntimeVal, const: bool = False) -> None: ...
-    
-    @overload
-    def assign(self, name: str, value: V.RuntimeVal, const: bool = False, walrus: Literal[True] = True) -> V.RuntimeVal: ...
-    
-    def assign(self, name: str, value: V.RuntimeVal, const: bool = False, walrus: bool = False) -> None | V.RuntimeVal:
-        env = self.resolve(name)
-        if name in env and env.variables[name]["constant"]:
+    def assign(self, name: str, value: Value.RuntimeVal) -> Value.RuntimeVal:
+        if name in self and self.variables[name]["constant"]:
             raise Exception()
-        env.variables.setdefault(name, {"value": value, "constant": const})
-        return value if walrus else None
+        self.variables.setdefault(name, {"value": value, "constant": False})
     
-    def get(self, name: str) -> V.RuntimeVal:
+    def get(self, name: str) -> Value.RuntimeVal:
         env = self.resolve(name)
         return env
     
-    def resolve(self, name: str) -> Environment | NoReturn:
+    def resolve(self, name: str) -> Env | NoReturn:
         if name in self.variables:
             return self
         if self.parent == None:
             raise Exception()
         return self.parent.resolve(name)
     
-    def __getitem__(self, key: str) -> V.RuntimeVal:
+    def __getitem__(self, key: str) -> Value.RuntimeVal:
         return self.variables[key]
     
-    def __setitem__(self, key: str, value: V.RuntimeVal) -> None:
+    def __setitem__(self, key: str, value: Value.RuntimeVal) -> None:
         self.variables.setdefault(key, value)
     
     def __contains__(self, ident: str) -> bool:
@@ -56,6 +50,6 @@ class Environment:
         return ident in self.resolve(ident).variables
 
 def setup_global_scope():
-    env = Environment()
-    
+    env = Env()
+    env.assign("print", Value.NativeFn())
     return env

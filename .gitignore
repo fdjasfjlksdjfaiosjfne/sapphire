@@ -2,4 +2,5 @@
 .gitignore
 *.ignore.*
 *.code-workspace
-*/tempCodeRunnerFile.*
+tempCodeRunnerFile.*
+samples/*
