@@ -1,77 +1,81 @@
 from __future__ import annotations
-from enum import Enum, unique, auto
-from typing import (
-    List, 
-    Tuple, 
-    Set, 
-    Callable, 
-    Generic, 
-    TypeVar, 
-    Union
-)
-from dataclasses import dataclass
-
-@unique
-class ValueType(Enum):
-    Unusable = auto()
-    Int = auto()
-    Float = auto()
-    Number = auto() # Only used for comparisons
-    Str = auto()
-    Bool = auto()
-    Null = auto()
-    NativeFn = auto()
-    Fn = auto()
-    
-    def __matmul__(self, runtime_vals: List[RuntimeVal]|Tuple[RuntimeVal]|Set[RuntimeVal]):
-        return all([val == self for val in runtime_vals])
+import typing
+from runtime.env import Env
 
 class RuntimeVal:
-    kind: ValueType
     def __init_subclass__(cls):
-        setattr(cls, "kind", getattr(ValueType, cls.__name__.removesuffix("Val")))
+        def __init__(self, *args, **kwargs):
+            occupied = []
+            for name, arg in zip(cls.__annotations__.keys(), args):
+                occupied.append(name)
+                setattr(self, name, arg)
+            
+            for k, v in kwargs.items():
+                if k in occupied:
+                    raise ValueError("...")
+                setattr(self, k, v)
+        
+        if not hasattr(cls, "__init__"):
+            cls.__init__ = __init__
 
-    def __eq__(self, comparing_kind):
-        if isinstance(comparing_kind, ValueType):
-            e = self.kind in {ValueType.Int, ValueType.Float} if comparing_kind == ValueType.Number else self.kind == comparing_kind
-            return e
+    def __eq__(self, other):
         if hasattr(self, "value"): 
-            return self.value == comparing_kind
+            return self.value == other
         return NotImplemented
     
-    def __ne__(self, value):
+    def __ne__(self, other):
         if hasattr(self, "value"):
-            return self.value != value
+            return self.value != other
         return NotImplemented
 
-@dataclass(eq = False)
-class Int(RuntimeVal):
-    value: int
+class Number(RuntimeVal): # Add this base class for numbers
+    def __instancecheck__(self, instance: typing.Any) -> bool:
+        return isinstance(instance, (Int, Float)) # 👍
+    def __repr__(self):
+        return str(self.value)
 
-@dataclass(eq = False)
-class Float(RuntimeVal):
-    value: float
+class Int(Number):
+    def __init__(self, value: int):
+        self.value = value
 
-@dataclass(eq = False)
+class Float(Number):
+    def __init__(self, value: float):
+        self.value = value
+
 class Str(RuntimeVal):
-    value: str
+    def __init__(self, value: str):
+        self.value = value
+    def __repr__(self):
+        return self.value
 
-@dataclass(eq = False)
+
 class Bool(RuntimeVal):
-    value: bool
+    def __init__(self, value: bool):
+        self.value = value
+    def __repr__(self):
+        return str(self.value).lower()
 
-@dataclass(eq = False)
+
 class Null(RuntimeVal):
-    def __init__(self): 
+    def __init__(self):
         self.value = None
-@dataclass(eq = False)
+    def __repr__(self):
+        return "null"
+
+
+class NotImplemented(RuntimeVal):
+    def __repr__(self):
+        return "NotImplemented"
+
+
 class NativeFn(RuntimeVal):
-    def __init__(self, caller):
-        from runtime.nativefns import BuiltInFunction
-        self.caller: BuiltInFunction
+    pass
 
-T = TypeVar("T")
-
-class Maybe(Generic[T]):
-    def __class_getitem__(cls, hint: T) -> Union[T, RuntimeVal]:
-        return Union[hint, RuntimeVal]
+RuntimeVals = typing.Union [
+    Int,
+    Float,
+    Str,
+    Bool,
+    Null,
+    NativeFn
+]

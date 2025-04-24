@@ -2,7 +2,7 @@
 This file consists of functions that process unary and binary operations, mainly using raw runtime values.
 """
 import runtime.values as Value
-from runtime.values import ValueType, RuntimeVal
+from runtime.values import RuntimeVal, Number
 from runtime.env import Env
 
 def eval_add(ident: str, rhs: RuntimeVal, env: Env) -> None:
@@ -11,7 +11,7 @@ def eval_add(ident: str, rhs: RuntimeVal, env: Env) -> None:
     """
     val = env.get(ident)
     # num + num
-    if ValueType.Number @ [val, rhs]:
+    if isinstance(val, Number) and isinstance(rhs, Number):
         result = val.value + rhs.value
         if isinstance(result, float): 
             env.assign(ident, result)
@@ -24,7 +24,7 @@ def eval_sub(ident: str, rhs: RuntimeVal, env: Env) -> None:
     """
     val = env.get(ident)
     # num - num
-    if ValueType.Number @ [val, rhs]:
+    if isinstance(val, Number) and isinstance(rhs, Number):
         result = val.value - rhs.value
         if isinstance(result, float): 
             env.assign(ident, result)
@@ -36,7 +36,7 @@ def eval_mul(ident: str, rhs: RuntimeVal, env: Env) -> None:
     """
     val = env.get(ident)
     # num * num
-    if ValueType.Number @ [val, rhs]:
+    if isinstance(val, Number) and isinstance(rhs, Number):
         result = val.value * rhs.value
         if isinstance(result, float): 
             env.assign(ident, result)
@@ -48,7 +48,7 @@ def eval_true_div(ident: str, rhs: RuntimeVal, env: Env) -> None:
     """
     val = env.get(ident)
     # num / num
-    if ValueType.Number @ [val, rhs]:
+    if isinstance(val, Number) and isinstance(rhs, Number):
         result = val.value / rhs.value
         env.assign(ident, result)
 
@@ -58,7 +58,7 @@ def eval_floor_div(ident: str, rhs: RuntimeVal, env: Env) -> None:
     """
     val = env.get(ident)
     # num // num
-    if ValueType.Number @ [val, rhs]:
+    if isinstance(val, Number) and isinstance(rhs, Number):
         result = val.value // rhs.value
         env.assign(ident, result)
 
@@ -68,7 +68,7 @@ def eval_mod(ident: str, rhs: RuntimeVal, env: Env) -> None:
     """
     val = env.get(ident)
     # num % num
-    if ValueType.Number @ [val, rhs]:
+    if isinstance(val, Number) and isinstance(rhs, Number):
         result = val.value % rhs.value
         if isinstance(result, float): 
             env.assign(ident, result)
@@ -80,7 +80,7 @@ def eval_pow(ident: str, rhs: RuntimeVal, env: Env) -> None:
     """
     val = env.get(ident)
     # num ** num
-    if ValueType.Number @ [val, rhs]:
+    if isinstance(val, Number) and isinstance(rhs, Number):
         result = val.value ** rhs.value
         if isinstance(result, float):
             env.assign(ident, result)
@@ -92,7 +92,7 @@ def eval_concat(ident: str, rhs: RuntimeVal, env: Env) -> None:
     """
     val = env.get(ident)
     # str .. str
-    if ValueType.Str @ [val, rhs]:
+    if isinstance(val, Value.Str) and isinstance(rhs, Value.Str):
         return Value.Str(val.value + rhs.value)
 
 def eval_matmul(ident: str, rhs: RuntimeVal, env: Env) -> None:
@@ -105,5 +105,5 @@ def eval_coalescing(ident: str, rhs: RuntimeVal, env: Env) -> None:
     Processes operations using the null coalescing in-place operator (`??=`).
     """
     val = env.get(ident)
-    if val == ValueType.Null:
+    if isinstance(val, Value.Null):
         env.assign(ident, rhs.value)

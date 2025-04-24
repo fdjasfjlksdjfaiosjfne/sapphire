@@ -1,9 +1,8 @@
-from typing import List, Set, Literal, Union, overload, NoReturn, Dict
+import typing
 from lexer.lexer import Token
 from lexer.tokens import TokenType as TokenType
 from enum import Enum
-import parser.nodes as Node
-from parser.nodes import NodeType
+import parser.nodes as Nodes
 
 class Matches(Enum):
     def __rmatmul__(self, value):
@@ -33,32 +32,19 @@ class Matches(Enum):
     PrimaryExprs = {TokenType.Int, TokenType.Float, TokenType.Str, TokenType.Bool, TokenType.Null, TokenType.Identifier, TokenType.OpenParenthesis}
 
 class Parser:
-    def __new__(self) -> NoReturn:
+    def __new__(cls) -> typing.NoReturn:
         raise Exception("This class is not supposed to be inherited.")
     
-    tokens: List[Token]
-    class Hints(Enum): 
-        ParsePrimaryExprExclusion = Set [
-            Literal [
-                TokenType.Identifier,
-                TokenType.Int,
-                TokenType.Float,
-                TokenType.Str,
-                TokenType.Bool,
-                TokenType.Null,
-                TokenType.OpenParenthesis
-            ]
-        ]
-        
-        ConditionalClause = Literal[TokenType.If, TokenType.Elif, TokenType.Else]
+    tokens: typing.List[Token]
     
     @classmethod
-    def produce_ast(cls, tokens: List[Token]) -> Node.Program:
+    def produce_ast(cls, tokens: typing.List[Token]) -> Nodes.Program:
         cls.tokens = tokens
-        program = Node.Program()
+        program = Nodes.Program()
         while cls.at() != TokenType.EoF:
             program.body.append(cls.parse_stmt_and_keywords())
-            cls.eat(Matches.StatementTerminator)
+            if cls.at() != TokenType.EoF:
+                cls.eat(Matches.StatementTerminator)
         del cls.tokens
         return program
 
@@ -67,7 +53,7 @@ class Parser:
         return cls.tokens[0]
     
     @classmethod
-    def eat(cls, type: TokenType | Set[TokenType] | Matches | None = None) -> Token:
+    def eat(cls, type: TokenType | typing.Set[TokenType] | Matches | None = None) -> Token:
         tkn = cls.tokens.pop(0)
         if type is not None:
             if not isinstance(type, (set, Matches)): 
@@ -83,7 +69,7 @@ class Parser:
             cls.eat()
 
     @classmethod
-    def parse_stmt_and_keywords(cls) -> Node.AllStmtsTypeHint:
+    def parse_stmt_and_keywords(cls) -> Nodes.AllStmtsTypeHint:
         match cls.at():
             case TokenType.Let | TokenType.Const:
                 return cls.parse_var_declaration()
@@ -95,7 +81,7 @@ class Parser:
                 return cls.parse_assignment_stmt()
     
     @classmethod
-    def parse_var_declaration(cls) -> Node.VarDeclaration:
+    def parse_var_declaration(cls) -> Nodes.VarDeclaration:
         constant = cls.eat() == TokenType.Const
         name = cls.eat(TokenType.Identifier).value
         if cls.at() == TokenType.AssignOper:
@@ -103,21 +89,23 @@ class Parser:
             value = cls.parse_expr()
         else:
             value = None
-        return Node.VarDeclaration(name, value, constant)
-    
-    @overload
-    def parse_conditional(cls, clause: Literal[TokenType.If, TokenType.Elif]) -> Node.Conditional: ...
-    
-    @overload
-    def parse_conditional(cls, clause: Literal[TokenType.Else]) -> Node.CodeBlock: ...
+        return Nodes.VarDeclaration(name, value, constant) # type: ignore
     
     @classmethod
-    def parse_conditional(cls, clause: Hints.ConditionalClause) -> Node.Conditional | Node.CodeBlock:
+    @typing.overload
+    def parse_conditional(cls, clause: typing.Literal[TokenType.If, TokenType.Elif]) -> Nodes.Conditional: ...
+    
+    @classmethod
+    @typing.overload
+    def parse_conditional(cls, clause: typing.Literal[TokenType.Else]) -> Nodes.CodeBlock: ...
+    
+    @classmethod
+    def parse_conditional(cls, clause: typing.Literal[TokenType.If, TokenType.Elif, TokenType.Else]) -> Nodes.Conditional | Nodes.CodeBlock:
         cls.eat(clause)
         if clause != TokenType.Else:
             cond = cls.parse_expr()
         cls.eat(TokenType.OpenCurlyBrace)
-        code = Node.CodeBlock()
+        code = Nodes.CodeBlock()
         while cls.at() != TokenType.CloseCurlyBrace:
             code.append(cls.parse_stmt_and_keywords())
             cls.eat(Matches.StatementTerminator)
@@ -128,11 +116,11 @@ class Parser:
             return code
 
         if cls @ Matches.ConditionalContinuation:
-            return Node.Conditional(cond, code, cls.parse_conditional(cls.at().type))
-        return Node.Conditional(cond, code)
+            return Nodes.Conditional(cond, code, cls.parse_conditional(cls.at().type))
+        return Nodes.Conditional(cond, code)
     
     @classmethod
-    def parse_assignment_stmt(cls) -> Node.AllExprTypeHint | Node.Assignment:
+    def parse_assignment_stmt(cls) -> Nodes.AllExprTypeHint | Nodes.Assignment:
         lhs = cls.parse_expr()
         match cls.at():
             case TokenType.AssignOper:
@@ -140,20 +128,20 @@ class Parser:
                 while cls.at() == TokenType.AssignOper:
                     cls.eat()
                     exprs.append(cls.parse_expr())
-                return Node.Assignment(exprs)
+                return Nodes.Assignment(exprs)
             case TokenType.ModifierAssignOper:
-                return Node.ModifierAssignment(lhs, cls.eat().value, cls.parse_expr())
+                return Nodes.ModifierAssignment(lhs, cls.eat().value, cls.parse_expr())
         return lhs
     
     @classmethod
-    def parse_expr(cls) -> Node.Expr:
+    def parse_expr(cls) -> Nodes.Expr:
         return cls.parse_assignment_expr()
     
     @classmethod
-    def parse_assignment_expr(cls) -> Node.AllExprTypeHint:
+    def parse_assignment_expr(cls) -> Nodes.AllExprTypeHint:
         lhs = cls.parse_collections_expr()
         if cls.at() == TokenType.WalrusOper:
-            return Node.WalrusExpr(lhs, cls.eat().value, cls.parse_collections_expr())
+            return Nodes.WalrusExpr(lhs, cls.eat().value, cls.parse_collections_expr())
         return lhs
     
     @classmethod
@@ -169,76 +157,76 @@ class Parser:
                 return cls.parse_ternary_expr()
     
     @classmethod
-    def parse_ternary_expr(cls) -> Node.AllExprTypeHint:
+    def parse_ternary_expr(cls) -> Nodes.AllExprTypeHint:
         cond = cls.parse_logical_expr()
         if cls.at() == TokenType.QuestionMark:
             cls.eat()
             true_expr = cls.parse_expr()
             if cls.at() == TokenType.GDCologne:
                 cls.eat()
-                return Node.Ternary(cond, true_expr, cls.parse_expr())
-            return Node.Ternary(cond, true_expr, Node.Null())
+                return Nodes.Ternary(cond, true_expr, cls.parse_expr())
+            return Nodes.Ternary(cond, true_expr, Nodes.Null())
         return cond
     
     @classmethod
-    def parse_logical_expr(cls) -> Node.AllExprTypeHint:
+    def parse_logical_expr(cls) -> Nodes.AllExprTypeHint:
         lhs = cls.parse_condition_expr()
         if cls @ Matches.Xor:
-            return Node.Binary(lhs, TokenType.Xor, cls.parse_logical_expr())
+            return Nodes.Binary(lhs, TokenType.Xor, cls.parse_logical_expr())
         if cls @ Matches.Or:
-            return Node.Binary(lhs, TokenType.Or, cls.parse_logical_expr())
+            return Nodes.Binary(lhs, TokenType.Or, cls.parse_logical_expr())
         if cls @ Matches.And:
-            return Node.Binary(lhs, TokenType.And, cls.parse_logical_expr())
+            return Nodes.Binary(lhs, TokenType.And, cls.parse_logical_expr())
         return lhs
     
     @classmethod
-    def parse_condition_expr(cls) -> Node.AllExprTypeHint:
+    def parse_condition_expr(cls) -> Nodes.AllExprTypeHint:
         lhs = cls.parse_additive_expr()
         if cls @ Matches.Comparative:
             comp_tokens = []; exprs = []
             while cls @ cls.matching_sets["comparitive"]:
                 comp_tokens.append(cls.eat().type)
                 exprs.append(cls.parse_additive_expr())
-            return Node.Comparison(lhs, comp_tokens, exprs)
+            return Nodes.Comparison(lhs, comp_tokens, exprs)
         return lhs
     
     @classmethod
-    def parse_additive_expr(cls) -> Node.AllExprTypeHint:
+    def parse_additive_expr(cls) -> Nodes.AllExprTypeHint:
         lhs = cls.parse_multiplicative_expr()
         if cls @ Matches.Additive:
-            return Node.Binarynd.Expr(lhs, cls.eat().type, cls.parse_additive_expr())
+            return Nodes.Binary(lhs, cls.eat().type, cls.parse_additive_expr())
         return lhs
     
     @classmethod
-    def parse_multiplicative_expr(cls) -> Node.AllExprTypeHint:
+    def parse_multiplicative_expr(cls) -> Nodes.AllExprTypeHint:
         lhs = cls.parse_exponentiative_expr()
         if cls @ Matches.Multiplicative:
-            return Node.Binarynd.Expr(lhs, cls.eat().type, cls.parse_multiplicative_expr())
+            return Nodes.Binary(lhs, cls.eat().type, cls.parse_multiplicative_expr())
         return lhs
     
     @classmethod
-    def parse_exponentiative_expr(cls) -> Node.AllExprTypeHint:
+    def parse_exponentiative_expr(cls) -> Nodes.AllExprTypeHint:
         lhs = cls.parse_unary_expr()
         if cls.at() == TokenType.Exponentiation:
-            return Node.Binarynd.Expr(lhs, cls.eat().type, cls.parse_exponentiative_expr())
+            return Nodes.Binary(lhs, cls.eat().type, cls.parse_exponentiative_expr())
         return lhs
     
     @classmethod
-    def parse_unary_expr(cls) -> Node.AllExprTypeHint:
+    def parse_unary_expr(cls) -> Nodes.AllExprTypeHint:
         """
         Parses all unary expressions. This include:
         - Prefix: `++`, `--`, `!`, `~`, `not`, `*`, `+`, `-`
         - Postfix: `++`, `--`
         """
         if cls.at() @ Matches.SinisterUnarys:
-            return Node.Unary(attachment = cls.eat().type, expr = cls.parse_primary_expr(), position = "Prefix")
+            return Nodes.Unary(attachment = cls.eat().type, expr = cls.parse_primary_expr(), position = "Prefix")
         expr = cls.parse_primary_expr()
         if cls.at() @ Matches.DexterUnarys:
-            return Node.Unary(expr, cls.eat().type, "Postfix")
+            return Nodes.Unary(expr, cls.eat().type, "Postfix")
         return expr
     
     @classmethod
-    def parse_member_subscription_call_expr(cls) -> Node.AllExprTypeHint:
+    def parse_member_subscription_call_expr(cls) -> Nodes.AllExprTypeHint:
         """
         Parses both member access (a.b), subscription access (a[b]) and function call (a(b)) expressions.
         """
@@ -249,51 +237,51 @@ class Parser:
         return member
     
     @classmethod
-    def parse_member_subscription_expr(cls) -> Node.AllExprTypeHint: 
+    def parse_member_subscription_expr(cls) -> Nodes.AllExprTypeHint: 
         obj = cls.parse_primary_expr()
         while cls.at() == Matches.StartOfAttrAccess:
-            propert: Node.Expr
+            propert: Nodes.Expr
             if cls.eat() == TokenType.Dot:
-                node = Node.MemberAccess
+                node = Nodes.MemberAccess
                 propert = cls.parse_primary_expr(exclude = Matches.PrimaryExprs.value - {TokenType.Identifier})
             else:
-                node = Node.Subscription
+                node = Nodes.Subscription
                 propert = cls.parse_expr()
                 cls.eat(TokenType.CloseSquareBracket)
-            obj = node.__init__(obj, propert)
+            obj = node(obj, propert)
         return obj
     
     @classmethod
-    def parse_call_expr(cls, caller: Node.Expr) -> Node.Call:
-        call_expr = Node.Call(caller, cls.parse_call_args())
+    def parse_call_expr(cls, caller: Nodes.Expr) -> Nodes.Call:
+        call_expr = Nodes.Call(caller, cls.parse_call_args())
         if (cls.at().type == TokenType.OpenParenthesis):
             call_expr = cls.parse_call_expr(call_expr)
         return call_expr
     
     @classmethod
-    def parse_call_args(cls) -> Node.CallArgumentList:
+    def parse_call_args(cls) -> Nodes.CallArgumentList:
         cls.eat(TokenType.OpenParenthesis)
-        args = Node.CallArgumentList() if cls.at() == TokenType.CloseParenthesis else cls.parse_positional_call_args()
+        args = Nodes.CallArgumentList() if cls.at() == TokenType.CloseParenthesis else cls.parse_positional_call_args()
         cls.expect(TokenType.CloseParenthesis)
         return args
     
     @classmethod
-    def parse_positional_call_args(cls) -> Node.CallArgumentList:
+    def parse_positional_call_args(cls) -> Nodes.CallArgumentList:
         positional_args = [cls.parse_expr()]
 
         while cls.at() == TokenType.Comma:
             cls.eat()
             arg = cls.parse_expr()
-            if arg == NodeType.Identifier and cls.at() == TokenType.AssignOper:
-                arg: Node.Identifier
-                return Node.CallArgumentList(positional_args, cls.parse_keyword_call_args(arg.symbol))
+            if isinstance(arg, Nodes.Identifier) and cls.at() == TokenType.AssignOper:
+                arg: Nodes.Identifier
+                return Nodes.CallArgumentList(positional_args, cls.parse_keyword_call_args(arg.symbol))
             positional_args.push(arg)
 
-        return Node.CallArgumentList(positional_args)
+        return Nodes.CallArgumentList(positional_args)
     
     @classmethod
-    def parse_keyword_call_args(cls, initial_ident_name: str) -> Dict[str, Node.Expr]:
-        keyword_args: Dict[str, Node.Expr] = {}
+    def parse_keyword_call_args(cls, initial_ident_name: str) -> typing.Dict[str, Nodes.Expr]:
+        keyword_args: typing.Dict[str, Nodes.Expr] = {}
         cls.eat(TokenType.AssignOper)
         keyword_args.setdefault(initial_ident_name, cls.parse_expr())
         if cls.at() == TokenType.Comma:
@@ -306,21 +294,31 @@ class Parser:
         return keyword_args
     
     @classmethod
-    def parse_primary_expr(cls, exclude: Hints.ParsePrimaryExprExclusion = {}) -> Hints.ParsePrimaryExprReturn:
+    def parse_primary_expr(cls, exclude: typing.Set [
+            typing.Literal [
+                TokenType.Identifier,
+                TokenType.Int,
+                TokenType.Float,
+                TokenType.Str,
+                TokenType.Bool,
+                TokenType.Null,
+                TokenType.OpenParenthesis
+            ]
+        ] = {}) -> Nodes.Expr:
         match cls.at().type:
             case TokenType.Identifier if TokenType.Identifier not in exclude:
-                return Node.Identifier(cls.eat().value)
+                return Nodes.Identifier(cls.eat().value)
             case TokenType.Int if TokenType.Int not in exclude:
-                return Node.Int(int(cls.eat().value))
+                return Nodes.Int(int(cls.eat().value))
             case TokenType.Float if TokenType.Float not in exclude:
-                return Node.Float(float(cls.eat().value))
+                return Nodes.Float(float(cls.eat().value))
             case TokenType.Str if TokenType.Str not in exclude:
-                return Node.Str(cls.eat().value)
+                return Nodes.Str(cls.eat().value)
             case TokenType.Bool if TokenType.Bool not in exclude:
-                return Node.Bool(True if cls.eat().value == "true" else False)
+                return Nodes.Bool(True if cls.eat().value == "true" else False)
             case TokenType.Null if TokenType.Null not in exclude:
                 cls.eat()
-                return Node.Null()
+                return Nodes.Null()
             case TokenType.OpenParenthesis if TokenType.OpenParenthesis not in exclude:
                 cls.eat()
                 cls.remove_new_lines()

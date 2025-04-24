@@ -1,14 +1,13 @@
 from __future__ import annotations
-from dataclasses import dataclass
 from regex import compile, Pattern
 from enum import Enum, auto, unique
 from typing import Self, TypedDict, Dict, List
 
-@dataclass
 class Token:
-    type: TokenType
-    value: str | None = None
-    # @enforce_types
+    def __init__(self, type: TokenType, value: str | None = None):
+        self.type = type
+        self.value = value
+    
     def __repr__(self: Self) -> str:
         return f"\nToken(type={self.type.name}{"" if self.value is None else f", value={self.value}"})"
     

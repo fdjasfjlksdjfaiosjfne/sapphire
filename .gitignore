@@ -1,6 +1,19 @@
-*/__pycache__
-.gitignore
-*.ignore.*
-*.code-workspace
+# Python
+*.pyc
+*/__pycache__/
+*/__pycache__/*
+*/__*__
+
+# IDE
+.vscode/
+.idea/
 tempCodeRunnerFile.*
-samples/*
+*.code-workspace
+.mypy_cache/*
+
+# Git
+.gitignore
+
+# Other
+*.ignore.*
+samples
