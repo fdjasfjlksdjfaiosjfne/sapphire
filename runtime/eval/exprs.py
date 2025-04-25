@@ -10,9 +10,9 @@ import typing
 def eval_code_block(code_block: Nodes.CodeBlock, env: Env) -> Values.RuntimeVal:
     for stmt in code_block:
         e = evaluate(stmt, env)
-        print("stmt: " + repr(stmt))
-        print("parsed: " + repr(e))
-        print("env: ", env.variables)
+        # print("stmt: " + repr(stmt))
+        # print("parsed: " + repr(e))
+        # print("env: ", env.variables)
     return None
 
 def eval_identifier(ident: Nodes.Identifier, env: Env) -> Values.RuntimeVal:
@@ -91,19 +91,6 @@ def eval_ternary_expr(expr: Nodes.Ternary, env: Env) -> Values.RuntimeVal:
 
 def eval_call_expr(expr: Nodes.Call, env: Env) -> Values.RuntimeVal:
     raise Exception()
-
-def eval_conditional(node: Nodes.Conditional, env: Env) -> Values.RuntimeVal:
-    cond = convert.bool(evaluate(node.condition, env))
-    if not isinstance(cond, Values.NotImplemented) and cond == True:
-        print("TRUE") # Test
-        eval_code_block(node.code_block, env)
-    elif isinstance(cond, Values.NotImplemented):
-        raise Exception()
-    else:
-        print("FALSE") # Test
-        if isinstance(node.otherwise, Nodes.CodeBlock):
-            eval_code_block(node.otherwise, env)
-        eval_conditional(node.otherwise)
 
 def eval_walrus(assign: Nodes.Walrus, env: Env) -> Values.RuntimeVal:
     if not isinstance(assign.assignee, Nodes.Identifier):

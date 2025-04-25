@@ -28,7 +28,6 @@ class Lexer:
                     else:
                         continue
                     break
-                    
                 else:
                     raise Exception("Unregconized character")
         cls.tokens = [token for token in cls.tokens if token != TokenType.NOTHING]

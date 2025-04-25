@@ -1,22 +1,22 @@
 from __future__ import annotations
 from regex import compile, Pattern
 from enum import Enum, auto, unique
-from typing import Self, TypedDict, Dict, List
+import typing
 
 class Token:
     def __init__(self, type: TokenType, value: str | None = None):
         self.type = type
         self.value = value
     
-    def __repr__(self: Self) -> str:
+    def __repr__(self) -> str:
         return f"\nToken(type={self.type.name}{"" if self.value is None else f", value={self.value}"})"
     
-    def __ne__(self: Self, value: TokenType) -> bool:
+    def __ne__(self, value: TokenType) -> bool:
         if isinstance(value, TokenType):
             return self.type != value
         return NotImplemented
     
-    def __eq__(self: Self, value: TokenType) -> bool:
+    def __eq__(self, value: TokenType) -> bool:
         if isinstance(value, TokenType):
             return self.type == value
         return NotImplemented
@@ -95,11 +95,11 @@ class TokenType(Enum):
     Str = auto()
     Ellipsis = auto()
 
-class RegExDictConfiguration(TypedDict):
-    patterns: List[Pattern]
+class RegExDictConfiguration(typing.TypedDict):
+    patterns: typing.List[Pattern]
     include_value: bool = True
 
-regex_patterns: Dict[TokenType, RegExDictConfiguration] = {
+regex_patterns: typing.Dict[TokenType, RegExDictConfiguration] = {
     TokenType.NewLine: {
         "patterns": [
             compile(r"[\r\n]+"),

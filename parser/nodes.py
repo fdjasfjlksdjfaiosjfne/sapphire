@@ -52,6 +52,35 @@ class Conditional(Stmt):
         self.code_block = code_block
         self.otherwise = otherwise
 
+class WhileLoop(Stmt):
+    def __init__(self, condition: Expr, code_block: CodeBlock, else_block: Optional[CodeBlock] = None):
+        self.condition = condition
+        self.code_block = code_block
+        self.else_block = else_block
+
+# for (init; condition; repeat) {...}
+class GlorifiedWhileLoop(Stmt):
+    def __init__(self, init: Expr, condition: Expr, repeat: Expr, code_block: CodeBlock, else_block: Optional[CodeBlock] = None):
+        self.init = init
+        self.condition = condition
+        self.repeat = repeat
+        self.code_block = code_block
+        self.else_block = else_block
+
+# for ... in iterable {...}
+class ForLoop(Stmt):
+    def __init__(self, iter_vars: List[Expr], iterable: Expr, code_block: CodeBlock):
+        self.iter_vars = iter_vars
+        self.iterable = iterable
+        self.code_block = code_block
+
+class Break(Stmt): 
+    def __init__(self, label: Optional[str] = None):
+        self.label = label
+
+class Continue(Stmt):
+    def __init__(self, label: Optional[str] = None):
+        self.label = label
 
 class MatchCase(Expr):
     # This is way too complicated for now
