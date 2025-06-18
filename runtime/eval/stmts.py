@@ -50,10 +50,10 @@ def eval_modifier_assignment(assign: Nodes.ModifierAssignment, env: Env) -> None
 
 def eval_conditional(node: Nodes.Conditional, env: Env) -> None:
     cond = convert.bool(evaluate(node.condition, env))
-    if not isinstance(cond, Values.NotImplemented) and cond.value == True:
+    if not isinstance(cond, Values.NOT_IMPLEMENTED) and cond.value == True:
         # print("TRUE") # Test
         eval_code_block(node.code_block, env)
-    elif isinstance(cond, Values.NotImplemented):
+    elif isinstance(cond, Values.NOT_IMPLEMENTED):
         raise Exception()
     else:
         # print("FALSE") # Test

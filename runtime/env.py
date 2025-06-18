@@ -1,9 +1,9 @@
 from __future__ import annotations
 import typing
-import dataclasses
+from dataclasses import dataclass
 import runtime.values as Value
 
-@dataclasses.dataclass
+@dataclass
 class VarValue:
     value: Value.RuntimeVal
     constant: bool
@@ -22,7 +22,7 @@ class Env:
     
     def assign(self, name: str, value: Value.RuntimeVal) -> Value.RuntimeVal:
         if name in self.variables:
-            if self.variables[name]["constant"]:
+            if self.variables[name].constant:
                 raise Exception()
             setattr(self.variables[name], "value", value)
         self.variables.setdefault(name, VarValue(value, False))
@@ -39,13 +39,13 @@ class Env:
         return self.parent.resolve(name)
     
     def __getitem__(self, key: str) -> Value.RuntimeVal:
-        return self.variables[key]
+        return self.variables[key].value
     
     def __setitem__(self, key: str, value: Value.RuntimeVal) -> None:
         self.variables.setdefault(key, value)
     
     def __contains__(self, ident: str) -> bool:
-        return ident in self.resolve(ident).variables
+        return ident in self.variables.keys()
 
 def setup_global_scope():
     env = Env()

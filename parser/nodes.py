@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Any, List, Optional, NamedTuple, Dict, Literal, Union
-from lexer.lexer import TokenType
+import typing
+from parser.lexer import TokenType
+
 class Stmt:
     pass
 
@@ -16,7 +17,7 @@ class Program(Stmt):
 
 
 class VarDeclaration(Stmt):
-    def __init__(self, name: str, value: Optional[Expr] = None, constant: bool = False):
+    def __init__(self, name: str, value: typing.Optional[Expr] = None, constant: bool = False):
         self.name = name
         self.value = value
         self.constant = constant
@@ -30,7 +31,7 @@ class ModifierAssignment(Stmt):
 
 
 class Assignment(Stmt):
-    def __init__(self, idents_and_expr: List[Expr]):
+    def __init__(self, idents_and_expr: typing.List[Expr]):
         self.idents_and_expr = idents_and_expr
 
 
@@ -47,20 +48,20 @@ class Return(Stmt):
 # x = if x == 2 { return 420 } else { return 69 }
 
 class Conditional(Stmt):
-    def __init__(self, condition: Expr, code_block: CodeBlock, otherwise: Optional[Conditional | CodeBlock] = None):
+    def __init__(self, condition: Expr, code_block: CodeBlock, otherwise: typing.Optional[Conditional | CodeBlock] = None):
         self.condition = condition
         self.code_block = code_block
         self.otherwise = otherwise
 
 class WhileLoop(Stmt):
-    def __init__(self, condition: Expr, code_block: CodeBlock, else_block: Optional[CodeBlock] = None):
+    def __init__(self, condition: Expr, code_block: CodeBlock, else_block: typing.Optional[CodeBlock] = None):
         self.condition = condition
         self.code_block = code_block
         self.else_block = else_block
 
 # for (init; condition; repeat) {...}
 class GlorifiedWhileLoop(Stmt):
-    def __init__(self, init: Expr, condition: Expr, repeat: Expr, code_block: CodeBlock, else_block: Optional[CodeBlock] = None):
+    def __init__(self, init: Expr, condition: Expr, repeat: Expr, code_block: CodeBlock, else_block: typing.Optional[CodeBlock] = None):
         self.init = init
         self.condition = condition
         self.repeat = repeat
@@ -69,17 +70,17 @@ class GlorifiedWhileLoop(Stmt):
 
 # for ... in iterable {...}
 class ForLoop(Stmt):
-    def __init__(self, iter_vars: List[Expr], iterable: Expr, code_block: CodeBlock):
+    def __init__(self, iter_vars: typing.List[Expr], iterable: Expr, code_block: CodeBlock):
         self.iter_vars = iter_vars
         self.iterable = iterable
         self.code_block = code_block
 
 class Break(Stmt): 
-    def __init__(self, label: Optional[str] = None):
+    def __init__(self, label: typing.Optional[str] = None):
         self.label = label
 
 class Continue(Stmt):
-    def __init__(self, label: Optional[str] = None):
+    def __init__(self, label: typing.Optional[str] = None):
         self.label = label
 
 class MatchCase(Expr):
@@ -89,7 +90,7 @@ class MatchCase(Expr):
 
 
 class Unary(Expr):
-    def __init__(self, expr: Expr, attachment: TokenType, position: Literal["Prefix", "Postfix"]):
+    def __init__(self, expr: Expr, attachment: TokenType, position: typing.Literal["Prefix", "Postfix"]):
         self.expr = expr
         self.attachment = attachment
         self.position = position
@@ -122,15 +123,15 @@ class Subscription(Expr):
 
 
 class Comparison(Expr):
-    def __init__(self, left: Expr, operators: List[TokenType], exprs: List[Expr]):
+    def __init__(self, left: Expr, operators: typing.List[TokenType], exprs: typing.List[Expr]):
         self.left = left
         self.operators = operators
         self.exprs = exprs
 
 
-class CallArgumentList(NamedTuple):
-    args: List[Expr] = []
-    kwargs: Dict[str, Expr] = {}
+class CallArgumentList(typing.NamedTuple):
+    args: typing.List[Expr] = []
+    kwargs: typing.Dict[str, Expr] = {}
 
 
 class Call(Expr):
@@ -172,7 +173,7 @@ class Identifier(Expr):
 class CodeBlock(Expr):
     def __init__(self):
         self.body: list = []
-    def append(self, object: Any, /):
+    def append(self, object: typing.Any, /):
         # Scrolling to find every subclass of Stmt and beyond
         t = type(object)
         if Stmt not in t.mro():
@@ -183,7 +184,7 @@ class CodeBlock(Expr):
     def __iter__(self):
         yield from self.body
 
-AllExprTypeHint = Union [
+AllExprTypeHint = typing.Union [
     Identifier,
     Int,
     Float,
@@ -204,7 +205,7 @@ AllExprTypeHint = Union [
     Expr
 ]
 
-AllStmtsTypeHint = Union[
+AllStmtsTypeHint = typing.Union[
     Stmt,
     Assignment,
     ModifierAssignment,

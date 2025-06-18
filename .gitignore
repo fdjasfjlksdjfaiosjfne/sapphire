@@ -5,6 +5,7 @@
 */__*__
 
 # IDE
+
 .vscode/
 .idea/
 tempCodeRunnerFile.*
@@ -17,3 +18,4 @@ tempCodeRunnerFile.*
 # Other
 *.ignore.*
 samples
+.mypy_cache

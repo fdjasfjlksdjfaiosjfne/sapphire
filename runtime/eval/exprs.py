@@ -1,7 +1,7 @@
 import parser.nodes as Nodes
 import runtime.values as Values
 from runtime.env import Env
-from lexer.tokens import TokenType
+from parser.lexer import TokenType
 import runtime.eval.binops as opers
 import runtime.eval.conversions as convert
 from runtime.interpreter import evaluate
@@ -9,10 +9,7 @@ import typing
 
 def eval_code_block(code_block: Nodes.CodeBlock, env: Env) -> Values.RuntimeVal:
     for stmt in code_block:
-        e = evaluate(stmt, env)
-        # print("stmt: " + repr(stmt))
-        # print("parsed: " + repr(e))
-        # print("env: ", env.variables)
+        evaluate(stmt, env)
     return None
 
 def eval_identifier(ident: Nodes.Identifier, env: Env) -> Values.RuntimeVal:
@@ -32,25 +29,46 @@ def eval_binary_expr(binop: Nodes.Binary, env: Env) -> Values.RuntimeVal:
             return opers.eval_mul(lhs, rhs)
         
         case TokenType.TrueDivision: 
-            return opers.eval_true_div(lhs, rhs)
+            return opers.eval_truediv(lhs, rhs)
         
         case TokenType.FloorDivision:
-            return opers.eval_floor_div(lhs, rhs)
+            return opers.eval_floordiv(lhs, rhs)
         
         case TokenType.Modulus: 
             return opers.eval_mod(lhs, rhs)
         
         case TokenType.Exponentiation: 
-            return opers.eval_pow(lhs, rhs)
+            return opers.eval_exp(lhs, rhs)
         
         case TokenType.Spaceship: 
-            return opers.eval_spaceship(lhs, rhs)
+            return opers.eval_sps(lhs, rhs)
         
         case TokenType.Concanentation: 
             return opers.eval_concat(lhs, rhs)
         
         case TokenType.At: 
             return opers.eval_matmul(lhs, rhs)
+        
+        case TokenType.BinaryAnd:
+            return opers.eval_binaryand(lhs, rhs)
+        
+        case TokenType.BinaryOr:
+            return opers.eval_binaryor(lhs, rhs)
+        
+        case TokenType.BinaryXor:
+            return opers.eval_binaryxor(lhs, rhs)
+        
+        case TokenType.Elvis:
+            return opers.eval_elvis(lhs, rhs)
+        
+        case TokenType.Coalescing:
+            return opers.eval_coalescing(lhs, rhs)
+        
+        case TokenType.LeftShift:
+            return opers.eval_left_shift(lhs, rhs)
+        
+        case TokenType.RightShift:
+            return opers.eval_right_shift(lhs, rhs)
         
         case _: 
             raise Exception()

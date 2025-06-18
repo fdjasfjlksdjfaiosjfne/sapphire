@@ -1,0 +1,169 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+properties:
+    languageCustomization:
+        type: object
+        description: >-
+            A place to add customization that can modify how the compiler treats the code.
+
+            This can range from minor behaviour changes to imcompatible syntax modifiers.
+        properties:
+            codeBlocks:
+                type: string
+                description: >-
+                    How Sapphire should consider as a code block.
+
+                    Valid options are:
+                    
+                    - braces: Uses curly braces ({}) as code blocks.
+                    
+                    - identation: Use indentation to limit code block.
+                    
+                    - end: Use the end keyword to end a code block.
+                enum: [indentation, braces, end]
+            operatorNotation:
+                type: string
+                description: >-
+                    This will change how Sapphire parse operators.
+
+                    Valid options are: 
+                    
+                    - infix: a + b 
+                    
+                    - prefix: + a b
+                    
+                    - postfix: a b +
+                enum: [infix, prefix, postfix]
+            redefine:
+                type: object
+                properties:
+                    opers.binary.comparison.equality:
+                        description: Represent the equality operator (==).
+                        default:
+                            - ==
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.comparison.inequality:
+                        description: Represent the inequality operator (!=).
+                        default:
+                            - '!='
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.comparison.greater:
+                        description: Represent the greater operator (>).
+                        default:
+                            - '>'
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.comparison.less:
+                        description: Represent the less operator (<).
+                        default:
+                            - <
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.comparison.lessOrEqual:
+                        default:
+                            - <=
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.comparison.greaterOrEqual:
+                        default:
+                            - '>='
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.comparison.spaceship:
+                        default:
+                            - <=>
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.arithmetic.add:
+                        default:
+                            - +
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.arithmetic.subtract:
+                        default:
+                            - '-'
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.arithmetic.multiply:
+                        default:
+                            - '*'
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.arithmetic.trueDivision:
+                        default:
+                            - /
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.arithmetic.floorDivision:
+                        default:
+                            - //
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.arithmetic.modulus:
+                        default:
+                            - '%'
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.binary.or:
+                        default:
+                            - b|
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.binary.and:
+                        default:
+                            - b&
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.binary.xor:
+                        default:
+                            - b^
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.logical.or:
+                        default:
+                            - '|'
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.logical.and:
+                        default:
+                            - '&'
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.logical.xor:
+                        default:
+                            - ^
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.concat:
+                        default:
+                            - ..
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.binary.matmul:
+                        default:
+                            - '@'
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.unary.prefix.incre:
+                        default:
+                            - ++
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.unary.suffix.incre:
+                        default:
+                            - ++
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.unary.prefix.decre:
+                        default:
+                            - --
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.unary.suffix.decre:
+                        default:
+                            - --
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.unary.prefix.positive:
+                        default:
+                            - +
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.unary.prefix.negative:
+                        default:
+                            - '-'
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.unary.prefix.binary_invert:
+                        default:
+                            - ~
+                        $ref: '#/$defs/common_redefine_properties'
+                    opers.unary.prefix.logical_invert:
+                        default:
+                            - '!'
+                        $ref: '#/$defs/common_redefine_properties'
+                additionalProperties: false
+        additionalProperties: false
+additionalProperties: false
+$defs:
+    common_redefine_properties:
+        type: array
+        items:
+            type: string
+            uniqueItems: true
+        minItems: 1

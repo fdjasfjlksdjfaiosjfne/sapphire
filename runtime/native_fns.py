@@ -3,36 +3,54 @@
     They are functions that are not defined using the language, but can be access using it.
 """
 
-# from typing import Dict, Callable, Any
+import values as Values
 
-# class NativeFunctionRegistry:
-#     def __init__(self):
-#         self._functions: Dict[str, Callable] = {}
-    
-#     def register(self, name: str, fn: Callable):
-#         self._functions[name] = fn
-    
-#     def get(self, name: str) -> Callable:
-#         return self._functions.get(name)
 
-# # Global registry instance
-# native_registry = NativeFunctionRegistry()
 
-# def native_function(name: str):
-#     def decorator(fn: Callable):
-#         native_registry.register(name, fn)
-#         return fn
-#     return decorator
+# abs() aiter() all() anext() any() ascii() bin() bool() callable()
+# chr() classmethod() compile() complex() delattr() dict() dir()
+# divmod() filter() float() format() frozenset() getattr() globals()
+# hasattr() hash() help() hex() imput() int() isinstance() issubclass()
+# iter() len() list() locals() map() max() memoryview() min() next()
+# object() oct() open() ord() pow() print() property() range() repr()
+# reversed() round() set() setattr() slice() sorted() staticmethod()
+# str() sum() super() tuple() type() vars() zip() __import__()
 
-# @native_function("print")
-# def native_print(*values, sep, end, file, flush):
-#     print(*values, sep, end, file, flush)
+def s_print(*args, sep, file, end):
+    print(
+        *(s_str(obj) for obj in args), 
+        sep = sep,
+        file = file,
+        end = end
+    )
+    return Values.Null()
 
-# @native_function("len")
-# def native_len(obj):
-#     pass
+def s_len(obj: Values.RuntimeVal, /):
+    __len__ = obj.__sap_dunder_map__.get("__len__", None)
+    if callable(__len__):
+        return __len__()
 
-# @native_function("type")
-# def native_type(obj):
-#     return type(obj).__name__
+def s_type(obj: Values.RuntimeVal, /):
+    pass
 
+def s_bool(obj: Values.RuntimeVal, /):
+    __bool__ = obj.__sap_dunder_map__.get("__bool__", None)
+    if callable(__bool__):
+        return __bool__()
+
+def s_int(obj: Values.RuntimeVal, /):
+    __int__ = obj.__sap_dunder_map__.get("__int__", None)
+    if callable(__int__):
+        return __int__()
+
+def s_repr(obj: Values.RuntimeVal, /):
+    __repr__ = obj.__sap_dunder_map__.get("__repr__", None)
+    if callable(__repr__):
+        return __repr__()
+
+def s_str(obj: Values.RuntimeVal, /):
+    __str__ = obj.__sap_dunder_map__.get("__repr__", None)
+    if callable(__str__):
+        return __str__()
+
+print(s_repr(Values.Str("sex")))

@@ -1,9 +1,8 @@
 import parser.nodes as Nodes
 import runtime.values as Value
 from runtime.values import RuntimeVal, Number
-from lexer.tokens import TokenType
 
-def bool(value: RuntimeVal) -> Value.Bool | Value.NotImplemented:
+def bool(value: RuntimeVal) -> Value.Bool | Value.NOT_IMPLEMENTED:
     if isinstance(value, Value.Bool):
         return value
     elif isinstance(value, Number):
@@ -13,9 +12,9 @@ def bool(value: RuntimeVal) -> Value.Bool | Value.NotImplemented:
     elif isinstance(value, Value.Null):
         return Value.Bool(False)
     else:
-        return Value.NotImplemented()
+        return Value.NOT_IMPLEMENTED()
 
-def int(value: RuntimeVal) -> Value.Int | Value.NotImplemented:
+def int(value: RuntimeVal) -> Value.Int | Value.NOT_IMPLEMENTED:
     if isinstance(value, Value.Int):
         return value
     elif isinstance(value, Value.Bool):
@@ -30,9 +29,9 @@ def int(value: RuntimeVal) -> Value.Int | Value.NotImplemented:
     elif isinstance(value, Value.Null):
         return Value.Int(0)
     else:
-        return Value.NotImplemented()
+        return Value.NOT_IMPLEMENTED()
 
-def float(value: RuntimeVal) -> Value.Int | Value.NotImplemented:
+def float(value: RuntimeVal) -> Value.Int | Value.NOT_IMPLEMENTED:
     if isinstance(value, Value.Float):
         return value
     elif isinstance(value, Value.Int):
@@ -47,4 +46,4 @@ def float(value: RuntimeVal) -> Value.Int | Value.NotImplemented:
     elif isinstance(value, Value.Null):
         return Value.Float(0)
     else:
-        return Value.NotImplemented()
+        return Value.NOT_IMPLEMENTED()
