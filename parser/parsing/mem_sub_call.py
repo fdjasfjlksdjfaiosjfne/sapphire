@@ -5,21 +5,21 @@ from parser.parser import at, eat, at_is
 import parser.nodes as Nodes
 from parser.parsing.exprs import parse_primary_expr, parse_expr
 
-def parse_member_subscription_expr(tokens: typing.List[Token]) -> Nodes.Binary: 
+def parse_member_subscription_expr(tokens: typing.List[Token]) -> Nodes.BinaryNode: 
     obj = parse_primary_expr(tokens)
     while at_is(tokens, TokenType.Dot, TokenType.OpenSquareBracket):
         propert: Nodes.Expr
         if eat(tokens) == TokenType.Dot:
             if at_is(tokens, TokenType.Identifier):
                 propert = eat(tokens, TokenType.Identifier)
-            return Nodes.MemberAccess(obj, propert)
+            return Nodes.MemberAccessNode(obj, propert)
         else:
             propert = parse_expr(tokens)
             eat(tokens, TokenType.CloseSquareBracket)
-            return Nodes.Subscription(obj, propert)
+            return Nodes.SubscriptionNode(obj, propert)
 
-def parse_call_expr(tokens: typing.List[Token], caller: Nodes.Expr) -> Nodes.Call:
-    call_expr = Nodes.Call(caller, parse_call_args(tokens))
+def parse_call_expr(tokens: typing.List[Token], caller: Nodes.Expr) -> Nodes.CallNode:
+    call_expr = Nodes.CallNode(caller, parse_call_args(tokens))
     if (at_is(tokens, TokenType.OpenParenthesis)):
         call_expr = parse_call_expr(tokens, call_expr)
     return call_expr
@@ -42,7 +42,7 @@ def parse_positional_call_args(tokens: typing.List[Token]) -> Nodes.CallArgument
         arg = parse_expr(tokens)
         # > Check if the argument is actually a keyword argument
         # ? By looking at whether that 
-        if isinstance(arg, Nodes.Identifier) and at_is(tokens, TokenType.AssignOper):
+        if isinstance(arg, Nodes.IdentifierNode) and at_is(tokens, TokenType.AssignOper):
             return Nodes.CallArgumentList(positional_args, parse_keyword_call_args(tokens, arg.symbol))
         positional_args.push(arg)
         

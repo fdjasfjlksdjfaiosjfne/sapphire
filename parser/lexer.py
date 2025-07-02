@@ -3,7 +3,6 @@ from enum import Enum, auto, unique
 import typing
 
 from regex import compile, Pattern, match
-from collections import namedtuple
 
 class Token:
     def __init__(self, type: TokenType, value: str | None = None):
@@ -51,8 +50,15 @@ class TokenType(Enum):
     Elif = auto()
     Else = auto()
     While = auto()
+    For = auto()
+    Cfor = auto()
+    Scope = auto()
+    In = auto()
+    NotIn = auto()
     Match = auto()
     Case = auto()
+    Break = auto()
+    Continue = auto()
     # ^ Symbols
     Plus = auto()
     Minus = auto()
@@ -120,15 +126,22 @@ regex_patterns: typing.Dict[TokenType, RegexPatternConfiguration] = {
     TokenType.Const: RPC(compile("const")),
     TokenType.Fn: RPC(compile("fn")),
     TokenType.Class: RPC(compile("class")),
+    TokenType.While: RPC(compile("while")),
+    TokenType.For: RPC(compile("for")),
+    TokenType.Cfor: RPC(compile("cfor")),
     TokenType.And: RPC(compile("and")),
     TokenType.Or: RPC(compile("or")),
     TokenType.Xor: RPC(compile("xor")),
     TokenType.Not: RPC(compile("not")),
+    TokenType.In: RPC(compile("in")),
+    TokenType.NotIn: RPC(compile("not in")),
     TokenType.If: RPC(compile("if")),
     TokenType.Elif: RPC(compile("elif")),
     TokenType.Else: RPC(compile("else")),
     TokenType.Match: RPC(compile("match")),
     TokenType.Case: RPC(compile("case")),
+    TokenType.Break: RPC(compile("break")),
+    TokenType.Continue: RPC(compile("continue")),
     # ^ Symbols
     TokenType.Spaceship: RPC(compile("<=>")),
     TokenType.LessEqualThan: RPC(compile("<=")),
@@ -183,7 +196,7 @@ regex_patterns: typing.Dict[TokenType, RegexPatternConfiguration] = {
     TokenType.Null: RPC(compile("null")),
     TokenType.Str: RPC(
         compile(r"(?:r|f|fr|rf)?([\"'`])((?:[^\\]|\\.)*?)\1"), # Normal strings
-        compile(r"(?:r|f|fr|rf)?([\"'`]{3})((?:[^\\]|\\.|\n|\r)*?)\1"), # Multi-line strings
+        compile(r"(?:r|f|fr|rf)?(\"{3}|'{3}|`{3})((?:[^\\]|\\.|\n|\r)*?)\1"), # Multi-line strings
         include_value=True
     ),
     TokenType.Identifier: RPC(compile(r"[\p{L}_][\p{L}_\d]*"), include_value=True),

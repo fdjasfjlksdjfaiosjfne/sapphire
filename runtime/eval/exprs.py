@@ -12,10 +12,10 @@ def eval_code_block(code_block: Nodes.CodeBlock, env: Env) -> Values.RuntimeVal:
         evaluate(stmt, env)
     return None
 
-def eval_identifier(ident: Nodes.Identifier, env: Env) -> Values.RuntimeVal:
+def eval_identifier(ident: Nodes.IdentifierNode, env: Env) -> Values.RuntimeVal:
     return env.get(ident.symbol)
 
-def eval_binary_expr(binop: Nodes.Binary, env: Env) -> Values.RuntimeVal:
+def eval_binary_expr(binop: Nodes.BinaryNode, env: Env) -> Values.RuntimeVal:
     
     lhs, rhs = evaluate(binop.left, env), evaluate(binop.right, env)
     match binop.oper:
@@ -73,7 +73,7 @@ def eval_binary_expr(binop: Nodes.Binary, env: Env) -> Values.RuntimeVal:
         case _: 
             raise Exception()
 
-def eval_comparison_expr(comp_expr: Nodes.Comparison, env: Env) -> Values.RuntimeVal:
+def eval_comparison_expr(comp_expr: Nodes.ComparisonNode, env: Env) -> Values.RuntimeVal:
     
     current = evaluate(comp_expr.left, env)
     for i, op in enumerate(comp_expr.operators):
@@ -101,22 +101,22 @@ def eval_comparison_expr(comp_expr: Nodes.Comparison, env: Env) -> Values.Runtim
         current = comparator
     return Values.Bool(True)
 
-def eval_ternary_expr(expr: Nodes.Ternary, env: Env) -> Values.RuntimeVal:
+def eval_ternary_expr(expr: Nodes.TernaryNode, env: Env) -> Values.RuntimeVal:
     cond = convert.bool(evaluate(expr.cond, env))
     if cond.value:
         return evaluate(expr.true, env)
     return evaluate(expr.false, env)
 
-def eval_call_expr(expr: Nodes.Call, env: Env) -> Values.RuntimeVal:
+def eval_call_expr(expr: Nodes.CallNode, env: Env) -> Values.RuntimeVal:
     raise Exception()
 
-def eval_walrus(assign: Nodes.Walrus, env: Env) -> Values.RuntimeVal:
-    if not isinstance(assign.assignee, Nodes.Identifier):
+def eval_walrus(assign: Nodes.WalrusNode, env: Env) -> Values.RuntimeVal:
+    if not isinstance(assign.assignee, Nodes.IdentifierNode):
         raise Exception()
     env.assign(assign.assignee.symbol, assign.value)
     return assign.value 
 
-def eval_increment(ident: Nodes.Identifier, pos: typing.Literal['Prefix', 'Postfix'], env: Env) -> Values.RuntimeVal:
+def eval_increment(ident: Nodes.IdentifierNode, pos: typing.Literal['Prefix', 'Postfix'], env: Env) -> Values.RuntimeVal:
     name = ident.symbol
     env = env.resolve(name)
     val = env.get(name)
@@ -126,7 +126,7 @@ def eval_increment(ident: Nodes.Identifier, pos: typing.Literal['Prefix', 'Postf
         env.assign(ident.symbol, val.value + 1)
         return env.get(ident.symbol) if pos == "Prefix" else val
 
-def eval_decrement(ident: Nodes.Identifier, pos: typing.Literal['Prefix', 'Postfix'], env: Env) -> Values.RuntimeVal:
+def eval_decrement(ident: Nodes.IdentifierNode, pos: typing.Literal['Prefix', 'Postfix'], env: Env) -> Values.RuntimeVal:
     name = ident.symbol
     env = env.resolve(name)
     val = env.get(name)
@@ -136,9 +136,9 @@ def eval_decrement(ident: Nodes.Identifier, pos: typing.Literal['Prefix', 'Postf
         env.assign(ident.symbol, val.value - 1)
         return env.get(ident.symbol) if pos == "Prefix" else val
 
-def eval_unary(node: Nodes.Unary, env: Env) -> Values.RuntimeVal:
+def eval_unary(node: Nodes.UnaryNode, env: Env) -> Values.RuntimeVal:
     pos = node.position
     if node.attachment in {TokenType.Incre, TokenType.Decre}:
-        if not isinstance(node.expr, Nodes.Identifier):
+        if not isinstance(node.expr, Nodes.IdentifierNode):
             raise Exception()
         return (eval_increment if node.attachment == TokenType.Incre else eval_decrement)(node.attachment, pos, env)

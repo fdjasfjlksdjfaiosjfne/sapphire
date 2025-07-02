@@ -1,6 +1,13 @@
+
+# @ This module is deprecated
+# @ As of now, please use functions from the runtime.native_fns modules instead
+
+import warnings
 import parser.nodes as Nodes
 import runtime.values as Value
 from runtime.values import RuntimeVal, Number
+
+raise DeprecationWarning("Please use functions from the runtime.native_fns module instead.")
 
 def bool(value: RuntimeVal) -> Value.Bool | Value.NOT_IMPLEMENTED:
     if isinstance(value, Value.Bool):

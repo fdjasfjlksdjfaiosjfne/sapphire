@@ -2,6 +2,7 @@ from __future__ import annotations
 import typing
 from dataclasses import dataclass
 import runtime.values as Value
+from backend import errors
 
 @dataclass
 class VarValue:
@@ -15,15 +16,15 @@ class Env:
 
     def declare(self, name: str, value: Value.RuntimeVal | None = None, const: bool = False) -> None:
         if name in self.variables:
-            raise Exception()
+            raise errors.VariableError(f"Variable '{name}' is already declared")
         if const and value is None:
-            raise Exception()
+            raise errors.SyntaxError("A constant declaration must include a value")
         self.variables.setdefault(name, VarValue(value, const))
     
     def assign(self, name: str, value: Value.RuntimeVal) -> Value.RuntimeVal:
         if name in self.variables:
             if self.variables[name].constant:
-                raise Exception()
+                raise errors.SyntaxError("Cannot change a constant value")
             setattr(self.variables[name], "value", value)
         self.variables.setdefault(name, VarValue(value, False))
     
@@ -49,14 +50,14 @@ class Env:
 
 def setup_global_scope():
     env = Env()
-    # env.assign("print", Value.NativeFn(
-    #     caller = print,
-    #     args_layout = [
-    #         Arg("*values", typing.Any),
-    #         Arg("sep", typing.Optional[str], " "),
-    #         Arg("end", typing.Optional[str], "\n"),
-    #         Arg("file", typing.Optional[typing.Any], None), # TODO: Add support for file
-    #         Arg("flush", bool, False) # TODO: Add support for flush
-    #     ]
-    # ))
+    env.assign("print", Value.NativeFn(
+        caller = print,
+        args_layout = [
+            Value.Argument("values", "*"),
+            Value.Argument("sep", "Key", " "),
+            Value.Argument("end", "Key", "\n"),
+            Value.Argument("file", "Key", None),
+            Value.Argument("flush", bool, False)
+        ]
+    ))
     return env
