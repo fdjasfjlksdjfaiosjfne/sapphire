@@ -1,67 +1,59 @@
 import typing
-import runtime.values as Value
+import runtime.values as values
 import parser.nodes as Nodes
 from runtime.env import Env
 from backend import errors
 
 # TODO Give a proper name to this shit
-class FnContainerThingy(typing.NamedTuple):
+class EvaluationHandler(typing.NamedTuple):
     package: str
     fn: str
-    args: typing.Optional[tuple] = None
+    static_args: typing.Optional[tuple] = None
 
-dct: typing.Dict[Nodes.AllStmtsTypeHint, FnContainerThingy] = {
-    Nodes.IdentifierNode: FnContainerThingy("exprs", "eval_identifier"),
-    Nodes.IntNode: FnContainerThingy("Value", "Int"),
-    Nodes.FloatNode: FnContainerThingy("Value", "Float"),
-    Nodes.NullNode: FnContainerThingy("Value", "Null", ()),
-    Nodes.StrNode: FnContainerThingy("Value", "Str"),
-    Nodes.BoolNode: FnContainerThingy("Value", "Bool"),
-
-    Nodes.ConditionalNode: FnContainerThingy("stmts", "eval_conditional"),
-    Nodes.WhileLoopNode: FnContainerThingy("stmts", "eval_while_loop"),
-    Nodes.GlorifiedWhileLoopNode: FnContainerThingy("smts", "eval_glorified_while_loop"),
-    Nodes.BreakNode: FnContainerThingy("stmts", "eval_break"),
-    Nodes.ContinueNode: FnContainerThingy("stmts", "eval_continue"),
-    Nodes.ScopeBlock: FnContainerThingy("stmts", "eval_scope_block"),
-    Nodes.SubscriptionNode: FnContainerThingy("exprs", "eval_subscription"),
-    Nodes.MemberAccessNode: FnContainerThingy("exprs", "eval_member_access"),
-    Nodes.UnaryNode: FnContainerThingy("exprs", "eval_unary"),
-    Nodes.WalrusNode: FnContainerThingy("exprs", "eval_walrus"),
-    Nodes.BinaryNode: FnContainerThingy("exprs", "eval_binary_expr"),
-    Nodes.ComparisonNode: FnContainerThingy("exprs", "eval_comparison_expr"),
-    Nodes.TernaryNode: FnContainerThingy("exprs", "eval_ternary_expr"),
-    Nodes.CallNode: FnContainerThingy("exprs", "eval_call_expr"),
-    Nodes.AssignmentNode: FnContainerThingy("stmts", "eval_assignment"),
-    Nodes.VarDeclarationNode: FnContainerThingy("stmts", "eval_var_declaration"),
-    Nodes.ModifierAssignmentNode: FnContainerThingy("stmts", "eval_modifier_assignment"),
-    Nodes.ProgramNode: FnContainerThingy("stmts", "eval_program")
+eval_registry: dict[type[Nodes.StmtNode], EvaluationHandler] = {
+    Nodes.IdentifierNode: EvaluationHandler("exprs", "eval_identifier"),
+    Nodes.IntNode: EvaluationHandler("Value", "Int"),
+    Nodes.FloatNode: EvaluationHandler("Value", "Float"),
+    Nodes.NullNode: EvaluationHandler("Value", "Null", ()),
+    Nodes.StrNode: EvaluationHandler("Value", "Str"),
+    Nodes.BoolNode: EvaluationHandler("Value", "Bool"),
+    Nodes.ListNode: EvaluationHandler("Value", "List"),
+    Nodes.ConditionalNode: EvaluationHandler("stmts", "eval_conditional"),
+    Nodes.WhileLoopNode: EvaluationHandler("stmts", "eval_while_loop"),
+    Nodes.GlorifiedWhileLoopNode: EvaluationHandler("smts", "eval_glorified_while_loop"),
+    Nodes.BreakNode: EvaluationHandler("stmts", "eval_break"),
+    Nodes.ContinueNode: EvaluationHandler("stmts", "eval_continue"),
+    Nodes.ScopeBlockNode: EvaluationHandler("stmts", "eval_scope_block"),
+    Nodes.SubscriptionNode: EvaluationHandler("exprs", "eval_subscription"),
+    Nodes.MemberAccessNode: EvaluationHandler("exprs", "eval_member_access"),
+    Nodes.UnaryNode: EvaluationHandler("exprs", "eval_unary"),
+    Nodes.WalrusNode: EvaluationHandler("exprs", "eval_walrus"),
+    Nodes.BinaryNode: EvaluationHandler("exprs", "eval_binary_expr"),
+    Nodes.ComparisonNode: EvaluationHandler("exprs", "eval_comparison_expr"),
+    Nodes.TernaryNode: EvaluationHandler("exprs", "eval_ternary_expr"),
+    Nodes.CallNode: EvaluationHandler("exprs", "eval_call_expr"),
+    Nodes.AssignmentNode: EvaluationHandler("stmts", "eval_assignment"),
+    Nodes.VarDeclarationNode: EvaluationHandler("stmts", "eval_var_declaration"),
+    Nodes.ModifierAssignmentNode: EvaluationHandler("stmts", "eval_modifier_assignment"),
+    Nodes.ProgramNode: EvaluationHandler("stmts", "eval_program")
 }
 
-def evaluate(node: Nodes.Stmt, env: Env) -> Value.RuntimeVal:
+def evaluate(node: Nodes.StmtNode, env: Env) -> values.RuntimeVal:
     import runtime.eval.exprs as exprs
     import runtime.eval.stmts as stmts
-    
+
     try:
-        for node_class, ct in dct.items():
-            # ^ Special cases
-            # ? Code block
-            if node_class == Nodes.CodeBlock and isinstance(node, Nodes.CodeBlock):
-                code_block_env = Env(env)
-                val = exprs.eval_code_block(node, code_block_env)
-                del code_block_env
-                return val
-            
-            # ^ Normal cases
-            
-            if isinstance(node, node_class):
-                ## A primitive value
-                if ct.package == "Value":
-                    if ct.args is None:
-                        return getattr(Value, ct.fn)(node.value)
-                    return getattr(Value, ct.fn)(*ct.args)
-                
-                return getattr(eval(ct.package), ct.fn)(node, env)
+        for node_class, handler in eval_registry.items():
+            if not isinstance(node, node_class):
+                continue
+
+            if handler.package == "Value":
+                return getattr(values, handler.function_name)(*(node.value,) if handler.static_args is None else handler.static_args)
+
+            # Dynamic import routing (if you want to avoid fixed `import` above)
+            mod = {"exprs": exprs, "stmts": stmts}[handler.package]
+            return getattr(mod, handler.function_name)(node, env)
+
     except errors.BreakLoop:
         raise errors.SyntaxError("'break' run outside of a loop")
     except errors.ContinueLoop:
@@ -69,7 +61,10 @@ def evaluate(node: Nodes.Stmt, env: Env) -> Value.RuntimeVal:
     except errors.ReturnValue:
         raise errors.SyntaxError("'return' run outside of a function")
 
+
     # $ If the code reaches here, it means that there's an invalid node in the AST
     # $ that the interperter couldn't identify, which should never happened
-    # ! Throw an error to signify
-    raise errors.InternalError(f"Unable to parse AST node {node}")
+    # ! Throw an InternalError to signify
+    raise errors.InternalError(
+        f"No evaluator registered for AST node: {type(node).__name__}"
+    )

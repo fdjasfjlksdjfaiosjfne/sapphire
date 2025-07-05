@@ -3,7 +3,8 @@ from parser.lexer import tokenize
 from parser.parser import produce_program_ast
 from runtime.interpreter import evaluate
 from runtime.env import setup_global_scope
-
+from utils.common_bug_check import check
+check()
 global_env = setup_global_scope()
 
 while True:
@@ -11,7 +12,7 @@ while True:
     inpt = input(">>> ")
     
     # Process it
-    tkns = tokenize(inpt, {})
+    tkns = tokenize(inpt)
     # print(tkns, end = "\n\n")
     ast_node = produce_program_ast(tkns)
     # print(ast_node, end = "\n\n")
@@ -22,34 +23,69 @@ while True:
 
 # Comment guidelines (in general)
 # Note that this is initially written about 1 or 2 years ago so...a lot has changed regarding me and this thing since then
-# ! (Red, Bold): Explain an error that is going to be thrown or (inclusive) its condition
-# @ (Orange): Deprecation notices
-# TODO (Orange, bold): ...Do I need to explain this one?
-# ~ (Yellow): Temporary hacks, known bugs or warnings
-# $ (Lime): Context headers of a code section/function. Might act as ? sometimes because...uh...yes
-# * (Green): Not really used much as of now, initially for affirming confirmation and stuff
-# > (Teal): Not really used much as of now, initially for desicions in the process of making code
-# % (Sapphire): Initially performance metrics, now unassigned because I don't 
-# % care about performance enough to give a dedicated color to it :melting_face:
-# ? (Blue): Explaination of a code snippet. Initially takes the place of $ when it doesn't exist
-# & (Lavender): I forgot :<
-# ^ (Purple): Category divider
-# # (White): Standard Comments
-# // (Gray, Strikethrough): Scraped code
-# (Gray): When I don't feel like assign a tag to the comment
 
-# Bonus: Adding ` (backtick) before a tag or just use it as a tag inverts its background color and text color
-# Not used for anything, past me just feel like making it for no reason
-# `! Red
-# `@ Orange
-# `~ Yellow
-# `* Green
-# `> Teal
-# `$ Lime
-# `% Sapphire
-# `? Blue
-# `& Lavender
-# `^ Purple
-# `# White
-# `// Strikethrough
-# ` Gray
+# ! (Red): Usually use to explain an error that is going to be thrown and a grasp why is it thrown
+# ! This tag is initially bold
+# Error: Alias for !
+# Red: Alias for !, usually use only for the color rather than the tag's original purpose
+
+# @ (Orange): Must-read texts
+# @ Initially used exclusively for deprecation notices, now expanded
+# Deprecated: Alias for @, use for its initial purpose
+# README: Alias for @, use for its new, extended purpose
+# Orange: Alias for @, usually use only for the color rather than the tag's original purpose
+# Peach: Alias for @, usually use only for the color rather than the tag's original purpose
+
+# TODO: (Orange, bold) ...Do I need to explain this one?
+
+# ~ (Yellow): Temporary hacks, known bugs or warnings for the future
+# Warning: Alias for ~
+# Bug: Alias for ~
+# Known Bug: Alias for ~
+# Hack: Alias for ~
+# Yellow: Alias for ~, usually use only for the color rather than the tag's original purpose
+
+# $ (Green): Context headers of a code section, function, or a comment
+# $ Ideally, it should be at the beginning of the section
+# $ May act as ? sometimes
+# Context: Alias for $
+# Lime: Alias for $, usually use only for the color rather than the tag's original purpose
+# $ Note that before the color reassignment of the * tag, this tag's color is called "Lime"
+# Green: Alias for $, usually use only for the color rather than the tag's original purpose
+
+# > (Teal): Cross-references
+# > Initially for desicions in the process of making code
+# Teal: Alias for >, usually use only for the color rather than the tag's original purpose
+
+# * (Sky): Solutions to a problem that is express in a comment chain
+# * Initially for simple affirmations
+# * This tag is initially assigned as a green darker than $, but has been changed for theme consistency.
+# Sky: Alias for *, usually use only for the color rather than the tag's original purpose
+
+# % (Sapphire): Initially performance metrics, currently unused.
+# % I just didn't use it enough, so I just scrap the original idea
+# Sapphire: Alias for %, usually use only for the color rather than the tag's original purpose
+
+# ? (Blue): Explaination of a code snippet, or reasons for a desicion that is noted in comments
+# ? This initially takes the place of $ before it becomes a thing
+# Explanation: Alias for ?
+# Blue: Alias for ?, usually use only for the color rather than the tag's original purpose
+
+# & (Lavender): Currently use as notes, mostly in an informal tone
+# & May have other purposes in the past since this noting purpose is just getting adopted on (2025-6-22 (YYYY-MM-DD))
+# & And I also forgot its former use :sob:
+# Note: Alias for &, made for its new purpose
+# Lavender: Alias for &, usually use only for the color rather than the tag's original purpose
+
+# ^ (Purple): Use as a category division
+# Category: Alias for ^
+# Mauve: Alias for ^, usually use only for the color rather than the tag's original purpose
+# Purple: Alias for ^, usually use only for the color rather than the tag's original purpose
+
+# # (White): Standard Comments
+# White: Alias for #, usually use only for the color rather than the tag's original purpose
+
+# // (Gray, Strikethrough): Scraped code
+
+# (Gray): When I don't feel like assign a tag to the comment
+# Or when it is a temporary comment

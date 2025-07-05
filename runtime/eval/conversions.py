@@ -1,56 +1,56 @@
 
 # @ This module is deprecated
-# @ As of now, please use functions from the runtime.native_fns modules instead
+# @ Please use __init__ from value wrappers runtime.values modules instead
 
 import warnings
 import parser.nodes as Nodes
-import runtime.values as Value
+import runtime.values as values
 from runtime.values import RuntimeVal, Number
 
-raise DeprecationWarning("Please use functions from the runtime.native_fns module instead.")
+raise DeprecationWarning("Please use '__init__()' from value wrappers from 'runtime.values' instead.")
 
-def bool(value: RuntimeVal) -> Value.Bool | Value.NOT_IMPLEMENTED:
-    if isinstance(value, Value.Bool):
+def bool(value: RuntimeVal) -> values.Bool | values.NOT_IMPLEMENTED:
+    if isinstance(value, values.Bool):
         return value
     elif isinstance(value, Number):
-        return Value.Bool(False) if value.value == 0 else Value.Bool(True)
-    elif isinstance(value, Value.Str):
-        return Value.Bool(False) if value.value == "" else Value.Bool(True)
-    elif isinstance(value, Value.Null):
-        return Value.Bool(False)
+        return values.Bool(False) if value.value == 0 else values.Bool(True)
+    elif isinstance(value, values.Str):
+        return values.Bool(False) if value.value == "" else values.Bool(True)
+    elif isinstance(value, values.Null):
+        return values.Bool(False)
     else:
-        return Value.NOT_IMPLEMENTED()
+        return values.NOT_IMPLEMENTED()
 
-def int(value: RuntimeVal) -> Value.Int | Value.NOT_IMPLEMENTED:
-    if isinstance(value, Value.Int):
+def int(value: RuntimeVal) -> values.Int | values.NOT_IMPLEMENTED:
+    if isinstance(value, values.Int):
         return value
-    elif isinstance(value, Value.Bool):
-        return Value.Int(1) if value.value else Value.Int(0)
-    elif isinstance(value, Value.Float):
-        return Value.Int(int(value.value))
-    elif isinstance(value, Value.Str):
+    elif isinstance(value, values.Bool):
+        return values.Int(1) if value.value else values.Int(0)
+    elif isinstance(value, values.Float):
+        return values.Int(int(value.value))
+    elif isinstance(value, values.Str):
         try:
-            return Value.Int(int(value.value))
+            return values.Int(int(value.value))
         except ValueError: 
             raise Exception()
-    elif isinstance(value, Value.Null):
-        return Value.Int(0)
+    elif isinstance(value, values.Null):
+        return values.Int(0)
     else:
-        return Value.NOT_IMPLEMENTED()
+        return values.NOT_IMPLEMENTED()
 
-def float(value: RuntimeVal) -> Value.Int | Value.NOT_IMPLEMENTED:
-    if isinstance(value, Value.Float):
+def float(value: RuntimeVal) -> values.Int | values.NOT_IMPLEMENTED:
+    if isinstance(value, values.Float):
         return value
-    elif isinstance(value, Value.Int):
-        return Value.Float(float(value))
-    elif isinstance(value, Value.Bool): 
-        return Value.Float(1.) if value.value else Value.Float(0.)
-    elif isinstance(value, Value.Str):
+    elif isinstance(value, values.Int):
+        return values.Float(float(value))
+    elif isinstance(value, values.Bool): 
+        return values.Float(1.) if value.value else values.Float(0.)
+    elif isinstance(value, values.Str):
         try:
-            return Value.Float(float(value.value))
+            return values.Float(float(value.value))
         except ValueError:
             raise Exception()
-    elif isinstance(value, Value.Null):
-        return Value.Float(0)
+    elif isinstance(value, values.Null):
+        return values.Float(0)
     else:
-        return Value.NOT_IMPLEMENTED()
+        return values.NOT_IMPLEMENTED()

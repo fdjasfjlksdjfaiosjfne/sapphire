@@ -1,198 +1,226 @@
 from __future__ import annotations
 import typing
+
 from parser.lexer import TokenType
 
-class Stmt:
+class BaseNode:
+    def __init__(self, *args, **kwargs):
+        ann = {}
+        # Collect all annotations from the class hierarchy
+        for cls in reversed(self.__class__.__mro__):
+            ann.update(getattr(cls, '__annotations__', {}))
+
+        ann_keys = list(ann.keys())
+
+        # Assign positional arguments
+        if len(args) > len(ann_keys):
+            raise TypeError(f"{self.__class__.__name__} expected at most {len(ann_keys)} positional arguments, got {len(args)}")
+        for i, value in enumerate(args):
+            setattr(self, ann_keys[i], value)
+
+        # Assign keyword arguments, checking for duplicates and invalid keys
+        for k in kwargs:
+            if k not in ann:
+                raise TypeError(f"{self.__class__.__name__} got an unexpected keyword argument '{k}'")
+            if hasattr(self, k):
+                raise TypeError(f"{self.__class__.__name__} got multiple values for argument '{k}'")
+            setattr(self, k, kwargs[k])
+
+        # Set remaining attributes to None if not already set
+        for k in ann:
+            if not hasattr(self, k):
+                setattr(self, k, None)
+
+class StmtNode(BaseNode):
     pass
 
-class Expr(Stmt): 
+class ExprNode(StmtNode): 
     pass
 
-
-class ProgramNode(Stmt):
+class ProgramNode(StmtNode):
+    body: CodeBlockNode
     def __init__(self):
-        self.body: CodeBlock = CodeBlock()
+        self.body = CodeBlockNode()
     def __iter__(self):
         yield from self.body
+class VarDeclarationNode(StmtNode):
+    
+    constant: bool
 
+class ModifierAssignmentNode(StmtNode):
+    assignee: ExprNode
+    assign_oper: str
+    value: ExprNode
 
-class VarDeclarationNode(Stmt):
-    def __init__(self, name: str, value: typing.Optional[Expr] = None, constant: bool = False):
-        self.name = name
-        self.value = value
-        self.constant = constant
+class AssignmentNode(StmtNode):
+    idents_and_expr: typing.List[ExprNode]
 
+class WalrusNode(ExprNode):
+    assignee: ExprNode
+    value: ExprNode
 
-class ModifierAssignmentNode(Stmt):
-    def __init__(self, assignee: Expr, assign_oper: str, value: Expr):
-        self.assignee = assignee
-        self.assign_oper = assign_oper
-        self.value = value
+class ReturnNode(StmtNode):
+    value: ExprNode
 
+class ConditionalNode(StmtNode):
+    condition: ExprNode
+    code_block: CodeBlockNode
+    otherwise: CodeBlockNode | ConditionalNode | None
 
-class AssignmentNode(Stmt):
-    def __init__(self, idents_and_expr: typing.List[Expr]):
-        self.idents_and_expr = idents_and_expr
+class WhileLoopNode(StmtNode):
+    condition: ExprNode
+    code_block: CodeBlockNode
+    else_block: CodeBlockNode | None
 
+class GlorifiedWhileLoopNode(StmtNode):
+    init: ExprNode | VarDeclarationNode
+    condition: ExprNode
+    repeat: ExprNode
+    code_block: CodeBlockNode
+    else_block: CodeBlockNode | None
 
-class WalrusNode(Expr):
-    def __init__(self, assignee: Expr, value: Expr):
-        self.assignee = assignee
-        self.value = value
+class ForLoopNode(StmtNode):
+    iter_vars: list[str]
+    iterable: ExprNode
+    code_block: CodeBlockNode
+    else_block: CodeBlockNode | None
 
+class BreakNode(StmtNode): 
+    label: str | None
 
-class Return(Stmt):
-    def __init__(self, value: Expr):
-        self.value = value
+class ContinueNode(StmtNode):
+    label: str | None
 
-class ConditionalNode(Stmt):
-    def __init__(self, condition: Expr, code_block: CodeBlock, otherwise: typing.Optional[ConditionalNode | CodeBlock] = None):
-        self.condition = condition
-        self.code_block = code_block
-        self.otherwise = otherwise
-
-class WhileLoopNode(Stmt):
-    def __init__(self, condition: Expr, code_block: CodeBlock, else_block: typing.Optional[CodeBlock] = None):
-        self.condition = condition
-        self.code_block = code_block
-        self.else_block = else_block
-
-# for (init; condition; repeat) {...}
-class GlorifiedWhileLoopNode(Stmt):
-    def __init__(self, init: Expr, condition: Expr, repeat: Expr, code_block: CodeBlock, else_block: typing.Optional[CodeBlock] = None):
-        self.init = init
-        self.condition = condition
-        self.repeat = repeat
-        self.code_block = code_block
-        self.else_block = else_block
-
-# for ... in iterable {...}
-class ForLoop(Stmt):
-    def __init__(self, iter_vars: list[str], iterable: Expr, code_block: CodeBlock):
-        self.iter_vars = iter_vars
-        self.iterable = iterable
-        self.code_block = code_block
-
-class BreakNode(Stmt): 
-    def __init__(self, label: typing.Optional[str] = None):
-        self.label = label
-
-class ContinueNode(Stmt):
-    def __init__(self, label: typing.Optional[str] = None):
-        self.label = label
-
-class MatchCase(Expr):
-    # This is way too complicated for now
-    # TODO
+class MatchPatternNode(BaseNode):
     pass
 
+class ValuePattern(MatchPatternNode):
+    # case 123
+    # case "foo"
+    # case 3.41
+    # case null
+    val: ExprNode
 
-class UnaryNode(Expr):
-    def __init__(self, expr: Expr, attachment: TokenType, position: typing.Literal["Prefix", "Postfix"]):
-        self.expr = expr
-        self.attachment = attachment
-        self.position = position
+class WildcardPattern(MatchPatternNode):
+    # case _
+    pass
 
+class VariablePattern(MatchPatternNode):
+    # case ... as foo
+    pattern: MatchPatternNode
+    name: str
 
-class BinaryNode(Expr):
-    def __init__(self, left: Expr, oper: TokenType, right: Expr):
-        self.left = left
-        self.oper = oper
-        self.right = right
+class SequencePattern(MatchPatternNode):
+    # case [x, y, z]
+    elements: list[VariablePattern | WildcardPattern | EllipsisNode]
 
+class MappingPattern(MatchPatternNode):
+    # case {"x": x}
+    elements: list[tuple[ExprNode, MatchPatternNode]]
 
-class TernaryNode(Expr):
-    def __init__(self, cond: Expr, true: Expr, false: Expr):
-        self.cond = cond
-        self.true = true
-        self.false = false
+class MultipleChoicePattern(MatchPatternNode):
+    # case 1, 2, 3
+    elements: list[MatchPatternNode]
+class CaseNode(BaseNode):
+    pattern: MatchPatternNode
+    guard: ExprNode | None
+    body: CodeBlockNode
 
+class MatchCaseNode(ExprNode):
+    subject: ExprNode
+    cases: list[tuple[MatchPatternNode, CodeBlockNode]]
 
-class MemberAccessNode(Expr):
-    def __init__(self, obj: Expr, attr: str):
-        self.obj = obj
-        self.attr = attr
+class UnaryNode(ExprNode):
+    expr: ExprNode
+    attachment: TokenType
+    position: TokenType
 
+class BinaryNode(ExprNode):
+    left: ExprNode
+    oper: TokenType
+    right: ExprNode
 
-class SubscriptionNode(Expr):
-    def __init__(self, obj: Expr, item: Expr):
-        self.obj = obj
-        self.item = item
+class TernaryNode(ExprNode):
+    cond: ExprNode
+    true: ExprNode
+    false: ExprNode
 
+class MemberAccessNode(ExprNode):
+    obj: ExprNode
+    attr: str
 
-class ComparisonNode(Expr):
-    def __init__(self, left: Expr, operators: typing.List[TokenType], exprs: typing.List[Expr]):
-        self.left = left
-        self.operators = operators
-        self.exprs = exprs
+class SubscriptionNode(ExprNode):
+    obj: ExprNode
+    item: ExprNode
 
+class ComparisonNode(ExprNode):
+    left: ExprNode
+    operators: list[TokenType]
+    exprs: list[ExprNode]
 
 class CallArgumentList(typing.NamedTuple):
-    args: typing.List[Expr] = []
-    kwargs: typing.Dict[str, Expr] = {}
+    args: list[ExprNode] = []
+    kwargs: dict[str, ExprNode] = {}
 
+class CallNode(ExprNode):
 
-class CallNode(Expr):
-    def __init__(self, caller: Expr, args: CallArgumentList):
-        self.caller = caller
-        self.args = args
+    caller: ExprNode
+    args: CallArgumentList
 
+class LiteralNode(ExprNode):
+    pass
 
-class IntNode(Expr):
-    def __init__(self, value: int):
-        self.value = value
+class IntNode(LiteralNode):
+    value: int
 
+class FloatNode(LiteralNode):
+    value: float
 
-class FloatNode(Expr):
-    def __init__(self, value: float):
-        self.value = value
+class StrNode(LiteralNode):
+    value: str
 
+class BoolNode(LiteralNode):
+    value: bool
 
-class StrNode(Expr):
-    def __init__(self, value: str):
-        self.value = value
+class NullNode(LiteralNode):
+    pass
 
+class NotImplementedNode(LiteralNode):
+    pass
 
-class BoolNode(Expr):
-    def __init__(self, value: bool):
-        self.value = value
+class EllipsisNode(LiteralNode):
+    pass
 
+class IdentifierNode(ExprNode):
+    symbol: str
 
-class NullNode(Expr):
+class ListNode(ExprNode):
+    value: list[ExprNode]
+
+class TupleNode(ExprNode):
+    value: list[ExprNode]
+
+class SetNode(ExprNode):
+    value: list[ExprNode]
+
+class DictNode(ExprNode):
+    value: list[tuple[ExprNode, ExprNode]]
+
+class ScopeBlockNode(ExprNode):
+    code_block: CodeBlockNode
+
+class CodeBlockNode(BaseNode):
+    body: list
     def __init__(self):
-        pass
-
-
-class IdentifierNode(Expr):
-    def __init__(self, symbol: str):
-        self.symbol = symbol
-
-class ListNode(Expr):
-    def __init__(self, list: list[Expr]):
-        self.list = list
-
-class TupleNode(Expr):
-    def __init__(self, tple: list[Expr]):
-        self.tple = tple
-
-class SetNode(Expr):
-    def __init__(self, st: list[Expr]):
-        self.st = st
-
-class ScopeBlock(Expr):
-    def __init__(self, code_block: CodeBlock):
-        self.code_block = code_block
-
-class CodeBlock(Expr):
-    def __init__(self):
-        self.body: list = []
+        self.body = []
     def append(self, object: typing.Any, /):
-        # Scrolling to find every subclass of Stmt and beyond
+        from backend import errors
         t = type(object)
-        if Stmt not in t.mro():
-            raise Exception()
+        if BaseNode not in t.mro():
+            raise errors.InternalError(t, t.mro)
+        # & Fuck walrus
         elif t == WalrusNode:
-            raise Exception()
+            raise errors.SyntaxError("The walrus operator cannot be used in this context")
         self.body.append(object)
     def __iter__(self):
         yield from self.body

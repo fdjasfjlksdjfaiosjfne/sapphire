@@ -19,3 +19,4 @@ tempCodeRunnerFile.*
 *.ignore.*
 samples
 .mypy_cache
+utils/sapconfig.schema.yaml

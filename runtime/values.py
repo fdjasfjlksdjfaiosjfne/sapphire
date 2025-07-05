@@ -42,7 +42,6 @@ class RuntimeValMeta(type):
         mcls.registry.add(mcls)
 
         if cls_name != "RuntimeVal":
-            # 
             for base in bases:
                 if hasattr(base, "sap_props") and isinstance(base.sap_props, dict):
                     # $ namespace["sap_props"] |= base.sap_props wouldn't work
@@ -53,7 +52,8 @@ class RuntimeValMeta(type):
                     # namespace["sap_props"] =| base.sap_props
                     namespace["sap_props"] = base.sap_props | namespace["sap_props"]
 
-            namespace.setdefault("__init__", __init__)
+            if "__init__" not in namespace or namespace["__init__"] is typing._overload_dummy:
+                namespace["__init__"] = __init__
             namespace.setdefault("__eq__", __eq__)
             namespace.setdefault("__ne__", __ne__)
             namespace.setdefault("__slots__", tuple(annotations.keys()))
@@ -297,8 +297,11 @@ class Bool(RuntimeVal):
         elif (coerced := try_dunder_coerce(value, "__bool__", Bool)):
             self.value = coerced.value
         else:
-            raise errors.TypeError(f"{value!r} cannot be used")
+            raise errors.TypeError(f"{value!r} cannot be converted to a boolean")
     def sap_props():
+        __binand__ = super().sap_props["__and__"]
+        __binor__ = super().sap_props["__or__"]
+        __binxor__ = super().sap_props["__xor__"]
         def __str__(self):
             return str(self.value).lower()
         def __repr__(self):
@@ -323,6 +326,45 @@ class NOT_IMPLEMENTED(RuntimeVal):
             return "NotImplemented"
         return locals()
 
+class List(RuntimeVal):
+    value: list[RuntimeVal]
+    def __init__(self, iterable = None, /):
+        if isinstance(iterable, None):
+            self.value = []
+        elif isinstance(iterable, (list, tuple, set)):
+            self.value = list(iterable)
+        elif (coerced := try_dunder_coerce(iterable, "__list__", List)):
+            self.value = coerced.value
+        else:
+            raise errors.TypeError(f"{iterable!r} cannot be used")
+    
+    @dunder_dict
+    def sap_props():
+        def append(self, object, /) -> Null:
+            self.value.append(object)
+            return Null()
+        
+        def insert(self, index, object, /) -> Null:
+            self.value.insert(index, object)
+            return Null()
+
+        def __list__(self):
+            return self
+        def __tuple__(self):
+            return Tuple()
+
+class Tuple(RuntimeVal):
+    value: list[RuntimeVal]
+    def __init__(self, iterable = None, /):
+        if isinstance(iterable, None):
+            self.value = []
+        elif isinstance(iterable, (list, tuple, set)):
+            self.value = list(iterable)
+        elif (coerced := try_dunder_coerce(iterable, "__tuple__", Tuple)):
+            self.value = coerced.value
+        else:
+            raise errors.TypeError(f"{iterable!r} cannot be used")
+
 class Argument(typing.NamedTuple):
     name: str
     kind: typing.Literal["Pos", "PosKey", "Key", "*", "**"]
@@ -335,9 +377,12 @@ class NativeFn(RuntimeVal):
     arguments: list[Argument]
     caller: typing.Callable[..., RuntimeVal]
     return_hint: typing.Any
+    def __call__(self, *args: RuntimeVal, **kwargs: RuntimeVal):
+            return self.caller(*args, **kwargs)
     def sap_props():
         def __call__(self, *args: RuntimeVal, **kwargs: RuntimeVal):
             return self.caller(*args, **kwargs)
+        return locals()
     def bind(self, instance):
         return NativeFn(
             self.arguments[1:],

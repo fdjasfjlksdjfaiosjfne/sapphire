@@ -3,27 +3,26 @@
     They are functions that are not defined using the language, but can be access using it.
 """
 
-import values as Values
-
-
+import runtime.values as Values
+import builtins
 
 # abs() aiter() all() anext() any() ascii() bin() bool() callable()
 # chr() classmethod() compile() complex() delattr() dict() dir()
 # divmod() filter() float() format() frozenset() getattr() globals()
-# hasattr() hash() help() hex() imput() int() isinstance() issubclass()
+# hasattr() hash() help() hex() input() int() isinstance() issubclass()
 # iter() len() list() locals() map() max() memoryview() min() next()
 # object() oct() open() ord() pow() print() property() range() repr()
 # reversed() round() set() setattr() slice() sorted() staticmethod()
 # str() sum() super() tuple() type() vars() zip() __import__()
 
-# def s_print(*args, sep, file, end):
-#     print(
-#         *(s_str(obj) for obj in args), 
-#         sep = sep,
-#         file = file,
-#         end = end
-#     )
-#     return Values.Null()
+def print(*args, sep, file, end):
+    builtins.print(
+        *(Values.Str(obj) for obj in args), 
+        sep = sep,
+        file = file,
+        end = end
+    )
+    return Values.Null()
 
 # def s_len(obj: Values.RuntimeVal, /):
 #     __len__ = obj.__sap_dunder_map__.get("__len__", None)

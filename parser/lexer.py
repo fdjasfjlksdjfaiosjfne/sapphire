@@ -3,6 +3,7 @@ from enum import Enum, auto, unique
 import typing
 
 from regex import compile, Pattern, match
+from backend import errors
 
 class Token:
     def __init__(self, type: TokenType, value: str | None = None):
@@ -21,6 +22,9 @@ class Token:
         if isinstance(value, TokenType):
             return self.type == value
         return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash(self.type)
 
 @unique
 class TokenType(Enum):
@@ -55,6 +59,7 @@ class TokenType(Enum):
     Scope = auto()
     In = auto()
     NotIn = auto()
+    Return = auto()
     Match = auto()
     Case = auto()
     Break = auto()
@@ -114,7 +119,7 @@ class RegexPatternConfiguration(typing.NamedTuple):
 def RPC(*patterns, include_value: str = False):
     return RegexPatternConfiguration(patterns, include_value)
 
-regex_patterns: typing.Dict[TokenType, RegexPatternConfiguration] = {
+regex_patterns: dict[TokenType, RegexPatternConfiguration] = {
     TokenType.NewLine: RPC(compile(r"[\r\n]+")),
     TokenType.NOTHING: RPC(
         compile(r"\t+"),
@@ -135,6 +140,7 @@ regex_patterns: typing.Dict[TokenType, RegexPatternConfiguration] = {
     TokenType.Not: RPC(compile("not")),
     TokenType.In: RPC(compile("in")),
     TokenType.NotIn: RPC(compile("not in")),
+    TokenType.Return: RPC(compile("return")),
     TokenType.If: RPC(compile("if")),
     TokenType.Elif: RPC(compile("elif")),
     TokenType.Else: RPC(compile("else")),
@@ -210,8 +216,7 @@ regex_patterns: typing.Dict[TokenType, RegexPatternConfiguration] = {
     ),
 }
 
-def tokenize(src: str, conf: dict) -> typing.List[Token]:
-    
+def tokenize(src: str) -> list[Token]:
     def snap(match, token_type: TokenType, include_match: bool = True) -> None:
         nonlocal src
         src = src[len(match):]
@@ -256,7 +261,7 @@ def tokenize(src: str, conf: dict) -> typing.List[Token]:
                     continue
                 break
             else:
-                raise Exception("Unregconized character.")
+                raise errors.SyntaxError(f"Invalid character found: {src}")
     tokens = [token for token in tokens if token != TokenType.NOTHING]
     tokens.append(Token(TokenType.EoF))
     return tokens

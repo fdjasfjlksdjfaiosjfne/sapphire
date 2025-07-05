@@ -8,6 +8,9 @@ class AttributeError(SapphireError):
     pass
 
 class InternalError(SapphireError):
+    """
+    Thrown when an error has been determined as a internal issue in the interpreter.
+    """
     pass
 
 class SyntaxError(SapphireError):
