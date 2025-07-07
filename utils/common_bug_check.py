@@ -1,8 +1,13 @@
-"""Check for any common oversights that may or may not appear in any of the files here.
+"""Check for any common oversights that may or may not appear in any of the examined files here.
 """
 
-import ast, typing, inspect, sys, types
+import ast, typing, inspect, sys, types, copy, contextlib
 from rich import print
+
+# TODO: Check for any import statements and change conditions accordingly
+# $ For example: You want to look for '@overload' from the 'typing' module
+# $ If there's 'from typing import overload', it will check for '@overload'
+# $ If there's 'import typing', it will check for '@typing.overload' instead
 
 class BaseBugChecker(ast.NodeVisitor):
     def __init__(self, file: str, source: types.ModuleType):
@@ -81,27 +86,83 @@ class LexerBugChecker(BaseBugChecker):
             self.generic_visit(node)
 
 class ParserBugChecker(BaseBugChecker):
+    @typing.override
+    def __init__(self, file: str, source: types.ModuleType):
+        super().__init__(file, source)
+        # TODO: Make use of this...
+        self.context_values_noted: dict[str, dict[str, ast.expr]] = {}
+
+    @typing.override
     def visit_FunctionDef(self, node: ast.FunctionDef):
         self.function_stack.append(node.name)
 
+        # ^ Check whether it has the @typing.overload decorator
+        is_overloaded_decl = ast.Attribute(ast.Name("typing", ast.Load()), "overload", ast.Load()) in node.decorator_list
+        if is_overloaded_decl:
+            self.context_values_noted.setdefault(node.name, {})
+            current_context_values: lambda: self.context_values_noted[node.name]
+            # ^ Check to see whether the body has more than just a placeholder
+            if node.body in [[ast.Pass()], [ast.Constant("...")]]:
+                self.warnings += 1
+                self.print_error_msg(
+                    "Warning", node.lineno, node.end_lineno,
+                    "There's seems to be something more in a overload-ed function's body other than '...' or 'pass'"
+                )
+            
+            # ^ Adding all of the contexts written on @overload
+            for kwarg, default in zip(node.args.kwonlyargs, node.args.kw_defaults):
+                if kwarg.arg not in self.context_values_noted:
+                    if default is None:
+                        self.warnings += 1
+                        self.print_error_msg(
+                            "Warning", node.lineno, node.end_lineno,
+                            f"There's no default stated for context option {kwarg.arg} in {node.name}'s overloaded declaration"
+                        )
+                    current_context_values[kwarg.arg] = default
+        elif ast.Attribute(ast.Name("typing", ast.Load()), "override", ast.Load()) in node.decorator_list:
+            # $ There are no classes to override methods...
+            self.warnings += 1
+            self.print_error_msg(
+                "Warning", node.lineno, node.end_lineno,
+                "'@typing.override' detected in a place where no classes are present. Do you mean '@typing.overload'?"
+            )
+
         # ^ Check whether 'tokens, ..., /'
         if not (len(node.args.posonlyargs) > 0 and node.args.posonlyargs[0].arg == "tokens"):
-            self.bugs += 1
-            self.print_error_msg(
-                "Bug", 
-                node.args.posonlyargs[0].lineno if len(node.args.posonlyargs) > 0 else node.lineno, 
-                node.args.posonlyargs[0].end_lineno if len(node.args.posonlyargs) > 0 else node.end_lineno,
-                "'tokens' is not the first positional-only argument"
-            )
+            if is_overloaded_decl:
+                self.warnings += 1
+                self.print_error_msg(
+                    "Warning", 
+                    node.args.posonlyargs[0].lineno if len(node.args.posonlyargs) > 0 else node.lineno, 
+                    node.args.posonlyargs[0].end_lineno if len(node.args.posonlyargs) > 0 else node.end_lineno,
+                    f"'tokens' is not the first positional-only argument in an overloaded declaration of {node.name}"
+                )
+            else:
+                self.bugs += 1
+                self.print_error_msg(
+                    "Bug", 
+                    node.args.posonlyargs[0].lineno if len(node.args.posonlyargs) > 0 else node.lineno, 
+                    node.args.posonlyargs[0].end_lineno if len(node.args.posonlyargs) > 0 else node.end_lineno,
+                    f"'tokens' is not the first positional-only argument in the function decalration of {node.name}"
+                )
         # ^ Check whether there is a keyword variadic argument named **context
         if node.args.kwarg is None or node.args.kwarg.arg != "context":
-            self.bugs += 1
-            self.print_error_msg(
-                "Bug", 
-                node.args.kwarg.lineno if node.args.kwarg is not None else node.lineno,
-                node.args.kwarg.end_lineno if node.args.kwarg is not None else node.end_lineno,
-                f"There's no '**context' in function declaration of {node.name}"
-            )
+            if is_overloaded_decl:
+                self.warnings += 1
+                self.print_error_msg(
+                    "Warning", 
+                    node.args.kwarg.lineno if node.args.kwarg is not None else node.lineno,
+                    node.args.kwarg.end_lineno if node.args.kwarg is not None else node.end_lineno,
+                    f"There's no '**context' in an overloaded function declaration of {node.name}"
+                )
+            else:
+                self.bugs += 1
+                self.print_error_msg(
+                    "Bug", 
+                    node.args.kwarg.lineno if node.args.kwarg is not None else node.lineno,
+                    node.args.kwarg.end_lineno if node.args.kwarg is not None else node.end_lineno,
+                    f"There's no '**context' in function declaration of {node.name}"
+                )
 
         self.generic_visit(node)
         self.function_stack.pop()
@@ -116,6 +177,9 @@ class ParserBugChecker(BaseBugChecker):
         func = node.func
         name = get_func_name(func)
         is_parse_fn = name.startswith("parse_")
+
+        # ^ Check whether
+
         # ^ Check for the 'tokens' arg
         if is_parse_fn or name == "eat":
             if not (isinstance(node.args[0], ast.Name) and node.args[0].id == "tokens"):
@@ -135,11 +199,11 @@ class ParserBugChecker(BaseBugChecker):
                 self.print_error_msg(
                     "Bug", node.lineno, node.end_lineno, 
                     f"'**context' not added as an argument in a parsing function call ('{name}')"
-                    )
+                )
         self.generic_visit(node)
 
 class InterpreterBugChecker(BaseBugChecker):
-    
+    @typing.override
     def visit_FunctionDef(self, node):
         self.function_stack.append(node.name)
         if len(node.args.posonlyargs) < 2 or node.args.posonlyargs[1].arg != "env":
@@ -188,7 +252,11 @@ def check():
 
     # ^ Parser
     from parser.parsing import exprs, stmts, mem_sub_call
-    for mod, path in {exprs: "parser/parsing/exprs.py", stmts: "parser/parsing/stmts.py", mem_sub_call: "parser/parsing/mem_sub_call.py"}.items():
+    for mod, path in {
+        exprs: "parser/parsing/exprs.py", 
+        stmts: "parser/parsing/stmts.py", 
+        mem_sub_call: "parser/parsing/mem_sub_call.py"
+    }.items():
         pbc = ParserBugChecker(path, mod)
         pbc.visit()
     
