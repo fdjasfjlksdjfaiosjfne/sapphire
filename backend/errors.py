@@ -1,4 +1,4 @@
-class SapphireError(BaseException):
+class SapphireError(Exception):
     pass
 
 class ValueError(SapphireError):

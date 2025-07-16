@@ -6,7 +6,7 @@ from backend import errors
 
 @dataclass
 class VarValue:
-    value: values.RuntimeVal
+    value: values.RuntimeVal | None
     constant: bool
 
 class Env:
@@ -21,7 +21,7 @@ class Env:
             raise errors.SyntaxError("A constant declaration must include a value")
         self.variables.setdefault(name, VarValue(value, const))
     
-    def assign(self, name: str, value: values.RuntimeVal) -> values.RuntimeVal:
+    def assign(self, name: str, value: values.RuntimeVal) -> None:
         if name in self.variables:
             if self.variables[name].constant:
                 raise errors.SyntaxError("Cannot change a constant value")
@@ -30,8 +30,13 @@ class Env:
     
     def get(self, name: str) -> values.RuntimeVal:
         env = self.resolve(name)
-        return env.variables.get(name).value
-    
+        var = env.variables.get(name)
+        if var is None:
+            raise errors.VariableError(f"Variable '{name}' has not been assigned")
+        if var.value is None:
+            raise errors.VariableError(f"Variable '{name}', although declared, has not been assigned")
+        return var.value
+
     def resolve(self, name: str) -> Env | typing.NoReturn:
         if name in self.variables.keys():
             return self
@@ -39,11 +44,11 @@ class Env:
             raise Exception()
         return self.parent.resolve(name)
     
-    def __getitem__(self, key: str) -> values.RuntimeVal:
+    def __getitem__(self, key: str) -> values.RuntimeVal | None:
         return self.variables[key].value
     
     def __setitem__(self, key: str, value: values.RuntimeVal) -> None:
-        self.variables.setdefault(key, value)
+        self.variables.setdefault(key, VarValue(value, False))
     
     def __contains__(self, ident: str) -> bool:
         return ident in self.variables.keys()
@@ -51,13 +56,13 @@ class Env:
 def setup_global_scope():
     from runtime import native_fns
     env = Env()
-    env.assign("print", values.NativeFn(caller = native_fns.print,
-        args_layout = [
-            values.Argument("values", "*"),
-            values.Argument("sep", "Key", " "),
-            values.Argument("end", "Key", "\n"),
-            values.Argument("file", "Key", None),
-            values.Argument("flush", bool, False)
-        ]
-    ))
+    # env.assign("print", values.NativeFn(caller = native_fns.print,
+    #     args_layout = [
+    #         values.Argument("values", "*"),
+    #         values.Argument("sep", "Key", " "),
+    #         values.Argument("end", "Key", "\n"),
+    #         values.Argument("file", "Key", None),
+    #         values.Argument("flush", bool, False)
+    #     ]
+    # ))
     return env

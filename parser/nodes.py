@@ -1,8 +1,13 @@
 from __future__ import annotations
 import typing
+import enum
 
 from parser.lexer import TokenType
 
+class ExprContext(enum.Enum):
+    Load = 0
+    Store = 1
+    Del = 2
 class BaseNode:
     def __init__(self, *args, **kwargs):
         ann = {}
@@ -30,6 +35,16 @@ class BaseNode:
         for k in ann:
             if not hasattr(self, k):
                 setattr(self, k, None)
+    
+    def __eq__(self, other) -> bool:
+        if isinstance(other, type(self)):
+            return self.__dict__ == other.__dict__
+        return False
+
+    def __ne__(self, other) -> bool:
+        if isinstance(other, type(self)):
+            return self.__dict__ != other.__dict__
+        return True
 
 class StmtNode(BaseNode):
     pass
@@ -37,14 +52,18 @@ class StmtNode(BaseNode):
 class ExprNode(StmtNode): 
     pass
 
-class ProgramNode(StmtNode):
+class ModuleNode(StmtNode):
     body: CodeBlockNode
-    def __init__(self):
-        self.body = CodeBlockNode()
+    def __init__(self, body: CodeBlockNode | None = None):
+        if self.body is None:
+            self.body = CodeBlockNode()
+        else:
+            assert body is not None
+            self.body = body
     def __iter__(self):
         yield from self.body
 class VarDeclarationNode(StmtNode):
-    
+    ...
     constant: bool
 
 class ModifierAssignmentNode(StmtNode):
@@ -53,7 +72,7 @@ class ModifierAssignmentNode(StmtNode):
     value: ExprNode
 
 class AssignmentNode(StmtNode):
-    idents_and_expr: typing.List[ExprNode]
+    idents_and_expr: list[ExprNode]
 
 class WalrusNode(ExprNode):
     assignee: ExprNode
@@ -85,11 +104,20 @@ class ForLoopNode(StmtNode):
     code_block: CodeBlockNode
     else_block: CodeBlockNode | None
 
+class DoWhileLoopNode(StmtNode):
+    condition: ExprNode
+    code_block: CodeBlockNode
+    else_block: CodeBlockNode | None
+
 class BreakNode(StmtNode): 
     label: str | None
 
 class ContinueNode(StmtNode):
     label: str | None
+
+class ThrowNode(StmtNode):
+    error_expr: ExprNode | None
+    cause: ExprNode | None
 
 class MatchPatternNode(BaseNode):
     pass
@@ -128,7 +156,7 @@ class CaseNode(BaseNode):
 
 class MatchCaseNode(ExprNode):
     subject: ExprNode
-    cases: list[tuple[MatchPatternNode, CodeBlockNode]]
+    cases: list[MatchPatternNode]
 
 class UnaryNode(ExprNode):
     expr: ExprNode
@@ -145,13 +173,15 @@ class TernaryNode(ExprNode):
     true: ExprNode
     false: ExprNode
 
-class MemberAccessNode(ExprNode):
+class AttributeNode(ExprNode):
     obj: ExprNode
     attr: str
+    context: ExprContext
 
 class SubscriptionNode(ExprNode):
     obj: ExprNode
-    item: ExprNode
+    slice: tuple[ExprNode, ExprNode | None, ExprNode | None]
+    context: ExprContext
 
 class ComparisonNode(ExprNode):
     left: ExprNode
@@ -163,12 +193,11 @@ class CallArgumentList(typing.NamedTuple):
     kwargs: dict[str, ExprNode] = {}
 
 class CallNode(ExprNode):
-
     caller: ExprNode
     args: CallArgumentList
 
 class LiteralNode(ExprNode):
-    pass
+    value: typing.Any
 
 class IntNode(LiteralNode):
     value: int
@@ -178,6 +207,14 @@ class FloatNode(LiteralNode):
 
 class StrNode(LiteralNode):
     value: str
+
+class FormattedStrNode(ExprNode):
+    values: list[StrNode | FormattedValue]
+
+class FormattedValue(ExprNode):
+    value: ExprNode
+    conversion: int
+    formatting: FormattedStrNode | None
 
 class BoolNode(LiteralNode):
     value: bool
@@ -193,26 +230,59 @@ class EllipsisNode(LiteralNode):
 
 class IdentifierNode(ExprNode):
     symbol: str
+    context: ExprContext
 
 class ListNode(ExprNode):
     value: list[ExprNode]
 
+class ListComprehensionNode(ExprNode):
+    subject: ExprNode
+    iter_vars: list[str]
+    iterable: ExprNode
+    condition: ExprNode | None
+    otherwise: ExprNode | None
+
 class TupleNode(ExprNode):
     value: list[ExprNode]
+
+class GeneratorComprehensionNode(ExprNode):
+    subject: ExprNode
+    iter_vars: list[str]
+    iterable: ExprNode
+    condition: ExprNode | None
+    otherwise: ExprNode | None
 
 class SetNode(ExprNode):
     value: list[ExprNode]
 
+class SetComprehensionNode(ExprNode):
+    subject: ExprNode
+    iter_vars: list[str]
+    iterable: ExprNode
+    condition: ExprNode | None
+    otherwise: ExprNode | None
+
 class DictNode(ExprNode):
     value: list[tuple[ExprNode, ExprNode]]
+
+class DictComprehensionNode(ExprNode):
+    subject: tuple[ExprNode, ExprNode]
+    iter_vars: list[str]
+    iterable: ExprNode
+    condition: ExprNode | None
+    otherwise: ExprNode | None
 
 class ScopeBlockNode(ExprNode):
     code_block: CodeBlockNode
 
 class CodeBlockNode(BaseNode):
     body: list
-    def __init__(self):
-        self.body = []
+    def __init__(self, body: list | None = None):
+        if self.body is None:
+            self.body = []
+        else:
+            assert body is not None
+            self.body = body
     def append(self, object: typing.Any, /):
         from backend import errors
         t = type(object)

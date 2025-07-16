@@ -4,10 +4,50 @@ properties:
     languageCustomization:
         type: object
         description: >-
-            A place to add customization that can modify how the compiler treats the code.
+            A place to add customization that can modify 
+            how the compiler treats the code.
 
-            This can range from minor behaviour changes to imcompatible syntax modifiers.
+            This can range from minor behaviour changes 
+            to imcompatible syntax modifiers.
+
+            Also the simplest way to cause chaos for 
+            anyone that doesn't use a proper linter.
         properties:
+            redefine:
+                type: object
+                description: >-
+                    An object containing possible overrides for
+                    certain symbols and keywords in the language.
+                properties:
+                    notEqual:
+                        type: string
+                        enum: ['!=', '><', '<>']
+                    functionDef:
+                        oneOf:
+                        - const: def
+                          description: Python-style def.
+                        - const: fn
+                          description: Rust-style fn.
+                        - const: function
+                          description: JavaScript-style function.
+                        - const: fun
+                          description: Kotlin-style fun.
+                        - const: func
+                          description: I forgor
+                    classDef:
+                        type: string
+                        enum: [cls, class]
+                    elseIf:
+                        oneOf: 
+                        - const: elseif
+                          description: Ruby-style elseif.
+                        - const: else if
+                          description: C-style two-token else-if.
+                        - const: elif
+                          description: Python-style elif.
+                        - const: elsif
+                          description: Perl-style elsif.
+                additionalProperties: false
             codeBlocks:
                 type: string
                 description: >-
@@ -17,7 +57,7 @@ properties:
                     
                     - braces: Uses curly braces ({}) as code blocks.
                     
-                    - identation: Use indentation to limit code block.
+                    - indentation: Use indentation to limit code block.
                     
                     - end: Use the end keyword to end a code block.
                 enum: [indentation, braces, end]
@@ -26,144 +66,35 @@ properties:
                 description: >-
                     This will change how Sapphire parse operators.
 
-                    Valid options are: 
+                    Valid options are:
                     
-                    - infix: a + b 
+                    - infix: `a + b`
                     
-                    - prefix: + a b
+                    - prefix: `+ a b`
                     
-                    - postfix: a b +
+                    - postfix: `a b +`
                 enum: [infix, prefix, postfix]
-            redefine:
-                type: object
-                properties:
-                    opers.binary.comparison.equality:
-                        description: Represent the equality operator (==).
-                        default:
-                            - ==
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.comparison.inequality:
-                        description: Represent the inequality operator (!=).
-                        default:
-                            - '!='
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.comparison.greater:
-                        description: Represent the greater operator (>).
-                        default:
-                            - '>'
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.comparison.less:
-                        description: Represent the less operator (<).
-                        default:
-                            - <
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.comparison.lessOrEqual:
-                        default:
-                            - <=
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.comparison.greaterOrEqual:
-                        default:
-                            - '>='
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.comparison.spaceship:
-                        default:
-                            - <=>
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.arithmetic.add:
-                        default:
-                            - +
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.arithmetic.subtract:
-                        default:
-                            - '-'
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.arithmetic.multiply:
-                        default:
-                            - '*'
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.arithmetic.trueDivision:
-                        default:
-                            - /
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.arithmetic.floorDivision:
-                        default:
-                            - //
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.arithmetic.modulus:
-                        default:
-                            - '%'
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.binary.or:
-                        default:
-                            - b|
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.binary.and:
-                        default:
-                            - b&
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.binary.xor:
-                        default:
-                            - b^
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.logical.or:
-                        default:
-                            - '|'
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.logical.and:
-                        default:
-                            - '&'
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.logical.xor:
-                        default:
-                            - ^
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.concat:
-                        default:
-                            - ..
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.binary.matmul:
-                        default:
-                            - '@'
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.unary.prefix.incre:
-                        default:
-                            - ++
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.unary.suffix.incre:
-                        default:
-                            - ++
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.unary.prefix.decre:
-                        default:
-                            - --
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.unary.suffix.decre:
-                        default:
-                            - --
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.unary.prefix.positive:
-                        default:
-                            - +
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.unary.prefix.negative:
-                        default:
-                            - '-'
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.unary.prefix.binary_invert:
-                        default:
-                            - ~
-                        $ref: '#/$defs/common_redefine_properties'
-                    opers.unary.prefix.logical_invert:
-                        default:
-                            - '!'
-                        $ref: '#/$defs/common_redefine_properties'
-                additionalProperties: false
+            oopModel:
+              type: string
+              enum: [class, prototype, hybrid]
+            encapsulation:
+              type: string
+              enum: [enforced, pythonic]
         additionalProperties: false
-additionalProperties: false
-$defs:
-    common_redefine_properties:
-        type: array
-        items:
-            type: string
-            uniqueItems: true
-        minItems: 1
+    configVersion:
+        type: number
+    customOptions:
+        type: object
+        # & Is this too long and unnecessary? 
+        # & It's probably too long and unnecessary...
+        description: >-
+            A field where you can assign it with anything you want. The only 
+            requirement for this field is that it should be an object.
+
+            This is intended for external tools, like linters, to put their own
+            configurations into a single configuration file, for both convenience
+            and cleanliness. Of course, other uses (aside for malicious purposes)
+            are also welcome.
+
+            It is recommended to make a schema to check for the fields inside of
+            this file.

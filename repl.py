@@ -1,6 +1,5 @@
 # Credit to: https://www.youtube.com/playlist?list=PL_2VhOvlMk4UHGqYCLWc6GO8FaPl8fQTh
-from parser.lexer import tokenize
-from parser.parser import produce_program_ast
+from parser.parser import Parser
 from runtime.interpreter import evaluate
 from runtime.env import setup_global_scope
 from utils.common_bug_check import check
@@ -11,15 +10,13 @@ while True:
     # Takes the input
     inpt = input(">>> ")
     
-    # Process it
-    tkns = tokenize(inpt)
-    # print(tkns, end = "\n\n")
-    ast_node = produce_program_ast(tkns)
-    # print(ast_node, end = "\n\n")
+    par = Parser(inpt)
+    ast_node = par.parse_module()
+    
     for i in ast_node.body:
         val = evaluate(i, global_env)
         if val is not None:
-            print(val.__sap_props__["__str__"](val))
+            print(val)
 
 # Comment guidelines (in general)
 # Note that this is initially written about 1 or 2 years ago so...a lot has changed regarding me and this thing since then

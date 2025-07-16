@@ -6,7 +6,7 @@ import runtime.values as Values
 from backend import errors
 from runtime import native_fns
 
-def eval_program(program: Nodes.ProgramNode, env: Env, /) -> None:
+def eval_program(program: Nodes.ModuleNode, env: Env, /) -> None:
     eval_code_block(program.body, env)
 
 def eval_assignment(assign: Nodes.AssignmentNode, env: Env, /) -> None:
@@ -17,42 +17,42 @@ def eval_assignment(assign: Nodes.AssignmentNode, env: Env, /) -> None:
         env.assign(ident.symbol, expr)
 
 def eval_var_declaration(decl: Nodes.VarDeclarationNode, env: Env, /) -> None:
+    raise errors.InternalError("Variable declaration is currently undergoing construction.")
     env.declare(decl.name, decl.value, decl.constant)
 
 def eval_modifier_assignment(assign: Nodes.ModifierAssignmentNode, env: Env, /) -> None:
     import runtime.eval.inplaceops as iops
     if not isinstance(assign.assignee, Nodes.IdentifierNode):
         raise Exception()
-    ident = assign.assignee
+    lhs = env.get(assign.assignee.symbol)
     rhs = evaluate(assign.value, env)
-    match assign.assign_oper:
-        case "+=":
-            iops.eval_iadd(ident, rhs, env)
+    right = assign.assign_oper[0] != "="
+    match assign.assign_oper.removeprefix("=").removesuffix("="):
+        case "+":
+            iops.eval_iadd(lhs, rhs, right)
         case "-=":
-            iops.eval_isub(ident, rhs, env)
+            iops.eval_isub(lhs, rhs, right)
         case "*=":
-            iops.eval_imul(ident, rhs, env)
+            iops.eval_imul(lhs, rhs, right)
         case "/=":
-            iops.eval_itruediv(ident, rhs, env)
+            iops.eval_itruediv(lhs, rhs, right)
         case "//=":
-            iops.eval_ifloordiv(ident, rhs, env)
+            iops.eval_ifloordiv(lhs, rhs, right)
         case "**=":
-            iops.eval_pow(ident, rhs, env)
-        case "??=":
-            iops.eval_coalescing(ident, rhs, env)
+            iops.eval_iexp(lhs, rhs, right)
         case "@=":
-            iops.eval_imatmul(ident, rhs, env)
+            iops.eval_imatmul(lhs, rhs, right)
         case "%=":
-            iops.eval_imod(ident, rhs, env)
+            iops.eval_imod(lhs, rhs, right)
         case "..=":
-            iops.eval_iconcat(ident, rhs, env)
+            iops.eval_iconcat(lhs, rhs, right)
 
 def eval_break(node: Nodes.BreakNode, env: Env, /) -> None:
     # todo add label support
     raise errors.BreakLoop
 
 def eval_conditional(node: Nodes.ConditionalNode, env: Env, /) -> None:
-    cond = native_fns.bool(evaluate(node.condition, env))
+    cond = Values.Bool(evaluate(node.condition, env))
     if not isinstance(cond, Values.NOT_IMPLEMENTED) and cond.value == True:
         eval_code_block(node.code_block, env)
     elif isinstance(cond, Values.NOT_IMPLEMENTED):
@@ -64,7 +64,7 @@ def eval_conditional(node: Nodes.ConditionalNode, env: Env, /) -> None:
             eval_conditional(node.otherwise, env)
 
 def eval_while_loop(loop: Nodes.WhileLoopNode, env: Env, /):
-    while native_fns.bool(evaluate(loop.condition, env)):
+    while Values.Bool(evaluate(loop.condition, env)):
         try:
             evaluate(loop.code_block, env)
         except errors.BreakLoop:
@@ -74,12 +74,13 @@ def eval_while_loop(loop: Nodes.WhileLoopNode, env: Env, /):
             # todo label support
             continue
     else:
-        evaluate(loop.else_block, env)
+        if loop.else_block is not None:
+            evaluate(loop.else_block, env)
 
 def eval_glorified_while_loop(loop: Nodes.GlorifiedWhileLoopNode, env: Env, /):
     env = Env(parent = env)
     evaluate(loop.init, env)
-    while native_fns.bool(evaluate(loop.condition, env)):
+    while Values.Bool(evaluate(loop.condition, env)):
         try:
             evaluate(loop.code_block, env)
         except errors.BreakLoop:
@@ -91,7 +92,8 @@ def eval_glorified_while_loop(loop: Nodes.GlorifiedWhileLoopNode, env: Env, /):
         finally:
             evaluate(loop.repeat, env)
     else:
-        evaluate(loop.else_block, env)
+        if loop.else_block is not None:
+            evaluate(loop.else_block, env)
 
 def eval_scope_block(scope: Nodes.ScopeBlockNode, env: Env, /):
     env = Env(parent = env)

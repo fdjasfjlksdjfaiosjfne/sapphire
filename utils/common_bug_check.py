@@ -4,6 +4,8 @@
 import ast, typing, inspect, sys, types, copy, contextlib
 from rich import print
 
+from parser.parsing.exprs import attr_sub_call, exprs
+
 # TODO: Check for any import statements and change conditions accordingly
 # $ For example: You want to look for '@overload' from the 'typing' module
 # $ If there's 'from typing import overload', it will check for '@overload'
@@ -128,41 +130,42 @@ class ParserBugChecker(BaseBugChecker):
             )
 
         # ^ Check whether 'tokens, ..., /'
-        if not (len(node.args.posonlyargs) > 0 and node.args.posonlyargs[0].arg == "tokens"):
-            if is_overloaded_decl:
-                self.warnings += 1
-                self.print_error_msg(
-                    "Warning", 
-                    node.args.posonlyargs[0].lineno if len(node.args.posonlyargs) > 0 else node.lineno, 
-                    node.args.posonlyargs[0].end_lineno if len(node.args.posonlyargs) > 0 else node.end_lineno,
-                    f"'tokens' is not the first positional-only argument in an overloaded declaration of {node.name}"
-                )
-            else:
-                self.bugs += 1
-                self.print_error_msg(
-                    "Bug", 
-                    node.args.posonlyargs[0].lineno if len(node.args.posonlyargs) > 0 else node.lineno, 
-                    node.args.posonlyargs[0].end_lineno if len(node.args.posonlyargs) > 0 else node.end_lineno,
-                    f"'tokens' is not the first positional-only argument in the function decalration of {node.name}"
-                )
-        # ^ Check whether there is a keyword variadic argument named **context
-        if node.args.kwarg is None or node.args.kwarg.arg != "context":
-            if is_overloaded_decl:
-                self.warnings += 1
-                self.print_error_msg(
-                    "Warning", 
-                    node.args.kwarg.lineno if node.args.kwarg is not None else node.lineno,
-                    node.args.kwarg.end_lineno if node.args.kwarg is not None else node.end_lineno,
-                    f"There's no '**context' in an overloaded function declaration of {node.name}"
-                )
-            else:
-                self.bugs += 1
-                self.print_error_msg(
-                    "Bug", 
-                    node.args.kwarg.lineno if node.args.kwarg is not None else node.lineno,
-                    node.args.kwarg.end_lineno if node.args.kwarg is not None else node.end_lineno,
-                    f"There's no '**context' in function declaration of {node.name}"
-                )
+        if node.name.startswith("parse_"):
+            if not (len(node.args.posonlyargs) > 0 and node.args.posonlyargs[0].arg == "tokens"):
+                if is_overloaded_decl:
+                    self.warnings += 1
+                    self.print_error_msg(
+                        "Warning", 
+                        node.args.posonlyargs[0].lineno if len(node.args.posonlyargs) > 0 else node.lineno, 
+                        node.args.posonlyargs[0].end_lineno if len(node.args.posonlyargs) > 0 else node.end_lineno,
+                        f"'tokens' is not the first positional-only argument in an overloaded declaration of {node.name}"
+                    )
+                else:
+                    self.bugs += 1
+                    self.print_error_msg(
+                        "Bug", 
+                        node.args.posonlyargs[0].lineno if len(node.args.posonlyargs) > 0 else node.lineno, 
+                        node.args.posonlyargs[0].end_lineno if len(node.args.posonlyargs) > 0 else node.end_lineno,
+                        f"'tokens' is not the first positional-only argument in the function decalration of {node.name}"
+                    )
+            # ^ Check whether there is a keyword variadic argument named **context
+            if node.args.kwarg is None or node.args.kwarg.arg != "context":
+                if is_overloaded_decl:
+                    self.warnings += 1
+                    self.print_error_msg(
+                        "Warning", 
+                        node.args.kwarg.lineno if node.args.kwarg is not None else node.lineno,
+                        node.args.kwarg.end_lineno if node.args.kwarg is not None else node.end_lineno,
+                        f"There's no '**context' in an overloaded function declaration of {node.name}"
+                    )
+                else:
+                    self.bugs += 1
+                    self.print_error_msg(
+                        "Bug", 
+                        node.args.kwarg.lineno if node.args.kwarg is not None else node.lineno,
+                        node.args.kwarg.end_lineno if node.args.kwarg is not None else node.end_lineno,
+                        f"There's no '**context' in function declaration of {node.name}"
+                    )
 
         self.generic_visit(node)
         self.function_stack.pop()
@@ -251,14 +254,15 @@ def check():
     lbc.visit()
 
     # ^ Parser
-    from parser.parsing import exprs, stmts, mem_sub_call
-    for mod, path in {
-        exprs: "parser/parsing/exprs.py", 
-        stmts: "parser/parsing/stmts.py", 
-        mem_sub_call: "parser/parsing/mem_sub_call.py"
-    }.items():
-        pbc = ParserBugChecker(path, mod)
-        pbc.visit()
+    # $ The parser is undergoing a makeover
+    # from parser.parsing.stmts import stmts
+    # for mod, path in {
+    #     exprs: "parser/parsing/exprs.py", 
+    #     stmts: "parser/parsing/stmts.py", 
+    #     mem_sub_call: "parser/parsing/mem_sub_call.py"
+    # }.items():
+    #     pbc = ParserBugChecker(path, mod)
+    #     pbc.visit()
     
     # ^ Interperter
     from runtime.eval import exprs, stmts
