@@ -5,18 +5,18 @@ from backend import errors
 import parser.nodes as Nodes
 
 class Strings:
-    def process_string(self, value: str) -> Nodes.StrNode | Nodes.FormattedStrNode:
-        types, content, multi_line = self.extract_str_content(value)
+    def _process_string(self, value: str) -> Nodes.StrNode | Nodes.FormattedStrNode:
+        types, content, multi_line = self._extract_str_content(value)
         if "r" not in types:
-            content = self.process_escapes(content)
+            content = self._process_escapes(content)
         
         if "f" in types:
-            return self.parse_fstring_content(content)
+            return self._parse_fstring_content(content)
         else:
             return Nodes.StrNode(content)
     
     @staticmethod
-    def extract_str_content(value: str) -> tuple[str, str, bool]:
+    def _extract_str_content(value: str) -> tuple[str, str, bool]:
         quote_used = value[-1]
         prefix_end = value.find(quote_used)
         prefixes = value[:prefix_end].lower()
@@ -31,7 +31,7 @@ class Strings:
         return prefixes, content, multi_str
 
     @staticmethod
-    def process_escapes(content: str) -> str:
+    def _process_escapes(content: str) -> str:
         escape_map = {
             '"': "\"", "'": "\'", "`": "`",
             "n": "\n", "t": "\t", "r": "\r",
@@ -108,7 +108,7 @@ class Strings:
         return ''.join(res)
 
     @staticmethod
-    def scan_fstring_expr(content: str, start: int) -> tuple[str, int]:
+    def _scan_fstring_expr(content: str, start: int) -> tuple[str, int]:
         """Scan for f-string expression from `content[start:]`, accounting for nested braces.
 
 Returns: A tuple of (inner_expression_text, index_after_closing_brace)
@@ -126,7 +126,7 @@ Returns: A tuple of (inner_expression_text, index_after_closing_brace)
             i += 1
         raise errors.SyntaxError("Unclosed '{' in f-string exprssion")
 
-    def parse_fstring_content(self, content: str) -> Nodes.FormattedStrNode:
+    def _parse_fstring_content(self, content: str) -> Nodes.FormattedStrNode:
         contents = []
         cur = 0
         
@@ -153,11 +153,11 @@ Returns: A tuple of (inner_expression_text, index_after_closing_brace)
                 conversion = -1
                 formatting = None
 
-                inner, cur = self.scan_fstring_expr(content, cur)
+                inner, cur = self._scan_fstring_expr(content, cur)
 
                 from parser.parser import Parser
                 parser = Parser(inner)
-                expr = parser.parse_expr()
+                expr = parser._parse_expr()
                 remaining = parser.tokens.remaining()
                 cur += len(parser.tokens.consumed())
                 if remaining.startswith("!"):
@@ -166,7 +166,7 @@ Returns: A tuple of (inner_expression_text, index_after_closing_brace)
 
                 if remaining.startswith(":"):
                     # ~ This may or may not be a good idea...
-                    formatting = self.parse_fstring_content(remaining)
+                    formatting = self._parse_fstring_content(remaining)
                     if not formatting.values:
                         formatting = None
                 

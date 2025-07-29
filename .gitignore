@@ -1,8 +1,11 @@
 # Python
 *.pyc
-*/__pycache__/
 */__pycache__/*
+*/*/__pycache__/*
+*/*/*/__pycache__/*
+*/*/*/*/__pycache__/*
 */__*__
+/__*__/*
 
 # IDE
 
@@ -21,5 +24,3 @@ samples
 .mypy_cache
 utils/sapconfig.schema.yaml
 .pytest_cache
-runtime/values_.py
-runtime/refactoring_values.py

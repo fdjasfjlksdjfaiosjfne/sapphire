@@ -2,13 +2,19 @@ from __future__ import annotations
 import typing
 import enum
 
-from parser.lexer import TokenType
+from parser.lexer.lexer import TokenType
 
 class ExprContext(enum.Enum):
     Load = 0
     Store = 1
     Del = 2
-class BaseNode:
+
+class SequencePatternType(enum.Enum):
+    List = 0
+    Tuple = 1
+    Set = 2
+
+class BaseASTNode:
     def __init__(self, *args, **kwargs):
         ann = {}
         # Collect all annotations from the class hierarchy
@@ -46,7 +52,7 @@ class BaseNode:
             return self.__dict__ != other.__dict__
         return True
 
-class StmtNode(BaseNode):
+class StmtNode(BaseASTNode):
     pass
 
 class ExprNode(StmtNode): 
@@ -62,9 +68,16 @@ class ModuleNode(StmtNode):
             self.body = body
     def __iter__(self):
         yield from self.body
+
 class VarDeclarationNode(StmtNode):
-    ...
+    idents: list[ExprNode]
+    expr: ExprNode
     constant: bool
+
+class FunctionDeclarationNode(StmtNode):
+    name: str
+    args: list[ExprNode | typing.Literal[TokenType.SY_TrueDivision, TokenType.SY_Asterisk]]
+    code_block: CodeBlockNode
 
 class ModifierAssignmentNode(StmtNode):
     assignee: ExprNode
@@ -72,7 +85,8 @@ class ModifierAssignmentNode(StmtNode):
     value: ExprNode
 
 class AssignmentNode(StmtNode):
-    idents_and_expr: list[ExprNode]
+    targets: list[ExprNode]
+    value: ExprNode
 
 class WalrusNode(ExprNode):
     assignee: ExprNode
@@ -119,37 +133,44 @@ class ThrowNode(StmtNode):
     error_expr: ExprNode | None
     cause: ExprNode | None
 
-class MatchPatternNode(BaseNode):
+class MatchPatternNode(BaseASTNode):
     pass
 
-class ValuePattern(MatchPatternNode):
+class LiteralPatternNode(MatchPatternNode):
     # case 123
     # case "foo"
     # case 3.41
     # case null
     val: ExprNode
 
-class WildcardPattern(MatchPatternNode):
+class WildcardPatternNode(MatchPatternNode):
     # case _
     pass
 
-class VariablePattern(MatchPatternNode):
+class VariablePatternNode(MatchPatternNode):
     # case ... as foo
     pattern: MatchPatternNode
+    ident_name: str
+
+class ClassPatternNode(MatchPatternNode):
+    # case Ap(1, 3, a = 6)
     name: str
+    args: list[MatchPatternNode]
+    kwargs: dict[str, MatchPatternNode]
 
-class SequencePattern(MatchPatternNode):
+class SequencePatternNode(MatchPatternNode):
     # case [x, y, z]
-    elements: list[VariablePattern | WildcardPattern | EllipsisNode]
+    type: SequencePatternType
+    elements: list[VariablePatternNode | WildcardPatternNode | EllipsisNode]
 
-class MappingPattern(MatchPatternNode):
+class MappingPatternNode(MatchPatternNode):
     # case {"x": x}
     elements: list[tuple[ExprNode, MatchPatternNode]]
 
-class MultipleChoicePattern(MatchPatternNode):
+class MultipleChoicePatternNode(MatchPatternNode):
     # case 1, 2, 3
     elements: list[MatchPatternNode]
-class CaseNode(BaseNode):
+class CaseNode(BaseASTNode):
     pattern: MatchPatternNode
     guard: ExprNode | None
     body: CodeBlockNode
@@ -161,7 +182,7 @@ class MatchCaseNode(ExprNode):
 class UnaryNode(ExprNode):
     expr: ExprNode
     attachment: TokenType
-    position: TokenType
+    position: typing.Literal["Prefix", "Postfix"]
 
 class BinaryNode(ExprNode):
     left: ExprNode
@@ -235,47 +256,38 @@ class IdentifierNode(ExprNode):
 class ListNode(ExprNode):
     value: list[ExprNode]
 
-class ListComprehensionNode(ExprNode):
-    subject: ExprNode
-    iter_vars: list[str]
-    iterable: ExprNode
-    condition: ExprNode | None
-    otherwise: ExprNode | None
+class LoopInComprehension(BaseASTNode):
+    pass
 
+class ForLoopInComprehension(LoopInComprehension):
+    var_list: list[ExprNode]
+    iterable: ExprNode
+    conditions: list[ExprNode]
+    fallbacks: list[ExprNode | None]
+
+class SequenceComprehensionNode(ExprNode):
+    subjects: list[ExprNode]
+    generators: list[LoopInComprehension]
+
+class ListComprehensionNode(SequenceComprehensionNode): pass
+class GeneratorComprehensionNode(SequenceComprehensionNode): pass
+class SetComprehensionNode(SequenceComprehensionNode): pass
 class TupleNode(ExprNode):
     value: list[ExprNode]
-
-class GeneratorComprehensionNode(ExprNode):
-    subject: ExprNode
-    iter_vars: list[str]
-    iterable: ExprNode
-    condition: ExprNode | None
-    otherwise: ExprNode | None
-
 class SetNode(ExprNode):
     value: list[ExprNode]
-
-class SetComprehensionNode(ExprNode):
-    subject: ExprNode
-    iter_vars: list[str]
-    iterable: ExprNode
-    condition: ExprNode | None
-    otherwise: ExprNode | None
 
 class DictNode(ExprNode):
     value: list[tuple[ExprNode, ExprNode]]
 
 class DictComprehensionNode(ExprNode):
     subject: tuple[ExprNode, ExprNode]
-    iter_vars: list[str]
-    iterable: ExprNode
-    condition: ExprNode | None
-    otherwise: ExprNode | None
+    generators: list[LoopInComprehension]
 
 class ScopeBlockNode(ExprNode):
     code_block: CodeBlockNode
 
-class CodeBlockNode(BaseNode):
+class CodeBlockNode(BaseASTNode):
     body: list
     def __init__(self, body: list | None = None):
         if self.body is None:
@@ -286,7 +298,7 @@ class CodeBlockNode(BaseNode):
     def append(self, object: typing.Any, /):
         from backend import errors
         t = type(object)
-        if BaseNode not in t.mro():
+        if BaseASTNode not in t.mro():
             raise errors.InternalError(t, t.mro)
         # & Fuck walrus
         elif t == WalrusNode:

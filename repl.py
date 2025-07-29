@@ -2,8 +2,6 @@
 from parser.parser import Parser
 from runtime.interpreter import evaluate
 from runtime.env import setup_global_scope
-from utils.common_bug_check import check
-check()
 global_env = setup_global_scope()
 
 while True:

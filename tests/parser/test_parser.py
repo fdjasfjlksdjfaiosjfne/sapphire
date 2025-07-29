@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0, r"C:\Users\Tien Dung\Dropbox\Script\Sapphire Family\Sapphire")
 from parser.parser import Parser
 from backend import errors
-from parser.lexer import TokenType, Token
+from parser.lexer.lexer import TokenType, Token
 from parser import nodes as Nodes
 
 @pytest.mark.parametrize("src,expected", [
@@ -11,7 +11,7 @@ from parser import nodes as Nodes
         Nodes.CodeBlockNode([
             Nodes.BinaryNode(
             left = Nodes.IntNode(1),
-            oper = TokenType.Plus,
+            oper = TokenType.SY_Plus,
             right = Nodes.IntNode(2)
             )
         ])
@@ -20,10 +20,10 @@ from parser import nodes as Nodes
         Nodes.CodeBlockNode([
             Nodes.BinaryNode(
                 left = Nodes.IntNode(3),
-                oper = TokenType.Plus,
+                oper = TokenType.SY_Plus,
                 right = Nodes.BinaryNode(
                     left = Nodes.FloatNode(24.37),
-                    oper = TokenType.Asterisk,
+                    oper = TokenType.SY_Asterisk,
                     right = Nodes.IdentifierNode("foo")
                 )
             )
@@ -31,7 +31,7 @@ from parser import nodes as Nodes
     )),
     ("1 +", errors.SyntaxError)
 ])
-def test_parser(src: str, expected: type[errors.SapphireError] | Nodes.BaseNode):
+def test_parser(src: str, expected: type[errors.SapphireError] | Nodes.BaseASTNode):
     p = Parser(src)
     if isinstance(expected, type) and issubclass(expected, errors.SapphireError):
         with pytest.raises(expected):

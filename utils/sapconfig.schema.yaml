@@ -1,100 +1,416 @@
+$comment: >-
+    Stuck with Draft 7 because the validator has a skill issue ;-;
+
+    Also why do I have to use this specific key thingy to comment something >:(
 $schema: http://json-schema.org/draft-07/schema#
+$defs:
+    modeProperty:
+        oneOf:
+            -   type: string
+                enum:
+                    - disabled
+                    - enabled
+                    - forced
+                enumDescriptions:
+                    - Disables the mode
+                    - Enables the mode, while maintaining its built-in equivalent implementation
+                    - Enables the mode, replacing its built-in equivalent implementation
+            -   type: number
+                enum:
+                    - 0
+                    - 1
+                    - 2
+                enumDescriptions:
+                    - Disables the mode
+                    - Enables the mode, while maintaining its built-in equivalent implementation
+                    - Enables the mode, replacing its built-in equivalent implementation
+            -   type: boolean
+                enum:
+                    - false
+                    - true
+                enumDescriptions:
+                    - Disables the mode
+                    - Enables the mode, while maintaining its built-in equivalent implementation
+    unforcedModeProperty:
+        oneOf:
+            -   type: string
+                enum:
+                    - disabled
+                    - enabled
+            -   type: number
+                enum:
+                    - 0
+                    - 1
+            -   type: boolean
+                enum:
+                    - false
+                    - true
+        enumDescriptions:
+            - Disables the mode
+            - Enables the mode
 type: object
 properties:
     languageCustomization:
         type: object
+        title: Language Customization
         description: >-
-            A place to add customization that can modify 
-            how the compiler treats the code.
+            A place to add customization that can modify how the compiler treats the code.
 
-            This can range from minor behaviour changes 
-            to imcompatible syntax modifiers.
+            This can range from minor behavior changes to imcompatible syntax modifiers.
 
-            Also the simplest way to cause chaos for 
-            anyone that doesn't use a proper linter.
+            Also the simplest way to cause chaos for anyone that doesn't use a proper linter for whatever reason.
         properties:
             redefine:
+                title: Redefinition
                 type: object
-                description: >-
-                    An object containing possible overrides for
-                    certain symbols and keywords in the language.
+                description: An object containing possible overrides for certain symbols and keywords in the language.
                 properties:
                     notEqual:
                         type: string
-                        enum: ['!=', '><', '<>']
+                        enum:
+                            - '!='
+                            - '><'
+                            - <>
+                        enumDescriptions:
+                            - The standard notation, use in most languages
+                            - It looks like a face I suppose...
+                            - A more uncommon symbol. Use by Pascal and Python prior to 3.0
+                        default: '!='
                     functionDef:
-                        oneOf:
-                        - const: def
-                          description: Python-style def.
-                        - const: fn
-                          description: Rust-style fn.
-                        - const: function
-                          description: JavaScript-style function.
-                        - const: fun
-                          description: Kotlin-style fun.
-                        - const: func
-                          description: I forgor
+                        enum:
+                            - def
+                            - fn
+                            - function
+                            - fun
+                            - func
+                        enumDescriptions:
+                            - Use by Python
+                            - Use by Rust
+                            - Use by JavaScript
+                            - Use by Kotlin
+                            - An optional shorthand. It's unknown whether it's used anywhere.
+                        default: fn
                     classDef:
                         type: string
-                        enum: [cls, class]
+                        enum:
+                            - class
+                            - cls
+                        enumDescriptions:
+                            - The standard notation, use by most languages
+                            - An optional shorthand. It's unknown whether it's used anywhere.
+                        default: class
                     elseIf:
-                        oneOf: 
-                        - const: elseif
-                          description: Ruby-style elseif.
-                        - const: else if
-                          description: C-style two-token else-if.
-                        - const: elif
-                          description: Python-style elif.
-                        - const: elsif
-                          description: Perl-style elsif.
+                        type: string
+                        enum:
+                            - elseif
+                            - else if
+                            - elif
+                            - elsif
+                        enumDescriptions:
+                            - Use by Ruby
+                            - Use by a majority of C-based languages
+                            - Use by Python
+                            - Use by Perl
+                        default: elif
+                    spaceshipOperator:
+                        type: string
+                        enum:
+                            - <=>
+                            - '>=<'
+                        enumDescriptions:
+                            - The standard notation, use by most languages that has it
+                            - It looks like a quirky face I suppose...
+                        default: <=>
+                    "true":
+                        type: string
+                        description: >-
+                            Note: 
+
+                            1. This option will be ignored if 'languageCustomization.allowBooleans' is set to false
+
+                            2. If 'languageCustomization.caseInsensitiveBooleans' is disabled, certain options allowed will act identically
+                        enum:
+                            - "true"
+                            - "True"
+                            - "TRUE"
+                            - "yes"
+                            - "Yes"
+                            - "y"
+                            - "Y"
+                            - Affirmative
+                            - ye
+                            - yup
+                            - yay
+                        enumDescriptions:
+                            - The standard notation, use in most languages
+                            - Use by Python
+                            - Use by Excel
+                            - Use as a alternate way of saying 'true' by YAML
+                            - Use as a alternate way of saying 'true' by YAML
+                            - Use as a alternate way of saying 'true' by YAML
+                            - Use as a alternate way of saying 'true' by YAML
+                            - A polite way of saying 'true'
+                            - An informal way of saying 'true'
+                            - An informal way of saying 'true'
+                            - An informal way of saying 'true'
+                        default: "true"
+                    "false":
+                        type: string
+                        description: >-
+                            Note: 
+
+                            1. This option will be ignored if 'languageCustomization.allowBooleans' is set to false
+
+                            2. If 'languageCustomization.caseInsensitiveBooleans' is disabled, certain options allowed will act identically
+                        enum:
+                            - "false"
+                            - "False"
+                            - "FALSE"
+                            - "no"
+                            - "No"
+                            - "n"
+                            - "N"
+                            - Negative
+                            - nah
+                            - nope
+                            - nay
+                        enumDescriptions:
+                            - The standard notation, use in most languages
+                            - Use by Python
+                            - Use by Excel
+                            - Use as a alternate way of saying 'false' by YAML
+                            - Use as a alternate way of saying 'false' by YAML
+                            - Use as a alternate way of saying 'false' by YAML
+                            - Use as a alternate way of saying 'false' by YAML
+                            - A polite way of saying 'false'
+                            - An informal way of saying 'false'
+                            - An informal way of saying 'false'
+                            - An informal way of saying 'false'
+                        default: "false"
+                    "null":
+                        type: string
+                        description: >-
+                            Note: 
+
+                            1. This option will be ignored if 'languageCustomization.allowNull' is set to false
+
+                            2. If 'languageCustomization.caseInsensitiveNull' is disabled, certain options allowed will act identically
+                        enum:
+                            - "null"
+                            - "Null"
+                            - "NULL"
+                            - None
+                            - none
+                            - NOTHING
+                            - nothing
+                            - Nothing
+                            - undefined
+                        enumDescriptions:
+                            - The standard notation, use in most languages
+                            - The standard notation with a different casing
+                            - The standard notation with a different casing
+                            - Use by Python
+                            - Python's notation with a different casing
+                            - Python's notation with a different casing
+                            - An alternate way of spelling 'null'
+                            - An alternate way of spelling 'null'
+                            - An alternate way of spelling 'null'
+                            - An alternate way of spelling 'null'
+                        default: "null"
                 additionalProperties: false
             codeBlocks:
+                title: Code Blocks
                 type: string
-                description: >-
-                    How Sapphire should consider as a code block.
-
-                    Valid options are:
-                    
-                    - braces: Uses curly braces ({}) as code blocks.
-                    
-                    - indentation: Use indentation to limit code block.
-                    
-                    - end: Use the end keyword to end a code block.
-                enum: [indentation, braces, end]
+                description: How Sapphire should consider as a code block
+                enum:
+                    - indentation
+                    - braces
+                    - end
+                enumDescriptions:
+                    - Uses curly braces (`{...}`) as code blocks
+                    - Use indentation to indicate code blocks
+                    - Use the `end` keyword to end a code block
+                $comment: "Change this back to 'indentation' once "
+                default: braces
             operatorNotation:
+                title: Operator Notation
                 type: string
-                description: >-
-                    This will change how Sapphire parse operators.
-
-                    Valid options are:
-                    
-                    - infix: `a + b`
-                    
-                    - prefix: `+ a b`
-                    
-                    - postfix: `a b +`
-                enum: [infix, prefix, postfix]
+                description: This will change how Sapphire parse operators.
+                enum:
+                    - infix
+                    - prefix
+                    - postfix
+                enumDescriptions:
+                    - 'Infix notation: `a + b`'
+                    - 'Prefix notation: `+ a b`'
+                    - 'Postfix notation: `a b +`'
+                default: infix
             oopModel:
-              type: string
-              enum: [class, prototype, hybrid]
-            encapsulation:
-              type: string
-              enum: [enforced, pythonic]
+                type: string
+                title: OOP Model
+                enum:
+                    - class
+                    - prototype
+                    - hybrid
+                enumDescriptions:
+                    - Use class-based OOP as its OOP model
+                    - Use prototype-based OOP from JavaScript as its OOP model
+                    - Use both class-based OOP and prototype-based OOP
+                default: class
+            forcedEncapsulation:
+                title: Forced Encapsulation
+                type: boolean
+                enum:
+                    - true
+                    - false
+                enumDescriptions:
+                    - Enforced encapsulation
+                    - Uses Python's conventions, by mangling the names of both protected and private methods in places that they shouldn't get accessed
+                default: true
+            encapsulationMethod:
+                title: Encapsulation Method
+                description: Determines how will Sapphire determine the acceessibility of an attribute.
+                type: string
+                enum:
+                    - enforced
+                    - pythonic
+                    - disabled
+                enumDescriptions:
+                    - Use keywords (`private`, `protected`, `public`)
+                    - Uses Pythonic naming conventions. Note that, when `forcedEncapsulation` is set to true, a single-underscore prefix name is analogous to `protected` and a double-underscore prefix name is analogous to `private`.
+                    - All methods and attributes will be public regardless of what. Not recommended.
+                default: enforced
+            defaultCaseNotation:
+                title: Notation for the default case in a match statement
+                type: string
+                enum:
+                    - _
+                    - default
+                    - '*'
+                enumDescriptions:
+                    - The default case will be written as `case _`. Use by Rust and Python
+                    - The default case will be written as `default`. Use by C, C++, and more
+                    - The default case will be written as `case *`. `*` is more universally associated to 'match anything' than `_`
+                default: _
+            allowBooleans:
+                title: Allow Booleans
+                description: Determines whether you can use booleans
+                type: boolean
+                default: true
+            allowNull:
+                title: Allow Null
+                description: Determines whether you can use null
+                type: boolean
+                default: true
+            caseInsensitiveBooleans:
+                title: Case Insensitive Booleans
+                description: Determines whether booleans are case-insensitive
+                type: boolean
+                default: true
+            caseInsensitiveNull:
+                title: Case Insensitive Null
+                description: Determines whether null is case-insensitive
+                type: boolean
+                default: true
+        $comment: The next section is made as some love to Brits. Y'all have suffer for way too long at this point.
+        patternProperties:
+            mutableValueAssignmentBehaviou?r:
+                $comment: >-
+                    This allows both 'mutableValueAssignmentBehavior' and 'mutableValueAssignmentBehaviour' to exists at the same time.
+
+                    Maybe I can catch this during the solidify process?
+                title: Mutable Value Assignment Behavior
+                description: Determines the behavior when a variable that contains a mutable value (e.g. a list) is used as the value expression in an assignment statement.
+                type: string
+                enum:
+                    - copy
+                    - reference
+                enumDescriptions:
+                    - Copies the value and assign the copy to the variable. This behavior is generally more predictable, at the cost of some extra memory.
+                    - Assign the variable a reference to the existing value.
+                default: copy
+            mutableArgumentDefaultValueBehaviou?r:
+                title: Mutable Argument Default Value Behavior
+                description: Determines the behavior when a value that contains a mutable value (e.g. a list) is used as the default value for an argument in a function.
+                type: string
+                enum:
+                    - copy
+                    - reference
+                enumDescriptions:
+                    - Copies the value and assign the copy to the argument, should it ever be undefined. This behavior is a lot more predictable, at the cost of some extra time processing the value, every call.
+                    - Assign the variable a reference to the existing value.
+                default: copy
+            logicalOperatorBehaviou?r:
+                title: Logical Operator Behavior
+                description: Determines what logical operators (`and` / `or` / `xor`) will return
+                type: string
+                enum:
+                    - boolean_only
+                    - pythonic
+                    - extended_pythonic
+                enumDescriptions:
+                    - Only explicitly returns boolean values (`true`/`false`). Doesn't apply to custom behaviors via duck typing.
+                    - Uses Python's convention. The `or` operator will return the first operand if it's truthy, and the `and` operator will return the first operand if it's falsy. The `xor` operator will still return booleans.
+                    - The same as 'pythonic', except that the logical `xor` will now return whichever operand is truthy, when only one of them are truthy. It will still return `false` if both are truthy or falsy.
+                default: extended_pythonic
         additionalProperties: false
+    languageCustomizationModes:
+        type: object
+        description: A field where you can enable certain set configurations, which usually contain breaking syntax changes.
+        additionalProperties: false
+        properties:
+            invertedComparisonOperators:
+                $ref: '#/$defs/modeProperty'
+            methify:
+                $ref: '#/$defs/unforcedModeProperty'
     configVersion:
-        type: number
+        description: >-
+            Indicates the version of the configuration file, which loosely follows EpochSemVar (the same as SemVar, but adds an additional 'epoch' section which increments every 100 major releases, and *only shown* once it is not 0).
+
+            It can either be an array containing numbers or a string containing the version
+        oneOf:
+            -   type: array
+                oneOf:
+                    -   items:
+                            -   type: number
+                                minimum: 0
+                            -   type: number
+                                minimum: 0
+                                maximum: 99
+                            -   type: number
+                                minimum: 0
+                            -   type: number
+                                minimum: 0
+                    -   items:
+                            -   type: number
+                                minimum: 0
+                                maximum: 99
+                            -   type: number
+                                minimum: 0
+                            -   type: number
+                                minimum: 0
+                minItems: 3
+                maxItems: 4
+            -   type: string
+                pattern: (\d+\.)?\d{1, 2}(\.\d+){0,2}
+        examples:
+            - 1.2.3
+            - 13.50.123
+            -   - 4
+                - 7
+                - 5
+            - 2.34.94.134
+            -   - 1
+                - 69
+                - 420
+                - 86
     customOptions:
         type: object
-        # & Is this too long and unnecessary? 
-        # & It's probably too long and unnecessary...
+        $comment: Is this description too long and unnessecary? It's probably too long and unnessecary...
         description: >-
-            A field where you can assign it with anything you want. The only 
-            requirement for this field is that it should be an object.
+            A field where you can assign it with anything you want. The only requirement for this field is that it should be an object.
 
-            This is intended for external tools, like linters, to put their own
-            configurations into a single configuration file, for both convenience
-            and cleanliness. Of course, other uses (aside for malicious purposes)
-            are also welcome.
+            This is intended for external tools, like linters, to put their own configurations into a single configuration file, for both convenience and cleanliness. Of course, other uses (aside for malicious purposes) are also welcome.
 
-            It is recommended to make a schema to check for the fields inside of
-            this file.
+            It is recommended to make a schema to check for the fields inside of this file.
+additionalProperties: false

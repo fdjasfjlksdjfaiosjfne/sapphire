@@ -1,12 +1,12 @@
 import parser.nodes as Nodes
-import runtime.values as Values
+import runtime._expriemental.values as Values
 from runtime.env import Env
-from parser.lexer import TokenType
+from parser.lexer.lexer import TokenType
 import runtime.eval.opers as opers
 from runtime.interpreter import evaluate
 import typing
 
-def eval_code_block(code_block: Nodes.CodeBlockNode, env: Env, /) -> Values.RuntimeVal:
+def eval_code_block(code_block: Nodes.CodeBlockNode, env: Env, /):
     for stmt in code_block:
         evaluate(stmt, env)
     return None
@@ -18,55 +18,55 @@ def eval_binary_expr(binop: Nodes.BinaryNode, env: Env, /) -> Values.RuntimeVal:
     
     lhs, rhs = evaluate(binop.left, env), evaluate(binop.right, env)
     match binop.oper:
-        case TokenType.Plus: 
+        case TokenType.SY_Plus: 
             return opers.eval_add(lhs, rhs)
         
-        case TokenType.Minus: 
+        case TokenType.SY_Minus: 
             return opers.eval_sub(lhs, rhs)
         
-        case TokenType.Asterisk: 
+        case TokenType.SY_Asterisk: 
             return opers.eval_mul(lhs, rhs)
         
-        case TokenType.TrueDivision: 
+        case TokenType.SY_TrueDivision: 
             return opers.eval_truediv(lhs, rhs)
         
-        case TokenType.FloorDivision:
+        case TokenType.SY_FloorDivision:
             return opers.eval_floordiv(lhs, rhs)
         
-        case TokenType.Modulus: 
+        case TokenType.SY_Modulus: 
             return opers.eval_mod(lhs, rhs)
         
-        case TokenType.Exponentiation: 
+        case TokenType.SY_Exponentiation: 
             return opers.eval_exp(lhs, rhs)
         
-        case TokenType.Spaceship: 
+        case TokenType.SY_Spaceship: 
             return opers.eval_sps(lhs, rhs)
         
-        case TokenType.Concanentation: 
+        case TokenType.SY_Concanentation: 
             return opers.eval_concat(lhs, rhs)
         
-        case TokenType.At: 
+        case TokenType.SY_At: 
             return opers.eval_matmul(lhs, rhs)
         
-        case TokenType.BinaryAnd:
+        case TokenType.SY_BinaryAnd:
             return opers.eval_binaryand(lhs, rhs)
         
-        case TokenType.BinaryOr:
+        case TokenType.SY_BinaryOr:
             return opers.eval_binaryor(lhs, rhs)
         
-        case TokenType.BinaryXor:
+        case TokenType.SY_BinaryXor:
             return opers.eval_binaryxor(lhs, rhs)
         
-        case TokenType.Elvis:
+        case TokenType.SY_Elvis:
             return opers.eval_elvis(lhs, rhs)
         
-        case TokenType.Coalescing:
+        case TokenType.SY_Coalescing:
             return opers.eval_coalescing(lhs, rhs)
         
-        case TokenType.LeftShift:
+        case TokenType.SY_LeftShift:
             return opers.eval_left_shift(lhs, rhs)
         
-        case TokenType.RightShift:
+        case TokenType.SY_RightShift:
             return opers.eval_right_shift(lhs, rhs)
         
         case _: 
@@ -78,17 +78,17 @@ def eval_comparison_expr(comp_expr: Nodes.ComparisonNode, env: Env, /) -> Values
     for i, op in enumerate(comp_expr.operators):
         comparator = evaluate(comp_expr.exprs[i], env)
         match op:
-            case TokenType.LessThan:
+            case TokenType.SY_LessThan:
                 result = opers.eval_lt(current, comparator)
-            case TokenType.LessEqualThan:
+            case TokenType.SY_LessEqualThan:
                 result = opers.eval_le(current, comparator)
-            case TokenType.Equal:
+            case TokenType.SY_Equal:
                 result = opers.eval_eq(current, comparator)
-            case TokenType.NotEqual:
+            case TokenType.SY_NotEqual:
                 result = opers.eval_ne(current, comparator)
-            case TokenType.GreaterEqualThan:
+            case TokenType.SY_GreaterEqualThan:
                 result = opers.eval_ge(current, comparator)
-            case TokenType.GreaterThan:
+            case TokenType.SY_GreaterThan:
                 result = opers.eval_gt(current, comparator)
             case _:
                 raise Exception()
@@ -117,9 +117,9 @@ def eval_walrus(assign: Nodes.WalrusNode, env: Env, /) -> Values.RuntimeVal:
 
 def eval_unary(node: Nodes.UnaryNode, env: Env, /) -> Values.RuntimeVal:
     match node.attachment:
-        case TokenType.Incre:
+        case TokenType.SY_Incre:
             result = opers.eval_increment(evaluate(node.expr, env))
             
-        case TokenType.Decre:
+        case TokenType.SY_Decre:
             result = opers.eval_decrement(evaluate(node.expr, env))
         

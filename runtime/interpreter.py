@@ -1,5 +1,5 @@
 import typing
-import runtime.values as values
+import runtime._expriemental.values as values
 import parser.nodes as Nodes
 from runtime.env import Env
 from backend import errors
@@ -22,7 +22,7 @@ class ValueEvalHandler(typing.NamedTuple):
     def __call__(self, *args, **kwargs):
         return getattr(values, self.function_name)(*args, **kwargs)
 
-eval_registry: dict[type[Nodes.StmtNode], ExprEvalHandler | StmtEvalHandler | ValueEvalHandler] = {
+eval_registry: dict[type[Nodes.BaseASTNode], ExprEvalHandler | StmtEvalHandler | ValueEvalHandler] = {
     Nodes.IdentifierNode: ExprEvalHandler("eval_identifier"),
     Nodes.IntNode: ValueEvalHandler("Int"),
     Nodes.FloatNode: ValueEvalHandler("Float"),
@@ -32,6 +32,7 @@ eval_registry: dict[type[Nodes.StmtNode], ExprEvalHandler | StmtEvalHandler | Va
     Nodes.ListNode: ValueEvalHandler("List"),
     Nodes.TupleNode: ValueEvalHandler("Tuple"),
     Nodes.SetNode: ValueEvalHandler("Set"),
+    Nodes.CodeBlockNode: ExprEvalHandler("eval_code_block"),
     Nodes.ConditionalNode: StmtEvalHandler("eval_conditional"),
     Nodes.WhileLoopNode: StmtEvalHandler("eval_while_loop"),
     Nodes.GlorifiedWhileLoopNode: StmtEvalHandler("eval_glorified_while_loop"),
@@ -52,7 +53,7 @@ eval_registry: dict[type[Nodes.StmtNode], ExprEvalHandler | StmtEvalHandler | Va
     Nodes.ModuleNode: StmtEvalHandler("eval_program")
 }
 
-def evaluate(node: Nodes.BaseNode, env: Env) -> values.RuntimeVal:
+def evaluate(node: Nodes.BaseASTNode, env: Env) -> values.RuntimeVal:
     try:
         for node_class, handler in eval_registry.items():
             if not isinstance(node, node_class):

@@ -4,8 +4,8 @@
 
 import warnings
 import parser.nodes as Nodes
-import runtime.values as values
-from runtime.values import RuntimeVal, Number
+import runtime._expriemental.values as values
+from runtime._expriemental.values import RuntimeVal, Number
 
 raise DeprecationWarning("Please use '__init__()' from value wrappers from 'runtime.values' instead.")
 

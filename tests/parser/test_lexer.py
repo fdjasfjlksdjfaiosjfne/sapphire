@@ -4,38 +4,38 @@ from pprint import pprint
 
 sys.path.insert(0, r"C:\Users\Tien Dung\Dropbox\Script\Sapphire Family\Sapphire")
 
-from parser.lexer import Tokenizer, Token, TokenType
+from parser.lexer.lexer import Tokenizer, Token, TokenType
 
 @pytest.mark.parametrize("src,expected", [
     ("1 + 2", [
-        Token(TokenType.Int, "1"),
-        Token(TokenType.Plus),
-        Token(TokenType.Int, "2"),
+        Token(TokenType.PV_Int, "1"),
+        Token(TokenType.SY_Plus),
+        Token(TokenType.PV_Int, "2"),
         Token(TokenType.EoF)
     ]),
     ("print('Hello World!')", [
         Token(TokenType.Identifier, "print"),
-        Token(TokenType.OpenParenthesis),
-        Token(TokenType.Str, "'Hello World!'"),
-        Token(TokenType.CloseParenthesis),
+        Token(TokenType.PR_OpenParenthesis),
+        Token(TokenType.PV_String, "'Hello World!'"),
+        Token(TokenType.PR_CloseParenthesis),
         Token(TokenType.EoF)
     ]),
     ("sapphire_root = Path(__file__).resolve().parent.parent.parent", [
         Token(TokenType.Identifier, "sapphire_root"),
-        Token(TokenType.AssignOper),
+        Token(TokenType.SY_AssignOper),
         Token(TokenType.Identifier, "Path"),
-        Token(TokenType.OpenParenthesis),
+        Token(TokenType.PR_OpenParenthesis),
         Token(TokenType.Identifier, "__file__"),
-        Token(TokenType.CloseParenthesis),
-        Token(TokenType.Dot),
+        Token(TokenType.PR_CloseParenthesis),
+        Token(TokenType.SY_Dot),
         Token(TokenType.Identifier, "resolve"),
-        Token(TokenType.OpenParenthesis),
-        Token(TokenType.CloseParenthesis),
-        Token(TokenType.Dot),
+        Token(TokenType.PR_OpenParenthesis),
+        Token(TokenType.PR_CloseParenthesis),
+        Token(TokenType.SY_Dot),
         Token(TokenType.Identifier, "parent"),
-        Token(TokenType.Dot),
+        Token(TokenType.SY_Dot),
         Token(TokenType.Identifier, "parent"),
-        Token(TokenType.Dot),
+        Token(TokenType.SY_Dot),
         Token(TokenType.Identifier, "parent")
     ]),
 ])

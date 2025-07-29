@@ -1,20 +1,10 @@
 import typing
 from backend import errors
-from parser.lexer import Token, TokenType, Tokenizer
+from parser.core import ParserNamespaceSkeleton
+from parser.lexer.lexer import Token, TokenType, Tokenizer, TokenTypeSequence
 import parser.nodes as Nodes
-
-class Collections:
-    tokens: Tokenizer
-    def advance(
-        self, 
-        ts: typing.Sequence[TokenType] = [], 
-        error: errors.SapphireError | None = None
-    ) -> Token: ...
-    def parse_expr(self, **context) -> Nodes.ExprNode: ...
-    def parse_stmt(self, **context) -> Nodes.StmtNode: ...
-    def peek(self, offset: int = 0) -> Token: ...
-    parse_assignment_expr: typing.Callable[..., Nodes.WalrusNode | Nodes.ExprNode]
-    def parse_collections_expr(
+class Collections(ParserNamespaceSkeleton):
+    def _parse_collections_expr(
             self, 
             allow_explicit_tuple = False,
             allow_implicit_tuple = False,
@@ -29,8 +19,8 @@ class Collections:
             Nodes.DictComprehensionNode |
             Nodes.ExprNode
         ):
-        match self.peek():
-            case _ if allow_explicit_tuple and self.peek().type == TokenType.Comma:
+        match self._peek().type:
+            case _ if allow_explicit_tuple and self._peek(1).type == TokenType.SY_Comma:
                 # $ This is a tuple WITH parentheses
                 # $ In this case, this function is call from:
                 # > parse_primary_expr(), on the branch that parse parenthesis
@@ -38,202 +28,160 @@ class Collections:
 
                 # ? Now removing 'in_parentheses'
                 # $ The only place that gives 'allow_explicit_tuple' should also gives 'in_parentheses' anyway
-                context.pop("in_parentheses")
-                elements = [self.parse_expr()]
-                while self.peek().type == TokenType.Comma:
-                    self.advance()
-                    if self.peek().type == TokenType.CloseParenthesis:
+                context.pop("in_parentheses", None)
+                elements = [self._parse_expr()]
+                while self._peek().type == TokenType.SY_Comma:
+                    self._advance()
+                    if self._peek().type == TokenType.PR_CloseParenthesis:
                         break
-                    elements.append(self.parse_expr(**context))
+                    elements.append(self._parse_expr(**context))
                 # @ DO NOT EAT THE ')' TOKEN
                 # $ As of now, the self.parse_primary_expr() function that call this one is still waiting for the expression
                 # $ And then it will eat the ')' token
                 # ! Eat it now will break everything
                 return Nodes.TupleNode(elements)
-            case _ if allow_implicit_tuple and self.peek() == TokenType.Comma:
-                elements = [self.parse_expr()]
-                while self.peek() == TokenType.Comma:
-                    self.advance()
-                    elements.append(self.parse_expr(**context))
+            case _ if allow_implicit_tuple and self._peek(1) == TokenType.SY_Comma:
+                elements = [self._parse_expr()]
+                while self._peek() == TokenType.SY_Comma:
+                    self._advance()
+                    elements.append(self._parse_expr(**context))
                 return Nodes.TupleNode(elements)
-            case TokenType.OpenSquareBracket:
-                return self.parse_list()
-            case TokenType.OpenCurlyBrace:
-                key_expr = self.parse_expr(**context)
-                if self.peek() == TokenType.GDCologne:
+            case TokenType.PR_OpenSquareBracket:
+                return self._parse_comma_separated_values(
+                    TokenType.PR_OpenSquareBracket,
+                    TokenType.PR_CloseSquareBracket,
+                    normal_wrapper = Nodes.ListNode,
+                    comprehension_wrapper = Nodes.ListComprehensionNode,
+                    not_closing_error = errors.SyntaxError(
+                            "'[' is not closed"
+                    )
+                )
+            case TokenType.PR_OpenCurlyBrace:
+                self._advance([TokenType.PR_OpenCurlyBrace])
+                key_expr = self._parse_expr(**context)
+                if self._peek() == TokenType.SY_GDCologne:
                     # $ A dictionary...is it a comprehension, though?
-                    self.advance()
-                    val_expr = self.parse_expr(**context)
-                    if self.peek() == TokenType.For:
-                        # $ This is a dictionary comprehension
-                        return self.parse_dict_comprehension(subject = (key_expr, val_expr), **context)
-                    # $ This is a normal dictionary
-                    return self.parse_dict((key_expr, val_expr), **context)
+                    self._advance()
+                    val_expr = self._parse_expr(**context)
+                    def _():
+                        k = self._parse_expr(**context)
+                        self._advance(TokenType.SY_GDCologne)
+                        return k, self._parse_expr(**context)
+
+                    return self._parse_comma_separated_values(
+                        TokenType.PR_OpenCurlyBrace,
+                        TokenType.PR_CloseCurlyBrace,
+                        parsing_fn = _,
+                        normal_wrapper = Nodes.DictNode,
+                        comprehension_wrapper = Nodes.DictComprehensionNode,
+                        not_closing_error = errors.SyntaxError(
+                            "'{' is not closed"
+                        ),
+                        elements = [(key_expr, val_expr)]
+                    )
                 else:
-                    return self.parse_set(key_expr, **context)
+                    return self._parse_comma_separated_values(
+                        TokenType.PR_OpenCurlyBrace,
+                        TokenType.PR_CloseCurlyBrace,
+                        normal_wrapper = Nodes.SetNode,
+                        comprehension_wrapper = Nodes.SetComprehensionNode,
+                        not_closing_error = errors.SyntaxError(
+                            "'{' is not closed"
+                        ),
+                        elements = [key_expr]
+                    )
             case _:
-                return self.parse_assignment_expr(**context)
+                return self._parse_walrus_assignment_expr(**context)
 
-    def parse_list(self, **context):
-        expr = self.parse_expr(**context)
-        if self.peek() == TokenType.For:
-            # $ This is a list comprehension
-            return self.parse_comprehension(subject = expr, closing_bracket = TokenType.CloseSquareBracket, **context)
-        # $ This is a list
-        elements = [expr]
-        while self.peek() == TokenType.Comma:
-            self.advance()
-            if self.peek() == TokenType.CloseSquareBracket:
+    def _parse_comma_separated_values[
+            NormalWrapper: Nodes.ExprNode, 
+            ComprehensionWrapper: (
+                Nodes.SequenceComprehensionNode 
+                | Nodes.DictComprehensionNode
+            )](
+                self,
+                opening_token_types: TokenTypeSequence,
+                closing_token_types: TokenTypeSequence,
+                parsing_fn: typing.Callable[[], typing.Any] | None = None, *,
+                normal_wrapper: type[NormalWrapper],
+                comprehension_wrapper: type[ComprehensionWrapper],
+                allow_comprehension: bool = True,
+                not_closing_error: errors.BaseSapphireError = errors.InternalError("Placeholder error"),
+                elements: list = [],
+                **context) -> NormalWrapper | ComprehensionWrapper:
+        
+        supported_loop_tokens = [TokenType.KW_PythonFor]
+        def condition_to_break_loop():
+            if isinstance(closing_token_types, TokenType):
+                return (closing_token_types, *supported_loop_tokens)
+            if isinstance(closing_token_types, list):
+                return closing_token_types + supported_loop_tokens
+            if isinstance(closing_token_types, tuple):
+                return closing_token_types + tuple(supported_loop_tokens)
+            if isinstance(closing_token_types, set):
+                return closing_token_types | set(supported_loop_tokens)
+            else:
+                raise errors.InternalError(f"{type(closing_token_types)} not supported")
+
+        if parsing_fn is None:
+            parsing_fn = lambda: self._parse_expr(**context)
+        
+        self._advance(opening_token_types)
+        if len(elements) != 0:
+            elements.append(parsing_fn())
+        while self._peek() == TokenType.SY_Comma:
+            self._advance()
+            if self._peek().type in condition_to_break_loop():
                 break
-            elements.append(self.parse_expr(**context))
-        self.advance([TokenType.CloseSquareBracket], error = errors.SyntaxError("'[' is not closed"))
-        return Nodes.ListNode(elements)
+            elements.append(parsing_fn())
+        if allow_comprehension and self._peek().type == TokenType.KW_PythonFor:
+            return self._parse_comprehension(
+                elements, 
+                closing_token_types,
+                comprehension_wrapper,
+                **context
+            )
+        self._advance(closing_token_types, not_closing_error)
+        return normal_wrapper(elements)
 
-    def parse_set(self, key_expr: Nodes.ExprNode, **context):
-        if self.peek() == TokenType.For:
-            # $ This is a set comprehension
-            return self.parse_comprehension(closing_bracket = TokenType.CloseCurlyBrace, **context)
-        else:
-            # $ This is a set
-            items = [key_expr]
-            while self.peek() == TokenType.Comma:
-                self.advance()
-                if self.peek() == TokenType.CloseCurlyBrace:
-                    break
-                items.append(self.parse_expr(**context))
-            self.advance([TokenType.CloseCurlyBrace], error = errors.SyntaxError("'{' is not closed"))
-            return Nodes.SetNode(items)
+    def _parse_comprehension[
+                T: Nodes.SequenceComprehensionNode 
+                | Nodes.DictComprehensionNode
+            ](
+            self,
+            subjects: list,
+            closing_bracket: TokenTypeSequence, 
+            Wrapper: type[T],
+            **context
+            ) -> T:
+        closing_bracket = self._to_token_sequence(closing_bracket)
 
-    def parse_dict(self, first_pair: tuple[Nodes.ExprNode, Nodes.ExprNode], **context):
-        pairs = [first_pair]
-        while self.peek() == TokenType.Comma:
-            self.advance()
-            if self.peek() == TokenType.CloseCurlyBrace:
-                break
-            k = self.parse_expr(**context)
-            self.advance([TokenType.GDCologne])
-            v = self.parse_expr(**context)
-            pairs.append((k, v))
-        self.advance([TokenType.CloseCurlyBrace], error = errors.SyntaxError("'{' is not closed"))
-        return Nodes.DictNode(pairs)
-
-    def parse_comprehension(self, subject: Nodes.ExprNode, closing_bracket: TokenType | None, **context) -> Nodes.ListComprehensionNode | Nodes.GeneratorComprehensionNode | Nodes.SetComprehensionNode:
-        self.advance([TokenType.For])
-        syntax_expr = self.parse_expr(allow_implicit_tuples = True, **context)
-        iter_vars = []
-        iterable = None
-        condition = None
-        otherwise = None
-
-        if isinstance(syntax_expr, Nodes.BinaryNode) and syntax_expr.oper == TokenType.In:
-            if isinstance(syntax_expr.left, Nodes.IdentifierNode):
-                iter_vars = [syntax_expr.left.symbol]
-                iterable = syntax_expr.right
-            elif isinstance(syntax_expr.left, Nodes.TupleNode):
-                if all(isinstance(i, Nodes.IdentifierNode) for i in syntax_expr.left.value):
-                    values = typing.cast(list[Nodes.IdentifierNode], syntax_expr.left.value)
-                    iter_vars = [i.symbol for i in values]
-                    iterable = syntax_expr.right
-                else:
-                    raise errors.SyntaxError("Expected only identifiers on the left-hand side of 'in'")
-            else:
-                raise errors.SyntaxError("Invalid iterable unpacking target before 'in'")
-
-        elif isinstance(syntax_expr, Nodes.TupleNode):
-            if not syntax_expr.value:
-                raise errors.SyntaxError("Empty tuple is not valid in a for loop")
-            
-            *left, last = syntax_expr.value
-            if (
-                isinstance(last, Nodes.BinaryNode) and last.oper == TokenType.In and
-                isinstance(last.left, Nodes.IdentifierNode) and
-                all(isinstance(i, Nodes.IdentifierNode) for i in left)
-            ):
-                left = typing.cast(list[Nodes.IdentifierNode], left)
-                iter_vars = [i.symbol for i in left] + [last.left.symbol]
-                iterable = last.right
-            else:
-                raise errors.SyntaxError("Could not resolve iterable expression from tuple pattern")
-
-        else:
-            raise errors.SyntaxError("Invalid syntax in 'for' loop head")
-        
-        if self.peek().type == TokenType.If:
-            self.advance()
-            condition = self.parse_expr()
-        
-        if self.peek().type == TokenType.Else:
-            self.advance()
-            if self.peek().type in {TokenType.Break, TokenType.Continue, TokenType.Throw}:
-                otherwise = self.parse_stmt(**context)
-            else:
-                otherwise = self.parse_expr(**context)
-
-        if closing_bracket is not None:
-            self.advance([closing_bracket])
-
-        match closing_bracket:
-            case TokenType.CloseSquareBracket:
-                return Nodes.ListComprehensionNode(subject, iter_vars, iterable, condition, otherwise)
-            case TokenType.CloseCurlyBrace:
-                return Nodes.SetComprehensionNode(subject, iter_vars, iterable, condition, otherwise)
-            case TokenType.CloseParenthesis | None:
-                return Nodes.GeneratorComprehensionNode(subject, iter_vars, iterable, condition, otherwise)
-            case _:
-                raise errors.InternalError(f"Invalid value enter into 'closing_bracket' for Collections.parse_comprehension() ('{closing_bracket}')")
-
-    def parse_dict_comprehension(self, pair: tuple[Nodes.ExprNode, Nodes.ExprNode], **context) -> Nodes.DictComprehensionNode:
-        self.advance([TokenType.For])
-        syntax_expr = self.parse_expr(allow_implicit_tuples = True, **context)
-        iter_vars = []
-        iterable = None
-        condition = None
-        otherwise = None
-
-        if isinstance(syntax_expr, Nodes.BinaryNode) and syntax_expr.oper == TokenType.In:
-            if isinstance(syntax_expr.left, Nodes.IdentifierNode):
-                iter_vars = [syntax_expr.left.symbol]
-                iterable = syntax_expr.right
-            elif isinstance(syntax_expr.left, Nodes.TupleNode):
-                if all(isinstance(i, Nodes.IdentifierNode) for i in syntax_expr.left.value):
-                    values = typing.cast(list[Nodes.IdentifierNode], syntax_expr.left.value)
-                    iter_vars = [i.symbol for i in values]
-                    iterable = syntax_expr.right
-                else:
-                    raise errors.SyntaxError("Expected only identifiers on the left-hand side of 'in'")
-            else:
-                raise errors.SyntaxError("Invalid iterable unpacking target before 'in'")
-
-        elif isinstance(syntax_expr, Nodes.TupleNode):
-            if not syntax_expr.value:
-                raise errors.SyntaxError("Empty tuple is not valid in a for loop")
-            
-            *left, last = syntax_expr.value
-            if (
-                isinstance(last, Nodes.BinaryNode) and last.oper == TokenType.In and
-                isinstance(last.left, Nodes.IdentifierNode) and
-                all(isinstance(i, Nodes.IdentifierNode) for i in left)
-            ):
-                left = typing.cast(list[Nodes.IdentifierNode], left)
-                iter_vars = [i.symbol for i in left] + [last.left.symbol]
-                iterable = last.right
-            else:
-                raise errors.SyntaxError("Could not resolve iterable expression from tuple pattern")
-
-        else:
-            raise errors.SyntaxError("Invalid syntax in 'for' loop head")
-        
-        if self.peek().type == TokenType.If:
-            self.advance()
-            condition = self.parse_expr()
-        
-        if self.peek().type == TokenType.Else:
-            self.advance()
-            if self.peek().type in {TokenType.Break, TokenType.Continue, TokenType.Throw}:
-                otherwise = self.parse_stmt(**context)
-            else:
-                otherwise = self.parse_expr(**context)
-
-        self.advance([TokenType.CloseCurlyBrace])
-        
-        return Nodes.DictComprehensionNode(pair, iter_vars, iterable, condition, otherwise)
+        generators = []
+        while self._peek().type in closing_bracket:
+            conditions = []
+            fallbacks = []
+            # TODO Support other loop types
+            loop_type = self._advance([
+                TokenType.KW_PythonFor
+            ])
+            var_list = self._parse_assignment_pattern(TokenType.KW_In)
+            self._advance(TokenType.KW_In)
+            iterable = self._parse_expr(**context)
+            if self._peek().type == TokenType.KW_If:
+                while self._peek().type == TokenType.KW_If:
+                    self._advance(TokenType.KW_If)
+                    conditions.append(self._parse_expr(**context))
+                    if self._peek().type == TokenType.KW_Else:
+                        self._advance(TokenType.KW_Else)
+                        fallbacks.append(self._parse_expr())
+                    else:
+                        fallbacks.append(None)
+            generators.append(
+                Nodes.ForLoopInComprehension(
+                    var_list,
+                    iterable,
+                    conditions,
+                    fallbacks
+                )
+            )
+        return Wrapper(subjects, generators)
