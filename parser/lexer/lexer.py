@@ -4,6 +4,7 @@ import typing
 import regex
 from backend import errors
 from parser.lexer.types import TokenType, get_regex_dict
+from utils import config
 
 TokenTypeSequence: typing.TypeAlias = (
     typing.Sequence[TokenType] 
@@ -16,8 +17,10 @@ class Token:
         self.type = type
         self.value = value
 
+    def __str__(self) -> str: return repr(self)
+
     def __repr__(self) -> str:
-        return f"Token(type={self.type.name}{f", value={self.value}" if self.value else ""})"
+        return f"Token(type={self.type.name}{f", value={self.value!r}" if self.value else ""})"
     
     def __ne__(self, other) -> bool:
         if isinstance(other, TokenType):
@@ -37,12 +40,12 @@ class Token:
         return hash(self.type)
 
 class Tokenizer:
-    def __init__(self, source: str, conf):
+    def __init__(self, source: str, conf: config.ConfigCls | None = None):
         self.source = source
         self.src = source[:]
         self.tokens = []
         self.token_index = 0
-        self.regex_dict = get_regex_dict(conf)
+        self.regex_dict = get_regex_dict(conf or config.ConfigCls())
     
     def _emit_token(self, match: str, token_type: TokenType, include_match: bool = True) -> Token:
         self.src = self.src.lstrip(match)
@@ -87,7 +90,8 @@ class Tokenizer:
                     cond = pattern.match(self.src)
                     if cond:
                         match = cond.group()
-                    match = ""
+                    else:
+                        match = ""
                 elif isinstance(pattern, str):
                     match = pattern
                     cond = self.src.startswith(pattern)
@@ -109,8 +113,11 @@ class Tokenizer:
                 break
         return self.tokens[self.token_index + offset]
     
-    def advance(self, tok_types: TokenTypeSequence = [], error: errors.BaseSapphireError | None = None) -> Token:
+    def advance(self, tok_types: TokenTypeSequence | None = None, error: errors.BaseSapphireError | None = None) -> Token:
+        
         tok = self.peek()
+        if tok_types is None: 
+            tok_types = tuple()
         if isinstance(tok_types, TokenType):
             tok_types = (tok_types,)
         if len(tok_types) != 0:

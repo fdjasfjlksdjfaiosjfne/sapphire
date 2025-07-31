@@ -10,11 +10,7 @@ while True:
     
     par = Parser(inpt)
     ast_node = par.parse_module()
-    
-    for i in ast_node.body:
-        val = evaluate(i, global_env)
-        if val is not None:
-            print(val)
+    evaluate(ast_node, global_env)
 
 # Comment guidelines (in general)
 # Note that this is initially written about 1 or 2 years ago so...a lot has changed regarding me and this thing since then

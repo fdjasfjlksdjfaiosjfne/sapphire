@@ -1,13 +1,13 @@
 from __future__ import annotations
+
 from enum import Enum, auto
 import typing
 import pathlib
 import jsonschema.exceptions
 import jsonschema.validators
 import yaml
-import types
 import regex
-from dataclasses import dataclass
+import dataclasses
 
 from backend import errors
 
@@ -16,7 +16,7 @@ class CustomizationMode(Enum):
     Enabled = 1
     Forced = 2
 
-@dataclass(frozen = True)
+@dataclasses.dataclass(frozen = True)
 class RedefineCls:
     not_equal: typing.Literal["<>", "><", "!="] = "!="
     function_def: typing.Literal["def", "fn", "fun", "func", "function"] = "fn"
@@ -24,7 +24,8 @@ class RedefineCls:
     else_if: typing.Literal["else if", "elseif", "elsif", "elif"] = "elif"
     spaceship_operator: typing.Literal["<=>", ">=<"] = "<=>"
 
-@dataclass(frozen = True)
+
+@dataclasses.dataclass(frozen = True)
 class LangCustomizationCls:
     redefine: RedefineCls = RedefineCls()
     code_blocks: typing.Literal["braces", "indentation", "end"] = "braces"
@@ -41,16 +42,16 @@ class LangCustomizationCls:
     mutable_value_assignment_behavior: typing.Literal["copy", "reference"] = "copy"
     mutable_argument_default_value_behavior: typing.Literal["copy", "reference"] = "copy"
 
-@dataclass(frozen = True)
+@dataclasses.dataclass(frozen = True)
 class LangModeCls:
     inverted_operators: CustomizationMode = CustomizationMode.Disabled
     methify: CustomizationMode = CustomizationMode.Disabled
 
-@dataclass(frozen = True)
+@dataclasses.dataclass(frozen = True)
 class ConfigCls:
     language_customization: LangCustomizationCls = LangCustomizationCls()
     language_customization_modes: LangModeCls = LangModeCls()
-    custom_options: dict = {}
+    custom_options: dict = dataclasses.field(default_factory = dict)
 
 CAMEL_TO_SNAKE_PATTERN = regex.compile('((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))')
 
@@ -58,6 +59,21 @@ def camel_to_snake(name: str):
     return CAMEL_TO_SNAKE_PATTERN.sub(r"_\1", name).lower()
 
 def solidify_config(conf: dict) -> ConfigCls:
+    config_version = typing.cast(list[int]|str, conf["configVersion"])
+    if isinstance(config_version, str):
+        config_version = [int(i) for i in config_version.split(".")]
+    
+    # & I'm not adding multi-version support yet
+    # & What's so important about supporting older development versions anyway?
+    # & They just exist for like, a few days at most
+    # & I'll add them once it's mainstream...Which is basically never.
+    if config_version != [0,0,2]:
+        raise errors.InternalError(
+            "Due to the developer having an overdose of laziness, version "
+            f"{".".join(str(i) for i in config_version)} is not supported. "
+            "Please use version 0.0.2 instead."
+        )
+
 
     # ^ languageCustomizationModes
     customization_mode_replace_dict = {
@@ -143,5 +159,5 @@ def get_config_dict(current_path: pathlib.Path | None = None):
                     raise errors.InternalError(f"sapconfig.schema.json is faulty")
                     
         config.update(c_)
-    
+
     return (CONFIG := solidify_config(config))

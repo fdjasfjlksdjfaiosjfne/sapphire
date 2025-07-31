@@ -66,7 +66,7 @@ class MatchCase(ParserNamespaceSkeleton):
             name = self._advance([TokenType.Identifier])
             self._advance([TokenType.PR_OpenParenthesis])
             args, kwargs = self.__parse_class_args(**context)
-            return Nodes.ClassPatternNode(name, args, kwargs)
+            return Nodes.ClassPatternNode(name.value, args, kwargs)
         return self.__parse_structural_match_patterns()
 
     def __parse_class_args(self, **context) -> (

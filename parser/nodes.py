@@ -1,6 +1,8 @@
 from __future__ import annotations
-import typing
+import dataclasses
 import enum
+import typing
+
 
 from parser.lexer.lexer import TokenType
 
@@ -14,54 +16,22 @@ class SequencePatternType(enum.Enum):
     Tuple = 1
     Set = 2
 
+@dataclasses.dataclass
 class BaseASTNode:
-    def __init__(self, *args, **kwargs):
-        ann = {}
-        # Collect all annotations from the class hierarchy
-        for cls in reversed(self.__class__.__mro__):
-            ann.update(getattr(cls, '__annotations__', {}))
-
-        ann_keys = list(ann.keys())
-
-        # Assign positional arguments
-        if len(args) > len(ann_keys):
-            raise TypeError(f"{self.__class__.__name__} expected at most {len(ann_keys)} positional arguments, got {len(args)}")
-        for i, value in enumerate(args):
-            setattr(self, ann_keys[i], value)
-
-        # Assign keyword arguments, checking for duplicates and invalid keys
-        for k in kwargs:
-            if k not in ann:
-                raise TypeError(f"{self.__class__.__name__} got an unexpected keyword argument '{k}'")
-            if hasattr(self, k):
-                raise TypeError(f"{self.__class__.__name__} got multiple values for argument '{k}'")
-            setattr(self, k, kwargs[k])
-
-        # Set remaining attributes to None if not already set
-        for k in ann:
-            if not hasattr(self, k):
-                setattr(self, k, None)
-    
-    def __eq__(self, other) -> bool:
-        if isinstance(other, type(self)):
-            return self.__dict__ == other.__dict__
-        return False
-
-    def __ne__(self, other) -> bool:
-        if isinstance(other, type(self)):
-            return self.__dict__ != other.__dict__
-        return True
-
+    pass
+@dataclasses.dataclass
 class StmtNode(BaseASTNode):
     pass
 
+@dataclasses.dataclass
 class ExprNode(StmtNode): 
     pass
 
+@dataclasses.dataclass
 class ModuleNode(StmtNode):
     body: CodeBlockNode
     def __init__(self, body: CodeBlockNode | None = None):
-        if self.body is None:
+        if body is None:
             self.body = CodeBlockNode()
         else:
             assert body is not None
@@ -69,73 +39,101 @@ class ModuleNode(StmtNode):
     def __iter__(self):
         yield from self.body
 
+@dataclasses.dataclass
 class VarDeclarationNode(StmtNode):
-    idents: list[ExprNode]
+    idents: list[list[ExprNode]]
     expr: ExprNode
-    constant: bool
+    constant: bool = False
 
+class DeclaredArgumentType(enum.Enum):
+    Normal = enum.auto()
+    PositionalSeparator = enum.auto() # /
+    KeywordSeparator = enum.auto() # *
+    PositionalVariadic = enum.auto()
+    KeywordVariadic = enum.auto()
+
+@dataclasses.dataclass
+class DeclaredArgumentNode(BaseASTNode):
+    type: DeclaredArgumentType
+    name: str | None = None
+
+@dataclasses.dataclass
 class FunctionDeclarationNode(StmtNode):
     name: str
-    args: list[ExprNode | typing.Literal[TokenType.SY_TrueDivision, TokenType.SY_Asterisk]]
+    args: list[DeclaredArgumentNode]
     code_block: CodeBlockNode
 
+@dataclasses.dataclass
 class ModifierAssignmentNode(StmtNode):
     assignee: ExprNode
     assign_oper: str
     value: ExprNode
 
+@dataclasses.dataclass
 class AssignmentNode(StmtNode):
-    targets: list[ExprNode]
+    targets: list[list[ExprNode]]
     value: ExprNode
 
+@dataclasses.dataclass
 class WalrusNode(ExprNode):
     assignee: ExprNode
     value: ExprNode
 
+@dataclasses.dataclass
 class ReturnNode(StmtNode):
     value: ExprNode
 
+@dataclasses.dataclass
 class ConditionalNode(StmtNode):
     condition: ExprNode
     code_block: CodeBlockNode
-    otherwise: CodeBlockNode | ConditionalNode | None
+    otherwise: CodeBlockNode | ConditionalNode | None = None
 
+@dataclasses.dataclass
 class WhileLoopNode(StmtNode):
     condition: ExprNode
     code_block: CodeBlockNode
     else_block: CodeBlockNode | None
 
+@dataclasses.dataclass
 class GlorifiedWhileLoopNode(StmtNode):
-    init: ExprNode | VarDeclarationNode
-    condition: ExprNode
-    repeat: ExprNode
+    init: ExprNode | VarDeclarationNode | None
+    condition: ExprNode | None
+    repeat: ExprNode | None
     code_block: CodeBlockNode
     else_block: CodeBlockNode | None
 
+@dataclasses.dataclass
 class ForLoopNode(StmtNode):
     iter_vars: list[str]
     iterable: ExprNode
     code_block: CodeBlockNode
     else_block: CodeBlockNode | None
 
+@dataclasses.dataclass
 class DoWhileLoopNode(StmtNode):
     condition: ExprNode
     code_block: CodeBlockNode
     else_block: CodeBlockNode | None
 
+@dataclasses.dataclass
 class BreakNode(StmtNode): 
-    label: str | None
+    label: str | None = None
 
+@dataclasses.dataclass
 class ContinueNode(StmtNode):
-    label: str | None
+    label: str | None = None
 
+@dataclasses.dataclass
 class ThrowNode(StmtNode):
-    error_expr: ExprNode | None
-    cause: ExprNode | None
+    error_expr: ExprNode | None = None
+    cause: ExprNode | None = None
 
+@dataclasses.dataclass
 class MatchPatternNode(BaseASTNode):
     pass
 
+@dataclasses.dataclass
 class LiteralPatternNode(MatchPatternNode):
     # case 123
     # case "foo"
@@ -143,67 +141,81 @@ class LiteralPatternNode(MatchPatternNode):
     # case null
     val: ExprNode
 
+@dataclasses.dataclass
 class WildcardPatternNode(MatchPatternNode):
     # case _
     pass
 
+@dataclasses.dataclass
 class VariablePatternNode(MatchPatternNode):
     # case ... as foo
     pattern: MatchPatternNode
     ident_name: str
 
+@dataclasses.dataclass
 class ClassPatternNode(MatchPatternNode):
     # case Ap(1, 3, a = 6)
     name: str
     args: list[MatchPatternNode]
     kwargs: dict[str, MatchPatternNode]
 
+@dataclasses.dataclass
 class SequencePatternNode(MatchPatternNode):
     # case [x, y, z]
     type: SequencePatternType
-    elements: list[VariablePatternNode | WildcardPatternNode | EllipsisNode]
+    elements: list[MatchPatternNode]
 
+@dataclasses.dataclass
 class MappingPatternNode(MatchPatternNode):
     # case {"x": x}
-    elements: list[tuple[ExprNode, MatchPatternNode]]
+    elements: list[tuple[MatchPatternNode, MatchPatternNode]]
 
+@dataclasses.dataclass
 class MultipleChoicePatternNode(MatchPatternNode):
     # case 1, 2, 3
     elements: list[MatchPatternNode]
+@dataclasses.dataclass
 class CaseNode(BaseASTNode):
     pattern: MatchPatternNode
     guard: ExprNode | None
     body: CodeBlockNode
 
+@dataclasses.dataclass
 class MatchCaseNode(ExprNode):
     subject: ExprNode
     cases: list[MatchPatternNode]
 
+@dataclasses.dataclass
 class UnaryNode(ExprNode):
     expr: ExprNode
     attachment: TokenType
     position: typing.Literal["Prefix", "Postfix"]
 
+@dataclasses.dataclass
 class BinaryNode(ExprNode):
     left: ExprNode
     oper: TokenType
     right: ExprNode
 
+@dataclasses.dataclass
 class TernaryNode(ExprNode):
     cond: ExprNode
     true: ExprNode
     false: ExprNode
 
+@dataclasses.dataclass
 class AttributeNode(ExprNode):
     obj: ExprNode
     attr: str
-    context: ExprContext
+    context: ExprContext | None = None
 
+@dataclasses.dataclass
 class SubscriptionNode(ExprNode):
     obj: ExprNode
     slice: tuple[ExprNode, ExprNode | None, ExprNode | None]
-    context: ExprContext
+    context: ExprContext | None = None
 
+@dataclasses.dataclass
 class ComparisonNode(ExprNode):
     left: ExprNode
     operators: list[TokenType]
@@ -213,84 +225,110 @@ class CallArgumentList(typing.NamedTuple):
     args: list[ExprNode] = []
     kwargs: dict[str, ExprNode] = {}
 
+@dataclasses.dataclass
 class CallNode(ExprNode):
     caller: ExprNode
     args: CallArgumentList
 
+@dataclasses.dataclass
 class LiteralNode(ExprNode):
-    value: typing.Any
+     pass
 
+@dataclasses.dataclass
 class IntNode(LiteralNode):
     value: int
 
+@dataclasses.dataclass
 class FloatNode(LiteralNode):
     value: float
 
+@dataclasses.dataclass
 class StrNode(LiteralNode):
     value: str
 
+@dataclasses.dataclass
 class FormattedStrNode(ExprNode):
     values: list[StrNode | FormattedValue]
 
+@dataclasses.dataclass
 class FormattedValue(ExprNode):
     value: ExprNode
     conversion: int
     formatting: FormattedStrNode | None
 
+@dataclasses.dataclass
 class BoolNode(LiteralNode):
     value: bool
 
+@dataclasses.dataclass
 class NullNode(LiteralNode):
     pass
 
+@dataclasses.dataclass
 class NotImplementedNode(LiteralNode):
     pass
 
+@dataclasses.dataclass
 class EllipsisNode(LiteralNode):
     pass
 
+@dataclasses.dataclass
 class IdentifierNode(ExprNode):
     symbol: str
-    context: ExprContext
+    context: ExprContext = ExprContext.Load
 
+@dataclasses.dataclass
 class ListNode(ExprNode):
     value: list[ExprNode]
 
+@dataclasses.dataclass
 class LoopInComprehension(BaseASTNode):
     pass
 
+@dataclasses.dataclass
 class ForLoopInComprehension(LoopInComprehension):
     var_list: list[ExprNode]
     iterable: ExprNode
     conditions: list[ExprNode]
     fallbacks: list[ExprNode | None]
 
+@dataclasses.dataclass
 class SequenceComprehensionNode(ExprNode):
     subjects: list[ExprNode]
     generators: list[LoopInComprehension]
 
+@dataclasses.dataclass
 class ListComprehensionNode(SequenceComprehensionNode): pass
+
+@dataclasses.dataclass
 class GeneratorComprehensionNode(SequenceComprehensionNode): pass
+@dataclasses.dataclass
 class SetComprehensionNode(SequenceComprehensionNode): pass
+@dataclasses.dataclass
 class TupleNode(ExprNode):
     value: list[ExprNode]
+@dataclasses.dataclass
 class SetNode(ExprNode):
     value: list[ExprNode]
 
+@dataclasses.dataclass
 class DictNode(ExprNode):
     value: list[tuple[ExprNode, ExprNode]]
 
+@dataclasses.dataclass
 class DictComprehensionNode(ExprNode):
-    subject: tuple[ExprNode, ExprNode]
+    subject: list[tuple[ExprNode, ExprNode]]
     generators: list[LoopInComprehension]
 
+@dataclasses.dataclass
 class ScopeBlockNode(ExprNode):
     code_block: CodeBlockNode
 
+@dataclasses.dataclass
 class CodeBlockNode(BaseASTNode):
-    body: list
+    body: list[BaseASTNode]
     def __init__(self, body: list | None = None):
-        if self.body is None:
+        if body is None:
             self.body = []
         else:
             assert body is not None

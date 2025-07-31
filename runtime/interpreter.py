@@ -1,9 +1,8 @@
 import typing
-import runtime._expriemental.values as values
+from runtime import values
 import parser.nodes as Nodes
 from runtime.env import Env
 from backend import errors
-
 
 class ExprEvalHandler(typing.NamedTuple):
     function_name: str
@@ -53,26 +52,17 @@ eval_registry: dict[type[Nodes.BaseASTNode], ExprEvalHandler | StmtEvalHandler |
     Nodes.ModuleNode: StmtEvalHandler("eval_program")
 }
 
-def evaluate(node: Nodes.BaseASTNode, env: Env) -> values.RuntimeVal:
-    try:
-        for node_class, handler in eval_registry.items():
-            if not isinstance(node, node_class):
-                continue
-            if isinstance(handler, (StmtEvalHandler, ExprEvalHandler)):
-                handler(node, env)
-            elif isinstance(handler, ValueEvalHandler):
-                if isinstance(node, Nodes.LiteralNode):
-                    handler(node.value)
-                else:
-                    raise errors.InternalError()
-
-    except errors.BreakLoop:
-        raise errors.SyntaxError("'break' run outside of a loop")
-    except errors.ContinueLoop:
-        raise errors.SyntaxError("'continue' run outside of a loop")
-    except errors.ReturnValue:
-        raise errors.SyntaxError("'return' run outside of a function")
-
+def evaluate(node: Nodes.BaseASTNode, env: Env) -> values.RuntimeValue:
+    for node_class, handler in eval_registry.items():
+        if not isinstance(node, node_class):
+            continue
+        if isinstance(handler, (StmtEvalHandler, ExprEvalHandler)):
+            handler(node, env)
+        elif isinstance(handler, ValueEvalHandler):
+            if isinstance(node, Nodes.LiteralNode):
+                handler(node.value)
+            else:
+                raise errors.InternalError()
 
     # $ If the code reaches here, it means that there's an invalid node in the AST
     # $ that the interperter couldn't identify, which should never happened

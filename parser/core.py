@@ -12,7 +12,7 @@ class ParserNamespaceSkeleton(ABC):
     conf: ConfigCls
     @typing.final
     def __getattribute__(self, attr: str):
-        if __class__.__name__ != "Parser":
+        if super().__getattribute__("__class__").__name__ != "Parser":
             raise errors.InternalError(
                 "An attempt to access an attribute from an incomplete namespace at runtime " \
                 "has been detected. Please use the full 'Parser()' class instead of just " \

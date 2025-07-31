@@ -59,8 +59,8 @@ class Stmts(MatchCase, Loops, Declarations):
                 f"'clause' is not being passed into 'parse_if_elif_else()' from {__package__}"
             )
         self._advance()
+        
         cond = None
-
         if clause != TokenType.KW_Else:
             cond = self._parse_expr(**context)
         
@@ -68,20 +68,17 @@ class Stmts(MatchCase, Loops, Declarations):
         
         # $ At this point, we're done with parsing the clause itself
         # $ Now we're checking on continuity
-        
-        # ? This checks on the `else`
-        # ? If it is, just return the code block
-        # ? Without any attempt at continuation
+
         if clause == TokenType.KW_Else:
             return code
-
-        # $ At this point, the block we're parsing should be a if/elif block
-        # $ Since they can be connected with another elif or else clause
-        # $ Continue to look for it
+        
+        # & Yes, static type checker, I do know what am I doing
+        # & Trust me
+        cond = typing.cast(Nodes.ExprNode, cond)
 
         # ? Check if there's any other connectable clause (elif/else) behind
+        
         if self.peek().type in {TokenType.KW_ElseIf, TokenType.KW_Else}:
-            
             return Nodes.ConditionalNode(
                 cond, code,
                 self.parse_if_elif_else(clause = self.peek().type, **context))

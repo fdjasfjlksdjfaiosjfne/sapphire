@@ -1,4 +1,4 @@
-
+from __future__ import annotations
 
 import ast
 import functools
@@ -8,14 +8,39 @@ import operator
 import typing
 
 from backend import errors
-from runtime.values.value_types import *
+from runtime._values.value_types import (
+    RuntimeValue,
+    Type,
+    NumberValue,
+    IntValue,
+    FloatValue,
+    BoolValue,
+    StringValue,
+    NullValue,
+    FunctionValue,
+    NativeFunctionValue,
+    CustomFunctionValue,
+    BoundCustomFunction,
+    ListValue,
+    TupleValue,
+    SetValue,
+    DictValue,
+    TRUE,
+    FALSE,
+    NOT_IMPLEMENTED,
+    NULL
+)
 from utils.config import CONFIG
 
-__all__ = [
-    "RUNTIME_VAL_METHODS",
-    "NUMBER_METHODS",
-    "BOOL_METHODS"
-]
+_name_counter = itertools.count()
+def _generate_unique_name(exclusions: typing.Sequence[str] | None = None) -> str:
+    if exclusions is None:
+        exclusions = tuple()
+    for _ in range(1000):
+        name = f"_func_{next(_name_counter)}"
+        if name not in exclusions:
+            return name
+    raise errors.InternalError()
 
 def _turn_into_dict(fn) -> dict[str, typing.Any]:
     @functools.wraps(fn)
@@ -67,9 +92,12 @@ def _turn_into_dict(fn) -> dict[str, typing.Any]:
 @_turn_into_dict
 def RUNTIME_VAL_METHODS():
     def __getattribute__(self, attr):
-        pass
+        assert isinstance(self, RuntimeValue)
+        return self.get_attribute(attr)
+
     def __bool__(self):
         return TRUE
+
     def __logicand__(self, other, right):
         assert isinstance(self, RuntimeValue) and isinstance(other, RuntimeValue)
         lhs, rhs = (other, self) if right else (self, other)
@@ -84,9 +112,9 @@ def RUNTIME_VAL_METHODS():
     def __logicor__(self, other, right):
         assert isinstance(self, RuntimeValue) and isinstance(other, RuntimeValue)
         lhs, rhs = (other, self) if right else (self, other)
-        if lhs.get_attribute("__bool__"):
+        if BoolValue(lhs).value:
             if CONFIG.language_customization.logical_operator_behavior == "boolean_only":
-                return FALSE
+                return TRUE
             return lhs
         if CONFIG.language_customization.logical_operator_behavior == "boolean_only":
             return BoolValue(rhs)
@@ -106,6 +134,14 @@ def RUNTIME_VAL_METHODS():
 
 @_turn_into_dict
 def NUMBER_METHODS():
+    def __int__(self):
+        assert isinstance(self, (IntValue, FloatValue))
+        return IntValue(self.value)
+
+    def __float__(self):
+        assert isinstance(self, (IntValue, FloatValue))
+        return FloatValue(self.value)
+
     def __add__(self, other, right):
         return _commutative_numeric_operation(operator.add)(self, other)
 
@@ -146,37 +182,186 @@ def NUMBER_METHODS():
         return _comparison_numeric_operation(operator.ne)(self, other)
 
 @_turn_into_dict
-def BOOL_METHODS():
+def INT_METHODS():
     def __binand__(self, other, right):
-        pass
+        return _commutative_numeric_operation(operator.and_)(self, other)
     def __binor__(self, other, right):
-        pass
+        return _commutative_numeric_operation(operator.or_)(self, other)
     def __binxor__(self, other, right):
-        pass
+        return _commutative_numeric_operation(operator.xor)(self, other)
+
+@_turn_into_dict
+def STR_METHODS():
+    def __int__(self):
+        assert isinstance(self, StringValue)
+        return IntValue(int(self.value))
+
+    def __float__(self):
+        assert isinstance(self, StringValue)
+        return FloatValue(float(self.value))
+
+    def __str__(self):
+        assert isinstance(self, StringValue)
+        return self
+    
+    def capitalize(self):
+        assert isinstance(self, StringValue)
+        return StringValue(self.value.capitalize())
+    
+    def casefold(self):
+        assert isinstance(self, StringValue)
+        return StringValue(self.value.casefold())
+    
+    def lower(self):
+        assert isinstance(self, StringValue)
+        return StringValue(self.value.lower())
+    
+    def isalnum(self):
+        assert isinstance(self, StringValue)
+        return BoolValue(self.value.isalnum())
+    
+    def isalpha(self):
+        assert isinstance(self, StringValue)
+        return BoolValue(self.value.isalpha())
+    
+    def isdigit(self):
+        assert isinstance(self, StringValue)
+        return BoolValue(self.value.isdigit())
+    
+    def isidentifier(self):
+        assert isinstance(self, StringValue)
+        return self.value.isidentifier()
+    
+    def upper(self):
+        assert isinstance(self, StringValue)
+        return StringValue(self.value.upper())
+
+    def title(self):
+        assert isinstance(self, StringValue)
+        return StringValue(self.value.title())
+    
+    def swapcase(self):
+        assert isinstance(self, StringValue)
+        return StringValue(self.value.swapcase())
+    
+    def strip(self, chars):
+        assert (isinstance(self, StringValue) 
+                and (isinstance(chars, StringValue) 
+                     or chars is NULL))
+
+        if isinstance(chars, StringValue):
+            ch = chars.value
+        else:
+            assert chars is NULL
+            ch = None
+        
+        return StringValue(self.value.strip(ch))
+    
+    def lstrip(self, chars):
+        assert (isinstance(self, StringValue) 
+                and (isinstance(chars, StringValue) 
+                     or chars is NULL))
+        
+        if isinstance(chars, StringValue):
+            ch = chars.value
+        else:
+            assert chars is NULL
+            ch = None
+        
+        return StringValue(self.value.lstrip(ch))
+
+    def rstrip(self, chars):
+        assert (isinstance(self, StringValue) 
+                and (isinstance(chars, StringValue) 
+                     or chars is NULL))
+        
+        if isinstance(chars, StringValue):
+            ch = chars.value
+        else:
+            assert chars is NULL
+            ch = None
+        
+        return StringValue(self.value.rstrip(ch))
+
+    def __concat__(self, other, right):
+        assert isinstance(self, StringValue)
+        if not isinstance(other, StringValue):
+            return NOT_IMPLEMENTED
+        lhs, rhs = (other, self) if right else (self, other)
+        return StringValue(lhs.value + rhs.value)
+    
+    def __lmul__(self, other):
+        assert isinstance(self, StringValue)
+        if not isinstance(other, IntValue):
+            return NOT_IMPLEMENTED
+        return StringValue(self.value * other.value)
+
+    def __contains__(self, key):
+        assert isinstance(self, StringValue)
+        if not isinstance(key, StringValue):
+            return NOT_IMPLEMENTED
+        return BoolValue(key.value in self.value)
+
+@_turn_into_dict
+def BOOL_METHODS():
+    def __bool__(self):
+        assert isinstance(self, BoolValue)
+        return self
+    
+    def __binand__(self, other, right):
+        return _bool_and(self, other, right)
+    def __binor__(self, other, right):
+        return _bool_or(self, other, right)
+    def __binxor__(self, other, right):
+        return _bool_xor(self, other)
     
     def __and__(self, other, right):
-        pass
+        return _bool_and(self, other, right)
     def __or__(self, other, right):
-        pass
+        return _bool_or(self, other, right)
     def __xor__(self, other, right):
-        pass
+        return _bool_xor(self, other)
 
     def __logicand__(self, other, right):
-        pass
+        return _bool_and(self, other, right)
     def __logicor__(self, other, right):
-        pass
+        return _bool_or(self, other, right)
     def __logicxor__(self, other, right):
-        pass
+        return _bool_xor(self, other)
 
-_name_counter = itertools.count()
-def _generate_unique_name(exclusions: typing.Sequence[str] | None = None) -> str:
-    if exclusions is None:
-        exclusions = tuple()
-    for _ in range(1000):
-        name = f"_func_{next(_name_counter)}"
-        if name not in exclusions:
-            return name
-    raise errors.InternalError()
+@_turn_into_dict
+def FUNCTION_METHODS():
+    pass
+
+@_turn_into_dict
+def NULL_METHODS():
+    def __bool__(self):
+        assert isinstance(self, FunctionValue)
+        return True
+
+@_turn_into_dict
+def LIST_METHODS():
+    def __list__(self):
+        assert isinstance(self, ListValue)
+        return self
+
+@_turn_into_dict
+def TUPLE_METHODS():
+    def __tuple__(self):
+        assert isinstance(self, TupleValue)
+        return self
+
+@_turn_into_dict
+def SET_METHODS():
+    def __set__(self):
+        assert isinstance(self, SetValue)
+        return self
+
+@_turn_into_dict
+def DICT_METHODS():
+    def __dict__(self):
+        assert isinstance(self, DictValue)
+        return self
 
 def _ignore(fn):
     return fn
@@ -220,3 +405,23 @@ def _comparison_numeric_operation(operation: typing.Callable[[int|float, int|flo
             return NOT_IMPLEMENTED
         return BoolValue(operation(self.value, other.value))
     return method
+
+def _bool_and(self, other, right):
+    assert isinstance(self, BoolValue) and isinstance(other, BoolValue)
+    lhs, rhs = (other, self) if right else (self, other)
+    if not lhs.value:
+        return lhs
+    return rhs
+
+def _bool_or(self, other, right):
+    assert isinstance(self, BoolValue) and isinstance(other, BoolValue)
+    lhs, rhs = (other, self) if right else (self, other)
+    if lhs.value:
+        return lhs
+    return rhs
+
+def _bool_xor(self, other):
+    assert isinstance(self, BoolValue) and isinstance(other, BoolValue)
+    if self.value != other.value:
+        return TRUE
+    return FALSE

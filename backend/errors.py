@@ -12,6 +12,9 @@ class InternalError(BaseSapphireError):
     """
     pass
 
+class InProgress(InternalError):
+    _default_msg = "TBA"
+
 class SapphireError(BaseSapphireError):
     pass
 

@@ -23,14 +23,17 @@ class AttributeSubcriptionCall(ParserNamespaceSkeleton):
         obj = self._parse_primary_expr(**context)
         while self._peek() in {TokenType.SY_Dot, TokenType.PR_OpenSquareBracket}:
             if self._advance() == TokenType.SY_Dot:
+                attr = typing.cast(Nodes.ExprNode | None, None)
                 if self._peek() == TokenType.Identifier:
-                    slice = self._advance([TokenType.Identifier])
-                    return Nodes.AttributeNode(obj, slice.value)
+                    attr = self._advance([TokenType.Identifier]).value
+                    return Nodes.AttributeNode(obj, attr)
                 raise errors.SyntaxError(
                     "Expecting a identifier after the '.' in an attribute expression"
                 )
             else:
-                slice = [self._parse_expr(**context)]
+                slice: (
+                    list[Nodes.ExprNode | None]
+                ) = [self._parse_expr(**context)]  # pyright: ignore[reportAssignmentType]
 
                 # $ Slicing
                 if self._peek().type == TokenType.SY_GDCologne:
@@ -39,9 +42,24 @@ class AttributeSubcriptionCall(ParserNamespaceSkeleton):
                     if self._peek().type == TokenType.SY_GDCologne:
                         self._advance([TokenType.SY_GDCologne])
                         slice.append(self._parse_expr(**context))
+                    else:
+                        slice.append(None)
+                else:
+                    slice.append(None)
+
                 
                 self._advance([TokenType.PR_CloseSquareBracket])
-                return Nodes.SubscriptionNode(obj, tuple(slice))
+                return Nodes.SubscriptionNode(
+                    obj, 
+                    typing.cast(
+                        tuple[
+                            Nodes.ExprNode, 
+                            Nodes.ExprNode | None, 
+                            Nodes.ExprNode | None
+                        ], 
+                        tuple(slice)
+                    )
+                )
         return obj
 
     def _parse_call_expr(self, caller: Nodes.ExprNode, **context) -> Nodes.CallNode:

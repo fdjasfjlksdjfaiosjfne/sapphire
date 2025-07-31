@@ -8,7 +8,7 @@ from parser.core import ParserNamespaceSkeleton
 class Declarations(ParserNamespaceSkeleton):
     def _parse_fn_declaration(self) -> Nodes.FunctionDeclarationNode:
         self._advance(TokenType.KW_FunctionDeclaration)
-        name = self._advance(TokenType.Identifier)
+        name = self._advance(TokenType.Identifier).value
         self._advance(TokenType.PR_OpenParenthesis)
         args = [self._parse_fn_declaration_args()]
         while self._peek().type == TokenType.SY_Comma:
@@ -22,28 +22,33 @@ class Declarations(ParserNamespaceSkeleton):
             name, args, code_block
         )
 
-    def _parse_fn_declaration_args(self):
+    def _parse_fn_declaration_args(self) -> Nodes.DeclaredArgumentNode:
         match self._peek().type:
             case TokenType.Identifier:
-                return self._advance()
-            case TokenType.SY_TrueDivision:
-                return self._advance().type
+                return Nodes.DeclaredArgumentNode(
+                    Nodes.DeclaredArgumentType.Normal,
+                    self._advance().value
+                )
+            case TokenType.SY_FowardSlash:
+                return Nodes.DeclaredArgumentNode(
+                    Nodes.DeclaredArgumentType.PositionalSeparator
+                )
             case TokenType.SY_Asterisk:
                 self._advance(TokenType.SY_Asterisk)
                 if self._peek().type == TokenType.Identifier:
-                    return Nodes.UnaryNode(
-                        expr = self._advance(),
-                        attachment = TokenType.SY_Asterisk,
-                        position = "Prefix"
+                    return Nodes.DeclaredArgumentNode(
+                        Nodes.DeclaredArgumentType.PositionalVariadic,
+                        self._advance().value
                     )
-                return TokenType.SY_Asterisk
-            case TokenType.SY_Exponentiation:
-                self._advance(TokenType.SY_Exponentiation)
+                return Nodes.DeclaredArgumentNode(
+                    Nodes.DeclaredArgumentType.KeywordSeparator
+                )
+            case TokenType.SY_DoubleAsterisk:
+                self._advance(TokenType.SY_DoubleAsterisk)
                 if self._peek().type == TokenType.Identifier:
-                    return Nodes.UnaryNode(
-                        expr = self._advance(),
-                        attachment = TokenType.SY_Exponentiation,
-                        position = "Prefix"
+                    return Nodes.DeclaredArgumentNode(
+                        Nodes.DeclaredArgumentType.KeywordVariadic,
+                        self._advance().value
                     )
                 raise errors.SyntaxError(
                     "Expected identifier after '**'"
@@ -61,8 +66,6 @@ class Declarations(ParserNamespaceSkeleton):
         raise errors.SyntaxError(
             "Augmented assignment node not allowed in variable declaration"
         )
-
-    
 
     def _parse_assignment_stmt(self, **context) -> (
             Nodes.AssignmentNode | Nodes.ModifierAssignmentNode | Nodes.ExprNode
@@ -110,7 +113,7 @@ class Declarations(ParserNamespaceSkeleton):
             elif next_tok.type == TokenType.SY_ModifierAssignOper:
                 op = self._advance().value
                 value = self._parse_expr(**context)
-                return Nodes.ModifierAssignmentNode(target, op, value)
+                return Nodes.ModifierAssignmentNode(target[0], op, value)
             
             raise errors._Backtrack
         
@@ -124,18 +127,18 @@ class Declarations(ParserNamespaceSkeleton):
             if isinstance(ending_tokens, TokenType):
                 ending_tokens = (ending_tokens,)
             elements = []
-            self._parse_element(elements, **context)
+            self._parse_assignment_pattern_element(elements, **context)
             while self._peek().type == TokenType.SY_Comma:
                 self._advance(TokenType.SY_Comma)
                 if self._peek().type in ending_tokens:
                     break
-                self._parse_element(elements, **context)
+                self._parse_assignment_pattern_element(elements, **context)
             return elements
         except errors.SapphireError as e:
             self.tokens.load(save_point)
             raise errors._Backtrack from e
     
-    def _parse_element(self, elements: list, **context):
+    def _parse_assignment_pattern_element(self, elements: list, **context):
         match self._peek().type:
             case TokenType.Identifier:
                 elements.append(self._advance([TokenType.Identifier]))
@@ -144,7 +147,7 @@ class Declarations(ParserNamespaceSkeleton):
                 if self._peek().type == TokenType.Identifier:
                     elements.append(
                             Nodes.UnaryNode(
-                                expr = self._advance(TokenType.Identifier),
+                                expr = Nodes.IdentifierNode(self._advance(TokenType.Identifier).value),
                                 attachment = TokenType.SY_Asterisk,
                                 position = "Prefix"
                             )

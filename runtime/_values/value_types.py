@@ -1,31 +1,12 @@
 from __future__ import annotations
 
+import abc
 import copy
 import typing
 
 from backend import errors
 from parser import nodes
 from runtime import env
-
-__all__ = [
-    "RuntimeValue",
-    "Type",
-    "IntValue",
-    "FloatValue",
-    "BoolValue",
-    "NullValue",
-    "NotImplementedValue",
-    "TRUE",
-    "FALSE",
-    "NULL",
-    "NOT_IMPLEMENTED",
-    "FunctionValue",
-    "CustomFunctionValue",
-    "NativeFunctionValue",
-    "BoundCustomFunction",
-    "FnArguments",
-    "FnArgument"
-]
 
 class RuntimeValue:
     """Base class for all runtime values"""
@@ -43,31 +24,30 @@ class RuntimeValue:
         if hasattr(self, "attributes") and name in self.attributes:
             attr = self.attributes[name]
             if self.is_method(attr):
-                return self.bind_method(attr)
+                return attr.bind(self)
             return attr
         
-        # $ Scroll through the 
+        # $ Scroll through the MRO
         if self.type is not None:
             for type_in_mro in self.type.mro:
                 if name in type_in_mro.attributes:
                     attr = type_in_mro.attributes[name]
                     # Handle method binding for class methods too
                     if self.is_method(attr):
-                        return self.bind_method(attr)
+                        return attr.bind(self)
                     return attr
     
     def set_attribute(self, name, value):
-        raise errors.InternalError("TBA")
+        raise errors.InProgress
         # Handle attribute setting
-        
-    def is_method(self, obj) -> bool:
-        raise errors.InternalError("TBA")
+    
+    @staticmethod
+    def is_method(obj) -> typing.TypeGuard[FunctionValue]:
+        return isinstance(obj, FunctionValue)
 
     def call_method(self, method_name, args = [], kwargs = {}):
-        raise errors.InternalError("TBA")
+        raise errors.InProgress
     
-    def bind_method(self, attr):
-        pass
 
 class Type(RuntimeValue):
     """Represents classes/types (like Python's type)"""
@@ -80,7 +60,42 @@ class Type(RuntimeValue):
         self.type_obj = self  # Types are instances of themselves (or a metaclass later)
     
     def compute_mro(self):
-        return []
+        """Compute Method Resolution Order using C3 linearization"""
+        if not self.bases:
+            return [self]
+        
+        base_mros = [base.mro for base in self.bases]
+        mro = [self] + self._c3_merge(base_mros + list(self.bases))
+        return mro
+    
+    def _c3_merge(self, sequences):
+        """C3 merge algorithm"""
+        result = []
+        while True:
+            # Remove empty sequences
+            sequences = [seq for seq in sequences if seq]
+            if not sequences:
+                break
+
+            # ? Find a good candidate
+            # $ It should appears first in some sequence and
+            # $ in the tail of any sequence
+            candidate = None
+            for seq in sequences:
+                head = seq[0]
+                if not any(head in seq[1:] for seq in sequences):
+                    candidate = head
+                    break
+            
+            if candidate is None:
+                raise errors.TypeError("Inconsistent MRO - cannot create a valid linearization")
+            
+            result.append(candidate)
+            # Remove candidate from all sequences
+            for seq in sequences:
+                if seq and seq[0] == candidate:
+                    seq.pop(0)
+        return result
 
     def create_instance(self):
         instance = Instance(self)
@@ -92,6 +107,9 @@ class Instance(RuntimeValue):
     def __init__(self, type_obj):
         super().__init__()
         self.type_obj = type_obj
+
+class NumberValue(RuntimeValue): 
+    pass
 
 class IntValue(RuntimeValue):
     _cache = {}
@@ -154,7 +172,7 @@ class BoolValue(IntValue):
             val = value.call_method("__bool__")
             if isinstance(val, BoolValue):
                 return val
-            raise errors.TypeError(f"__bool__ returns non-int value ({value!r})")
+            raise errors.TypeError(f"__bool__ returns non-bool value ({value!r})")
         try:
             py_value = bool(value) # type: ignore
         except ValueError:
@@ -167,8 +185,22 @@ class BoolValue(IntValue):
     def __init__(self, value):
         if hasattr(self, 'value'): # Already initialized (from cache)
             return
-        super().__init__(value)
+        RuntimeValue.__init__(self)
         self.value = bool(value)
+
+class StringValue(RuntimeValue):
+    def __new__(cls, value):
+        if isinstance(value, RuntimeValue):
+            val = value.call_method("__str__")
+            if isinstance(val, StrValue):
+                return val
+            raise errors.TypeError(f"__str__ returns non-string value ({value!r})")
+        return super().__new__(cls)
+    def __init__(self, value):
+        if hasattr(self, 'value'): # Already initialized (from cache)
+            return
+        super().__init__()
+        self.value = str(value)
 
 class NullValue(RuntimeValue):
     _instance = None
@@ -185,6 +217,22 @@ class NotImplementedValue(RuntimeValue):
             cls._instance = super().__new__(cls)
             cls._instance.__init__()
         return cls._instance
+
+class ListValue(RuntimeValue):
+    def __init__(self, value):
+        self.value = list(value)
+
+class TupleValue(RuntimeValue):
+    def __init__(self, value):
+        self.value = list(value)
+
+class SetValue(RuntimeValue):
+    def __init__(self, value):
+        self.value = set(value)
+
+class DictValue(RuntimeValue):
+    def __init__(self, value):
+        self.value = dict(value)
 
 class FnArgument(typing.NamedTuple):
     name: str
@@ -211,6 +259,10 @@ class FnArguments:
 class FunctionValue(RuntimeValue):
     args: FnArguments
     return_hint: None
+    @abc.abstractmethod
+    def bind(self, instance) -> FunctionValue: ...
+    @abc.abstractmethod
+    def call(self, parent_env: env.Env, args: list, kwargs: dict) -> RuntimeValue: ...
 
 class NativeFunctionValue(FunctionValue):
     def __init__(self, 
@@ -239,9 +291,9 @@ class NativeFunctionValue(FunctionValue):
             lambda *args, **kwargs: self.caller(instance, args, kwargs),
             self.return_hint
         )
-    def call(self, parent_env: env.Env, args: list, kwargs: dict):
+    def call(self, parent_env, args: list, kwargs: dict) -> RuntimeValue:
         if self.needs_env:
-            return self.caller(args, kwargs, __env__ = env.Env(parent_env)) # Pass env to natives that need it
+            return self.caller(args, kwargs, env = parent_env) # Pass env to natives that need it
         else:
             return self.caller(args, kwargs)  # Most natives don't need env
 
@@ -275,8 +327,14 @@ class CustomFunctionValue(FunctionValue):
         )
         return bound_fn
     
-    def call(self, parent_env: env.Env, args: list, kwargs: dict):
+    def call(self, parent_env: env.Env, args: list, kwargs: dict) -> RuntimeValue:
+        from runtime.interpreter import evaluate
         call_env = env.Env(parent_env)
+        try:
+            evaluate(self.code_block, parent_env)
+        except errors.ReturnValue as e:
+            return e.args[0]
+        return NULL
 
 class BoundCustomFunction(CustomFunctionValue):
     def __init__(self, name, args, code_block, return_hint, bound_instance, original_func):
@@ -287,7 +345,7 @@ class BoundCustomFunction(CustomFunctionValue):
     def call(self, parent_env, args, kwargs):
         return self.original_func.call(parent_env, [self.bound_instance] + args, kwargs)
 
-# ? Global constants
+# ? Global constant singletons
 TRUE = BoolValue(True)
 FALSE = BoolValue(False)
 NULL = NullValue()

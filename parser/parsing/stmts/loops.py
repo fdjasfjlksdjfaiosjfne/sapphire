@@ -21,7 +21,10 @@ class Loops(ParserNamespaceSkeleton):
     def _parse_for_stmt(self, **context) -> Nodes.ForLoopNode:
         self._advance(TokenType.KW_PythonFor)
 
-        iter_vars = self._parse_assignment_pattern(ending_token = TokenType.KW_In)
+        assignment = self._parse_assignment_pattern(TokenType.KW_In)
+        iter_vars = [i.symbol for i in assignment if isinstance(i, Nodes.IdentifierNode)]
+        if len(assignment) != len(iter_vars):
+            raise errors.SyntaxError("Invalid syntax")
         self._advance(TokenType.KW_In)
         iterable = self._parse_expr(**context)
         code_block = self._parse_attached_code_block(**context)
@@ -78,4 +81,9 @@ class Loops(ParserNamespaceSkeleton):
         code_block = self._parse_attached_code_block()
         self._advance([TokenType.KW_WhileLoop])
         condition = self._parse_expr(**context)
-        return Nodes.DoWhileLoopNode(condition, code_block)
+
+        els = None
+        if self._peek().type == TokenType.KW_Else:
+            self._advance([TokenType.KW_Else])
+            els = self._parse_attached_code_block(**context)
+        return Nodes.DoWhileLoopNode(condition, code_block, els)

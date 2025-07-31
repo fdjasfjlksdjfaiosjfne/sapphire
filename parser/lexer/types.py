@@ -55,10 +55,10 @@ class TokenType(Enum):
     SY_Plus = auto()
     SY_Minus = auto()
     SY_Asterisk = auto()
-    SY_TrueDivision = auto()
+    SY_FowardSlash = auto()
     SY_FloorDivision = auto()
     SY_Modulus = auto()
-    SY_Exponentiation = auto()
+    SY_DoubleAsterisk = auto()
     SY_At = auto()
     SY_Comma = auto()
     SY_Dot = auto()
@@ -204,10 +204,10 @@ _default_regex_patterns: dict[TokenType, RegexPatternConfiguration] = {
     TokenType.SY_Decre: RPC(("--")),
     TokenType.SY_Plus: RPC("+"),
     TokenType.SY_Minus: RPC("-"),
-    TokenType.SY_Exponentiation: RPC(r"**"),
+    TokenType.SY_DoubleAsterisk: RPC(r"**"),
     TokenType.SY_Asterisk: RPC("*"),
     TokenType.SY_FloorDivision: RPC("//"),
-    TokenType.SY_TrueDivision: RPC("/"),
+    TokenType.SY_FowardSlash: RPC("/"),
     TokenType.SY_Modulus: RPC("%"),
     TokenType.SY_Comma: RPC(","),
     TokenType.SY_GDCologne: RPC(":"),

@@ -55,7 +55,8 @@ class Exprs(Collections, AttributeSubcriptionCall, Strings):
     def _parse_walrus_assignment_expr(self, **context) -> Nodes.WalrusNode | Nodes.ExprNode:
         lhs = self._parse_ternary_expr(**context)
         if self._peek().type == TokenType.SY_Walrus:
-            return Nodes.WalrusNode(lhs, self._advance().value, self._parse_ternary_expr(**context))
+            self._advance().value
+            return Nodes.WalrusNode(lhs, self._parse_ternary_expr(**context))
         return lhs
 
     def _parse_ternary_expr(self, **context) -> Nodes.TernaryNode | Nodes.ExprNode:
@@ -134,13 +135,13 @@ class Exprs(Collections, AttributeSubcriptionCall, Strings):
 
     def _parse_multiplicative_expr(self, **context) -> Nodes.BinaryNode | Nodes.ExprNode:
         lhs = self._parse_exponentiative_expr(**context)
-        if self._peek() in {TokenType.SY_Asterisk, TokenType.SY_TrueDivision, TokenType.SY_FloorDivision, TokenType.SY_Modulus}:
+        if self._peek() in {TokenType.SY_Asterisk, TokenType.SY_FowardSlash, TokenType.SY_FloorDivision, TokenType.SY_Modulus}:
             return Nodes.BinaryNode(lhs, self._advance().type, self._parse_multiplicative_expr(**context))
         return lhs
 
     def _parse_exponentiative_expr(self, **context) -> Nodes.BinaryNode | Nodes.ExprNode:
         lhs = self._parse_unary_expr(**context)
-        if self._peek() == TokenType.SY_Exponentiation:
+        if self._peek() == TokenType.SY_DoubleAsterisk:
             return Nodes.BinaryNode(lhs, self._advance(**context).type, self._parse_exponentiative_expr(**context))
         return lhs
 
@@ -158,7 +159,7 @@ class Exprs(Collections, AttributeSubcriptionCall, Strings):
                 }:
             attachment = self._advance().type
             expr = self._parse_member_subscription_call_expr(**context)
-            return Nodes.UnaryNode(attachment, expr, "Prefix")
+            return Nodes.UnaryNode(expr, attachment, "Prefix")
         
         # $ At this point there should be a expression now
         # $ Time to parse it

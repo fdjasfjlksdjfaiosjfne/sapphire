@@ -27,7 +27,7 @@ def eval_binary_expr(binop: Nodes.BinaryNode, env: Env, /) -> Values.RuntimeVal:
         case TokenType.SY_Asterisk: 
             return opers.eval_mul(lhs, rhs)
         
-        case TokenType.SY_TrueDivision: 
+        case TokenType.SY_FowardSlash: 
             return opers.eval_truediv(lhs, rhs)
         
         case TokenType.SY_FloorDivision:
@@ -36,7 +36,7 @@ def eval_binary_expr(binop: Nodes.BinaryNode, env: Env, /) -> Values.RuntimeVal:
         case TokenType.SY_Modulus: 
             return opers.eval_mod(lhs, rhs)
         
-        case TokenType.SY_Exponentiation: 
+        case TokenType.SY_DoubleAsterisk: 
             return opers.eval_exp(lhs, rhs)
         
         case TokenType.SY_Spaceship: 

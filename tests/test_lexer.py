@@ -36,7 +36,8 @@ from parser.lexer.lexer import Tokenizer, Token, TokenType
         Token(TokenType.SY_Dot),
         Token(TokenType.Identifier, "parent"),
         Token(TokenType.SY_Dot),
-        Token(TokenType.Identifier, "parent")
+        Token(TokenType.Identifier, "parent"),
+        Token(TokenType.EoF)
     ]),
 ])
 def test_token_stream(src: str, expected: list[Token]):

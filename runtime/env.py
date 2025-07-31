@@ -1,14 +1,14 @@
 from __future__ import annotations
+
 import typing
-from runtime.values import values
 from backend import errors
 class Env:
     def __init__(self, parent: typing.Optional[Env] = None):
         self.parent = parent
-        self.variables: dict[str, values.RuntimeValue | None] = {}
+        self.variables: dict[str, RuntimeValue | None] = {} # pyright: ignore[reportUndefinedVariable]
         self.constants: list[str] = []
 
-    def declare(self, name: str, value: values.RuntimeValue | None = None, const: bool = False) -> None:
+    def declare(self, name: str, value: RuntimeValue | None = None, const: bool = False) -> None: # pyright: ignore[reportUndefinedVariable]
         if name in self.variables:
             raise errors.VariableError(f"Variable '{name}' is already declared")
         if const and value is None:
@@ -20,13 +20,13 @@ class Env:
     def is_constant(self, name: str):
         return name in self.constants
     
-    def assign(self, name: str, value: values.RuntimeValue) -> None:
+    def assign(self, name: str, value: RuntimeValue) -> None: # pyright: ignore[reportUndefinedVariable]
         if name in self.variables:
             if self.is_constant(name):
                 raise errors.VariableError("Cannot change a constant value")
         self.variables[name] = value
     
-    def get(self, name: str) -> values.RuntimeValue:
+    def get(self, name: str) -> RuntimeValue: # pyright: ignore[reportUndefinedVariable]
         env = self.resolve(name)
         var = env.variables.get(name)
         if var is None:
@@ -40,10 +40,10 @@ class Env:
             raise errors.VariableError(f"Variable '{name}' is not assigned")
         return self.parent.resolve(name)
     
-    def __getitem__(self, key: str) -> values.RuntimeValue | None:
+    def __getitem__(self, key: str) -> RuntimeValue | None: # pyright: ignore[reportUndefinedVariable]
         return self.variables[key]
     
-    def __setitem__(self, key: str, value: values.RuntimeValue) -> None:
+    def __setitem__(self, key: str, value: RuntimeValue) -> None: # pyright: ignore[reportUndefinedVariable]
         if self.is_constant(key):
             raise errors.VariableError("Cannot change a constant value")
         self.variables.setdefault(key, value)

@@ -94,7 +94,7 @@ class Collections(ParserNamespaceSkeleton):
                 return self._parse_walrus_assignment_expr(**context)
 
     def _parse_comma_separated_values[
-            NormalWrapper: Nodes.ExprNode, 
+            NormalWrapper: Nodes.ListNode | Nodes.TupleNode | Nodes.SetNode | Nodes.DictNode, 
             ComprehensionWrapper: (
                 Nodes.SequenceComprehensionNode 
                 | Nodes.DictComprehensionNode
@@ -102,7 +102,7 @@ class Collections(ParserNamespaceSkeleton):
                 self,
                 opening_token_types: TokenTypeSequence,
                 closing_token_types: TokenTypeSequence,
-                parsing_fn: typing.Callable[[], typing.Any] | None = None, *,
+                parsing_fn: typing.Callable[[], typing.Any] | None = None, *, 
                 normal_wrapper: type[NormalWrapper],
                 comprehension_wrapper: type[ComprehensionWrapper],
                 allow_comprehension: bool = True,

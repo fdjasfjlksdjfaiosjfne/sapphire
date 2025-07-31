@@ -3,7 +3,7 @@
     They are functions that are not defined using the language, but can be access using it.
 """
 
-import runtime._expriemental.values as Values
+import runtime.values as Values
 import builtins
 
 # abs() aiter() all() anext() any() ascii() bin() bool() callable()
@@ -17,12 +17,12 @@ import builtins
 
 def print(*args, sep, file, end):
     builtins.print(
-        *(Values.Str(obj) for obj in args), 
+        *(Values.StringValue(obj) for obj in args), 
         sep = sep,
         file = file,
         end = end
     )
-    return Values.Null()
+    return Values.NullValue()
 
 # def s_len(obj: Values.RuntimeVal, /):
 #     __len__ = obj.__sap_dunder_map__.get("__len__", None)
