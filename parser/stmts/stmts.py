@@ -1,47 +1,49 @@
 import typing
 
 from backend import errors
-from parser.lexer.lexer import Token, TokenType, Tokenizer
+from parser.lexer import TokenType
 import parser.nodes as Nodes
-from parser.parsing.stmts.declarations import Declarations
-from parser.parsing.stmts.match_case import MatchCase
-from parser.parsing.stmts.loops import Loops
+from parser.stmts.declarations import DeclarationStatements
+from parser.stmts.match_case import MatchCaseStatement
+from parser.stmts.loops import LoopStatements
 
-class Stmts(MatchCase, Loops, Declarations):
+class Stmts(MatchCaseStatement, LoopStatements, DeclarationStatements):
     def _parse_stmt(self, **context) -> Nodes.StmtNode:
         match self._peek():
-            case TokenType.KW_Let | TokenType.KW_Const:
+            case TokenType.Statements.Declarations.MutableVariable | TokenType.Statements.Declarations.ConstantVariable:
                 return self._parse_var_declaration(**context)
-            case TokenType.KW_If:
-                v = self._parse_if_elif_else(clause = TokenType.KW_If, **context)
+            case TokenType.Statements.Conditional.Condition:
+                v = self._parse_if_elif_else(clause = TokenType.Statements.Conditional.Condition, **context)
                 assert isinstance(v, Nodes.ConditionalNode)
                 return v
-            case TokenType.KW_WhileLoop:
+            case TokenType.Statements.Loops.RunWhileCondition:
                 return self._parse_while_stmt(**context)
-            case TokenType.KW_PythonFor:
+            case TokenType.Statements.Loops.ForLoopFromPython:
                 return self._parse_for_stmt(**context)
-            case TokenType.KW_CFor:
+            case TokenType.Statements.Loops.ForLoopFromC:
                 return self._parse_cfor_stmt(**context)
-            case TokenType.KW_DoWhileLoop:
+            case TokenType.Statements.Loops.StartOfDoWhileLoop:
                 return self._parse_do_while_stmt(**context)
-            case TokenType.KW_Break:
+            case TokenType.Statements.Loops.PrematureExit:
+                self._advance()
                 # todo add label support
                 return Nodes.BreakNode()
-            case TokenType.KW_Continue:
+            case TokenType.Statements.Loops.SkipToNextIteration:
                 # todo add label support
+                self._advance()
                 return Nodes.ContinueNode()
-            case TokenType.KW_Throw:
+            case TokenType.Statements.ExceptionHandling.ThrowError:
                 return self._parse_throw_stmt(**context)
-            case TokenType.KW_FunctionDeclaration:
+            case TokenType.Statements.Declarations.Function:
                 return self._parse_fn_declaration(**context)
-            case TokenType.KW_Scope:
+            case TokenType.Statements.NewScope:
                 self._advance()
                 return Nodes.ScopeBlockNode(
                     self._parse_attached_code_block(**context)
                     )
-            case TokenType.KW_Match:
+            case TokenType.Statements.MatchCase.Match:
                 return self._parse_match_case_stmt(**context)
-            case TokenType.KW_Return:
+            case TokenType.Statements.Return:
                 self._advance()
                 return Nodes.ReturnNode(
                     self._parse_expr(allow_implicit_tuples = True, **context)
@@ -61,7 +63,7 @@ class Stmts(MatchCase, Loops, Declarations):
         self._advance()
         
         cond = None
-        if clause != TokenType.KW_Else:
+        if clause != TokenType.Statements.Conditional.Fallback:
             cond = self._parse_expr(**context)
         
         code = self._parse_attached_code_block(**context)
@@ -69,7 +71,7 @@ class Stmts(MatchCase, Loops, Declarations):
         # $ At this point, we're done with parsing the clause itself
         # $ Now we're checking on continuity
 
-        if clause == TokenType.KW_Else:
+        if clause == TokenType.Statements.Conditional.Fallback:
             return code
         
         # & Yes, static type checker, I do know what am I doing
@@ -78,14 +80,14 @@ class Stmts(MatchCase, Loops, Declarations):
 
         # ? Check if there's any other connectable clause (elif/else) behind
         
-        if self.peek().type in {TokenType.KW_ElseIf, TokenType.KW_Else}:
+        if self.peek().type in {TokenType.Statements.Conditional.FallbackWithCondition, TokenType.Statements.Conditional.Fallback}:
             return Nodes.ConditionalNode(
                 cond, code,
                 self.parse_if_elif_else(clause = self.peek().type, **context))
         return Nodes.ConditionalNode(cond, code)
 
     def _parse_throw_stmt(self, **context) -> Nodes.ThrowNode:
-        self._advance([TokenType.KW_Throw])
+        self._advance([TokenType.Statements.ExceptionHandling.ThrowError])
         err = None
         cause = None
         
@@ -97,15 +99,15 @@ class Stmts(MatchCase, Loops, Declarations):
             # $ If the expression is wrong, it'll know next time it parses it
             self.tokens.load(save_point)
         else:
-            if self._peek().type == TokenType.KW_From:
-                self._advance(TokenType.KW_From)
+            if self._peek().type == TokenType.Statements.ExceptionHandling.SourceOfThrowingError:
+                self._advance(TokenType.Statements.ExceptionHandling.SourceOfThrowingError)
                 cause = self._parse_expr(**context)
         return Nodes.ThrowNode(err, cause)
 
     def _parse_attached_code_block(
             self, *,
-            opening_token = TokenType.PR_OpenCurlyBrace,
-            closing_token = TokenType.PR_CloseCurlyBrace,
+            opening_token = TokenType.Parentheses.OpenCurlyBrace,
+            closing_token = TokenType.Parentheses.CloseCurlyBrace,
             eat_opening_token = True,
             eat_closing_token = True,
             allow_single_line_code_blocks = True,
@@ -123,7 +125,7 @@ class Stmts(MatchCase, Loops, Declarations):
                 code.append(self._parse_stmt(**context))
                 if self._peek().type == closing_token:
                     break
-                self._advance([TokenType.NewLine, TokenType.SY_Semicolon])
+                self._advance([TokenType.NewLine, TokenType.Symbols.StatementSeparator])
             
             if eat_closing_token:
                 self._advance([closing_token])

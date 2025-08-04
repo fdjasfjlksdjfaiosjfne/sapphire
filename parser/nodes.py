@@ -4,7 +4,7 @@ import enum
 import typing
 
 
-from parser.lexer.lexer import TokenType
+from parser.lexer._lexer_lexer import TokenType
 
 class ExprContext(enum.Enum):
     Load = 0
@@ -207,7 +207,13 @@ class TernaryNode(ExprNode):
 class AttributeNode(ExprNode):
     obj: ExprNode
     attr: str
-    context: ExprContext | None = None
+    context: ExprContext = ExprContext.Load
+
+@dataclasses.dataclass
+class ClassAttributeNode(ExprNode):
+    obj: ExprNode
+    attr: str
+    context: ExprContext = ExprContext.Load
 
 @dataclasses.dataclass
 class SubscriptionNode(ExprNode):
@@ -232,7 +238,7 @@ class CallNode(ExprNode):
 
 @dataclasses.dataclass
 class LiteralNode(ExprNode):
-     pass
+    value: typing.Any
 
 @dataclasses.dataclass
 class IntNode(LiteralNode):
@@ -262,7 +268,8 @@ class BoolNode(LiteralNode):
 
 @dataclasses.dataclass
 class NullNode(LiteralNode):
-    pass
+    def __init__(self, value = None):
+        self.value = None
 
 @dataclasses.dataclass
 class NotImplementedNode(LiteralNode):

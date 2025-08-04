@@ -1,33 +1,34 @@
 import typing
 from backend import errors
 import parser.nodes as Nodes
-from parser.lexer.lexer import TokenType, Tokenizer, Token
+from parser.lexer import TokenType, MatchCase, Parentheses
 from parser.core import ParserNamespaceSkeleton
-class MatchCase(ParserNamespaceSkeleton):
+
+class MatchCaseStatement(ParserNamespaceSkeleton):
     def _parse_match_case_stmt(self, **context) -> Nodes.MatchCaseNode:
-        self._advance([TokenType.KW_Match])
+        self._advance([MatchCase.Match])
         subject = self._parse_expr(**context)
-        self._advance([TokenType.PR_OpenCurlyBrace])
+        self._advance([Parentheses.OpenCurlyBrace])
         cases = []
-        while self._peek().type != TokenType.PR_CloseCurlyBrace:
+        while self._peek().type != Parentheses.CloseCurlyBrace:
             cases.append(self.__parse_case_stmt(**context))
-        self._advance([TokenType.PR_CloseCurlyBrace])
+        self._advance([Parentheses.CloseCurlyBrace])
         return Nodes.MatchCaseNode(subject, cases)
 
     def __parse_case_stmt(self, **context) -> Nodes.CaseNode:
-        self._advance([TokenType.KW_Case])
+        self._advance([MatchCase.Case])
         guard = None
         pattern = self.__parse_match_pattern(**context)
-        if self._peek().type == TokenType.KW_If:
-            self._advance([TokenType.KW_If], error = errors.InternalError(
+        if self._peek().type == MatchCase.ConditionGuard:
+            self._advance([MatchCase.ConditionGuard], error = errors.InternalError(
                 "A redundant check for the 'if' token has been tripped\n"
                 "Location: MatchCase.parse_case_stmt()"
             ))
             guard = self._parse_expr(**context)
 
         body = self._parse_attached_code_block(
-            opening_token = TokenType.SY_GDCologne,
-            closing_token = TokenType.KW_Case,
+            opening_token = TokenType.GDCologne,
+            closing_token = MatchCase.Case,
             eat_closing_token = False,
             allow_single_line_code_blocks = True,
             **context
@@ -36,8 +37,8 @@ class MatchCase(ParserNamespaceSkeleton):
 
     def __parse_match_pattern(self, **context) -> Nodes.MatchPatternNode:
         pattern = self.__parse_or_pattern(**context)
-        if self._peek().type == TokenType.KW_As:
-            self._advance([TokenType.KW_As])
+        if self._peek().type == MatchCase.VariableBindingIntoPattern:
+            self._advance([MatchCase.VariableBindingIntoPattern])
             name = self._advance(
                 [TokenType.Identifier],
                 errors.SyntaxError(
@@ -51,9 +52,9 @@ class MatchCase(ParserNamespaceSkeleton):
             Nodes.MatchPatternNode | Nodes.MultipleChoicePatternNode
         ):
         patterns = [self.__parse_class_pattern(**context)]
-        if self._peek().type == TokenType.SY_Comma:
-            while self._peek().type == TokenType.SY_Comma:
-                self._advance([TokenType.SY_Comma])
+        if self._peek().type == MatchCase.PatternSeparator:
+            while self._peek().type == MatchCase.PatternSeparator:
+                self._advance([MatchCase.PatternSeparator])
                 patterns.append(self.__parse_class_pattern(**context))
             if len(patterns) > 1:
                 return Nodes.MultipleChoicePatternNode(patterns)
@@ -62,25 +63,25 @@ class MatchCase(ParserNamespaceSkeleton):
     def __parse_class_pattern(self, **context) -> (
             Nodes.MatchPatternNode | Nodes.ClassPatternNode):
 
-        if self._peek().type == TokenType.Identifier and self._peek().type == TokenType.PR_OpenParenthesis:
+        if self._peek().type == TokenType.Identifier and self._peek().type == Parentheses.OpenParen:
             name = self._advance([TokenType.Identifier])
-            self._advance([TokenType.PR_OpenParenthesis])
+            self._advance([Parentheses.OpenParen])
             args, kwargs = self.__parse_class_args(**context)
             return Nodes.ClassPatternNode(name.value, args, kwargs)
         return self.__parse_structural_match_patterns()
 
     def __parse_class_args(self, **context) -> (
             tuple[list[Nodes.MatchPatternNode], dict[str, Nodes.MatchPatternNode]]): # type: ignore
-        self._advance([TokenType.PR_OpenParenthesis], error = errors.InternalError(
+        self._advance([Parentheses.OpenParen], error = errors.InternalError(
             "MemberSubscriptionCall.parse_call_args() cannot find a '(' token, "
             "even though the only place that call it should've check for it beforehand."
             "This parsing function might be called via other ways."
         ))
         args = []
         kwargs = {}
-        while self._peek().type == TokenType.SY_Comma:
+        while self._peek().type == TokenType.Symbols.FunctionArgumentSeparator:
             # & Don't you dare delete this >:(
-            self._advance([TokenType.SY_Comma], error = errors.InternalError(
+            self._advance([TokenType.Symbols.FunctionArgumentSeparator], error = errors.InternalError(
                 "A redundant check for eating a comma has been tripped.\n"
                 "If this is triggered without using a debugger, it could be either:\n"
                 " 1. Solar bit flip\n"
@@ -89,26 +90,26 @@ class MatchCase(ParserNamespaceSkeleton):
                 " 4. Python is smoking weed\n"
                 " 5. (most likely) I mess up somewhere ;-;"
             ))
-            if self._peek().type == TokenType.PR_CloseParenthesis:
+            if self._peek().type == Parentheses.CloseParen:
                 break
             arg = self.__parse_match_pattern(**context)
 
             # $ Check for any keyword arguments
-            if isinstance(arg, Nodes.IdentifierNode) and self._peek().type == TokenType.SY_AssignOper:
-                self._advance([TokenType.SY_AssignOper], errors.InternalError(
+            if isinstance(arg, Nodes.IdentifierNode) and self._peek().type == TokenType.Symbols.KeywordFunctionArgumentAssignment:
+                self._advance([TokenType.Symbols.KeywordFunctionArgumentAssignment], errors.InternalError(
                     "A redundant check for eating a '=' has been tripped."
                 ))
                 kwargs[arg.symbol] = self.__parse_match_pattern(**context)
-                while self._peek().type == TokenType.SY_Comma:
-                    self._advance([TokenType.SY_Comma], error = errors.InternalError(
+                while self._peek().type == TokenType.Symbols.FunctionArgumentSeparator:
+                    self._advance([TokenType.Symbols.FunctionArgumentSeparator], error = errors.InternalError(
                         "A redundant check eating a comma has been tripped."
                     ))
-                    if self._peek().type == TokenType.PR_CloseParenthesis:
+                    if self._peek().type == Parentheses.CloseParen:
                         break
                     key = self._advance([TokenType.Identifier], error = errors.SyntaxError(
                         "Expecting an identifier as the key for a keyword argument in a call expression"
                     )).value
-                    self._advance([TokenType.SY_AssignOper], error = errors.SyntaxError(
+                    self._advance([TokenType.Symbols.KeywordFunctionArgumentAssignment], error = errors.SyntaxError(
                         "Expecting '=' after the key for a keyword argument in a call expression"
                     ))
                     kwargs[key] = self.__parse_match_pattern(**context)
@@ -118,7 +119,7 @@ class MatchCase(ParserNamespaceSkeleton):
             if kwargs:
                 break
 
-        self._advance([TokenType.PR_CloseParenthesis], error = errors.SyntaxError(
+        self._advance([Parentheses.CloseParen], error = errors.SyntaxError(
             "')' for a call expression is not closed"
         ))
         return args, kwargs
@@ -129,59 +130,59 @@ class MatchCase(ParserNamespaceSkeleton):
             | Nodes.MappingPatternNode):
         # > Code copied and modified from exprs/collections.py
         match self._peek():
-            case TokenType.PR_OpenParenthesis:
-                self._advance([TokenType.PR_OpenParenthesis])
+            case Parentheses.OpenParen:
+                self._advance([Parentheses.OpenParen])
                 expr = self.__parse_match_pattern(**context)
                 elements = [expr]
-                while self._peek() == TokenType.SY_Comma:
+                while self._peek() == TokenType.Symbols.SequenceElementSeparator:
                     self._advance()
-                    if self._peek() == TokenType.PR_CloseParenthesis:
+                    if self._peek() == Parentheses.CloseParen:
                         break
                     elements.append(self.__parse_match_pattern(**context))
-                self._advance([TokenType.PR_CloseParenthesis], error = errors.SyntaxError("'(' is not closed"))
+                self._advance([Parentheses.CloseParen], error = errors.SyntaxError("'(' is not closed"))
                 return Nodes.SequencePatternNode(
                         Nodes.SequencePatternType.Tuple, elements
                     )
-            case TokenType.PR_OpenSquareBracket:
-                self._advance([TokenType.PR_OpenSquareBracket])
+            case Parentheses.OpenSquareBracket:
+                self._advance([Parentheses.OpenSquareBracket])
                 expr = self.__parse_match_pattern(**context)
                 # $ This is a list
                 elements = [expr]
-                while self._peek() == TokenType.SY_Comma:
+                while self._peek() == TokenType.Symbols.SequenceElementSeparator:
                     self._advance()
-                    if self._peek() == TokenType.PR_CloseSquareBracket:
+                    if self._peek() == Parentheses.CloseSquareBracket:
                         break
                     elements.append(self.__parse_match_pattern(**context))
-                self._advance([TokenType.PR_CloseSquareBracket], error = errors.SyntaxError("'[' is not closed"))
+                self._advance([Parentheses.CloseSquareBracket], error = errors.SyntaxError("'[' is not closed"))
                 return Nodes.SequencePatternNode(
                         Nodes.SequencePatternType.List, elements
                     )
-            case TokenType.PR_OpenCurlyBrace:
+            case Parentheses.OpenCurlyBrace:
                 key_expr = self.__parse_match_pattern(**context)
-                if self._peek() == TokenType.SY_GDCologne:
+                if self._peek() == TokenType.Symbols.KeyValueSeparatorInDict:
                     # $ Dict
                     self._advance()
                     val_expr = self.__parse_match_pattern(**context)
                     pairs = [(key_expr, val_expr)]
-                    while self._peek() == TokenType.SY_Comma:
+                    while self._peek() == TokenType.Symbols.SequenceElementSeparator:
                         self._advance()
-                        if self._peek() == TokenType.PR_CloseCurlyBrace:
+                        if self._peek() == Parentheses.CloseCurlyBrace:
                             break
                         k = self.__parse_match_pattern(**context)
-                        self._advance([TokenType.SY_GDCologne])
+                        self._advance([TokenType.Symbols.SequenceElementSeparator])
                         v = self.__parse_match_pattern(**context)
                         pairs.append((k, v))
-                    self._advance([TokenType.PR_CloseCurlyBrace], error = errors.SyntaxError("'{' is not closed"))
+                    self._advance([Parentheses.CloseCurlyBrace], error = errors.SyntaxError("'{' is not closed"))
                     return Nodes.MappingPatternNode(pairs)
                 else:
                     # $ Set
                     items = [key_expr]
-                    while self._peek() == TokenType.SY_Comma:
+                    while self._peek() == TokenType.Symbols.SequenceElementSeparator:
                         self._advance()
-                        if self._peek() == TokenType.PR_CloseCurlyBrace:
+                        if self._peek() == Parentheses.CloseCurlyBrace:
                             break
                         items.append(self.__parse_match_pattern(**context))
-                    self._advance([TokenType.PR_CloseCurlyBrace], error = errors.SyntaxError("'{' is not closed"))
+                    self._advance([Parentheses.CloseCurlyBrace], error = errors.SyntaxError("'{' is not closed"))
                     return Nodes.SequencePatternNode(
                         Nodes.SequencePatternType.Set, items
                     )
@@ -196,9 +197,10 @@ class MatchCase(ParserNamespaceSkeleton):
         match self._peek().type:
             case TokenType.Identifier:
                 val = Nodes.IdentifierNode(self._advance().value)
-                if val.symbol == "_":
-                    return Nodes.WildcardPatternNode()
-            case TokenType.KW_Let:
+            # You can't do MatchCase.attr for whatever reason
+            case TokenType.Statements.MatchCase.DefaultCase:
+                return Nodes.WildcardPatternNode()
+            case TokenType.Statements.MatchCase.VariableBinding:
                 name = self._advance(
                     [TokenType.Identifier], 
                     errors.SyntaxError(
@@ -210,16 +212,16 @@ class MatchCase(ParserNamespaceSkeleton):
                     ident_name = name
                 )
 
-            case TokenType.PV_Int:
+            case TokenType.Primitives.Int:
                 val = Nodes.IntNode(int(self._advance().value))
-            case TokenType.PV_Float:
+            case TokenType.Primitives.Float:
                 val = Nodes.FloatNode(float(self._advance().value))
-            case TokenType.PV_String:
+            case TokenType.Primitives.String:
                 val = Nodes.StrNode(self._advance().value)
-            case TokenType.PV_Null:
+            case TokenType.Primitives.Null:
                 self._advance()
                 val = Nodes.NullNode()
-            case TokenType.PV_Bool:
+            case TokenType.Primitives.Boolean:
                 val = Nodes.BoolNode(self._advance().value == "true")
             case _:
                 raise errors.SyntaxError("Invalid expression in 'case' expression")

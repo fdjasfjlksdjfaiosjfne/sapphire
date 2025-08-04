@@ -336,7 +336,7 @@ def FUNCTION_METHODS():
 @_turn_into_dict
 def NULL_METHODS():
     def __bool__(self):
-        assert isinstance(self, FunctionValue)
+        assert isinstance(self, NullValue)
         return True
 
 @_turn_into_dict

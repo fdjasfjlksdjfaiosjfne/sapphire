@@ -1,7 +1,7 @@
 import typing
 from backend import errors
 from parser.core import ParserNamespaceSkeleton
-from parser.lexer.lexer import Token, TokenType, Tokenizer, TokenTypeSequence
+from parser.lexer import TokenType, TokenTypeSequence, Parentheses
 import parser.nodes as Nodes
 class Collections(ParserNamespaceSkeleton):
     def _parse_collections_expr(
@@ -20,7 +20,7 @@ class Collections(ParserNamespaceSkeleton):
             Nodes.ExprNode
         ):
         match self._peek().type:
-            case _ if allow_explicit_tuple and self._peek(1).type == TokenType.SY_Comma:
+            case _ if allow_explicit_tuple and self._peek(1).type == TokenType.Symbols.SequenceElementSeparator:
                 # $ This is a tuple WITH parentheses
                 # $ In this case, this function is call from:
                 # > parse_primary_expr(), on the branch that parse parenthesis
@@ -30,9 +30,9 @@ class Collections(ParserNamespaceSkeleton):
                 # $ The only place that gives 'allow_explicit_tuple' should also gives 'in_parentheses' anyway
                 context.pop("in_parentheses", None)
                 elements = [self._parse_expr()]
-                while self._peek().type == TokenType.SY_Comma:
+                while self._peek().type == TokenType.Symbols.SequenceElementSeparator:
                     self._advance()
-                    if self._peek().type == TokenType.PR_CloseParenthesis:
+                    if self._peek().type == Parentheses.CloseParenthesis:
                         break
                     elements.append(self._parse_expr(**context))
                 # @ DO NOT EAT THE ')' TOKEN
@@ -40,37 +40,37 @@ class Collections(ParserNamespaceSkeleton):
                 # $ And then it will eat the ')' token
                 # ! Eat it now will break everything
                 return Nodes.TupleNode(elements)
-            case _ if allow_implicit_tuple and self._peek(1) == TokenType.SY_Comma:
+            case _ if allow_implicit_tuple and self._peek(1) == TokenType.Symbols.SequenceElementSeparator:
                 elements = [self._parse_expr()]
-                while self._peek() == TokenType.SY_Comma:
+                while self._peek() == TokenType.Symbols.SequenceElementSeparator:
                     self._advance()
                     elements.append(self._parse_expr(**context))
                 return Nodes.TupleNode(elements)
-            case TokenType.PR_OpenSquareBracket:
+            case Parentheses.OpenSquareBracket:
                 return self._parse_comma_separated_values(
-                    TokenType.PR_OpenSquareBracket,
-                    TokenType.PR_CloseSquareBracket,
+                    Parentheses.OpenSquareBracket,
+                    Parentheses.CloseSquareBracket,
                     normal_wrapper = Nodes.ListNode,
                     comprehension_wrapper = Nodes.ListComprehensionNode,
                     not_closing_error = errors.SyntaxError(
                             "'[' is not closed"
                     )
                 )
-            case TokenType.PR_OpenCurlyBrace:
-                self._advance([TokenType.PR_OpenCurlyBrace])
+            case Parentheses.OpenCurlyBrace:
+                self._advance([Parentheses.OpenCurlyBrace])
                 key_expr = self._parse_expr(**context)
-                if self._peek() == TokenType.SY_GDCologne:
+                if self._peek() == TokenType.Symbols.KeyValueSeparatorInDict:
                     # $ A dictionary...is it a comprehension, though?
                     self._advance()
                     val_expr = self._parse_expr(**context)
                     def _():
                         k = self._parse_expr(**context)
-                        self._advance(TokenType.SY_GDCologne)
+                        self._advance(TokenType.Symbols.KeyValueSeparatorInDict)
                         return k, self._parse_expr(**context)
 
                     return self._parse_comma_separated_values(
-                        TokenType.PR_OpenCurlyBrace,
-                        TokenType.PR_CloseCurlyBrace,
+                        Parentheses.OpenCurlyBrace,
+                        Parentheses.CloseCurlyBrace,
                         parsing_fn = _,
                         normal_wrapper = Nodes.DictNode,
                         comprehension_wrapper = Nodes.DictComprehensionNode,
@@ -81,8 +81,8 @@ class Collections(ParserNamespaceSkeleton):
                     )
                 else:
                     return self._parse_comma_separated_values(
-                        TokenType.PR_OpenCurlyBrace,
-                        TokenType.PR_CloseCurlyBrace,
+                        Parentheses.OpenCurlyBrace,
+                        Parentheses.CloseCurlyBrace,
                         normal_wrapper = Nodes.SetNode,
                         comprehension_wrapper = Nodes.SetComprehensionNode,
                         not_closing_error = errors.SyntaxError(
@@ -110,7 +110,7 @@ class Collections(ParserNamespaceSkeleton):
                 elements: list = [],
                 **context) -> NormalWrapper | ComprehensionWrapper:
         
-        supported_loop_tokens = [TokenType.KW_PythonFor]
+        supported_loop_tokens = [TokenType.Statements.Loops.ForLoopFromPython]
         def condition_to_break_loop():
             if isinstance(closing_token_types, TokenType):
                 return (closing_token_types, *supported_loop_tokens)
@@ -129,12 +129,12 @@ class Collections(ParserNamespaceSkeleton):
         self._advance(opening_token_types)
         if len(elements) != 0:
             elements.append(parsing_fn())
-        while self._peek() == TokenType.SY_Comma:
+        while self._peek() == TokenType.Symbols.SequenceElementSeparator:
             self._advance()
             if self._peek().type in condition_to_break_loop():
                 break
             elements.append(parsing_fn())
-        if allow_comprehension and self._peek().type == TokenType.KW_PythonFor:
+        if allow_comprehension and self._peek().type == TokenType.Statements.Loops.ForLoopFromPython:
             return self._parse_comprehension(
                 elements, 
                 closing_token_types,
@@ -162,17 +162,17 @@ class Collections(ParserNamespaceSkeleton):
             fallbacks = []
             # TODO Support other loop types
             loop_type = self._advance([
-                TokenType.KW_PythonFor
+                TokenType.Statements.Loops.ForLoopFromPython
             ])
-            var_list = self._parse_assignment_pattern(TokenType.KW_In)
-            self._advance(TokenType.KW_In)
+            var_list = self._parse_assignment_pattern(TokenType.Statements.Loops.IterableVarsAndIterableSeparatorInForLoopFromPython)
+            self._advance(TokenType.Statements.Loops.IterableVarsAndIterableSeparatorInForLoopFromPython)
             iterable = self._parse_expr(**context)
-            if self._peek().type == TokenType.KW_If:
-                while self._peek().type == TokenType.KW_If:
-                    self._advance(TokenType.KW_If)
+            if self._peek().type == TokenType.Symbols.ConditionInComprehension:
+                while self._peek().type == TokenType.Symbols.ConditionInComprehension:
+                    self._advance(TokenType.Symbols.ConditionInComprehension)
                     conditions.append(self._parse_expr(**context))
-                    if self._peek().type == TokenType.KW_Else:
-                        self._advance(TokenType.KW_Else)
+                    if self._peek().type == TokenType.Symbols.FallbackInComprehension:
+                        self._advance(TokenType.Symbols.FallbackInComprehension)
                         fallbacks.append(self._parse_expr())
                     else:
                         fallbacks.append(None)

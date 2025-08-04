@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import typing
 
 from backend import errors
-from parser.lexer.lexer import Token, TokenType, Tokenizer, TokenTypeSequence
+from parser.lexer._lexer_lexer import Token, TokenType, Tokenizer, TokenTypeSequence, TokenTypeEnum
 from utils.config import ConfigCls
 from parser import nodes
 
@@ -34,8 +34,8 @@ class ParserNamespaceSkeleton(ABC):
         self._advance_matchings(ts)
     
     @staticmethod
-    def _to_token_sequence(t: TokenTypeSequence, **context) -> tuple[TokenType, ...]:
-        return (t, ) if isinstance(t, TokenType) else tuple(t)
+    def _to_token_sequence(t: TokenTypeSequence, **context) -> tuple[TokenTypeEnum, ...]:
+        return (t, ) if isinstance(t, TokenTypeEnum) else tuple(t)
 
     @abstractmethod
     def _parse_expr(self, **context) -> nodes.ExprNode: ...
@@ -43,8 +43,8 @@ class ParserNamespaceSkeleton(ABC):
     @abstractmethod
     def _parse_attached_code_block(
             self, *,
-            opening_token = TokenType.PR_OpenCurlyBrace,
-            closing_token = TokenType.PR_CloseCurlyBrace,
+            opening_token: TokenTypeEnum = TokenType.Parentheses.OpenCurlyBrace,
+            closing_token: TokenTypeEnum = TokenType.Parentheses.CloseCurlyBrace,
             eat_opening_token = True,
             eat_closing_token = True,
             allow_single_line_code_blocks = True,
@@ -62,3 +62,6 @@ class ParserNamespaceSkeleton(ABC):
 
     @abstractmethod
     def _parse_assignment_pattern(self, ending_tokens: TokenTypeSequence, **context) -> list[nodes.ExprNode]: ...
+
+    @abstractmethod
+    def _parse_unary_expr(self, **context) -> nodes.UnaryNode | nodes.ExprNode: ...

@@ -66,7 +66,7 @@
                     "type": "object",
                     "description": "An object containing possible overrides for certain symbols and keywords in the language.",
                     "properties": {
-                        "notEqual": {
+                        "inequality": {
                             "type": "string",
                             "enum": [
                                 "!=",
@@ -87,7 +87,7 @@
                                 "Use by Rust",
                                 "Use by JavaScript",
                                 "Use by Kotlin",
-                                "An optional shorthand. It's unknown whether it's used anywhere."
+                                "Use by Go"
                             ],
                             "default": "fn"
                         },
@@ -169,7 +169,7 @@
                         "null": {
                             "type": "string",
                             "description": "Note: \n1. This option will be ignored if 'languageCustomization.allowNull' is set to false\n2. If 'languageCustomization.caseInsensitiveNull' is disabled, certain options allowed will act identically",
-                            "enum": ["null", "Null", "NULL", "None", "none", "NOTHING", "nothing", "Nothing", "undefined"],
+                            "enum": ["null", "Null", "NULL", "None", "none", "NOTHING", "nothing", "Nothing", "undefined", "nil"],
                             "enumDescriptions": [
                                 "The standard notation, use in most languages",
                                 "The standard notation with a different casing",
@@ -180,7 +180,8 @@
                                 "An alternate way of spelling 'null'",
                                 "An alternate way of spelling 'null'",
                                 "An alternate way of spelling 'null'",
-                                "An alternate way of spelling 'null'"
+                                "An alternate way of spelling 'null'",
+                                "Use by Ruby"
                             ],
                             "default": "null"
                         }
@@ -201,10 +202,10 @@
                         "Use indentation to indicate code blocks",
                         "Use the `end` keyword to end a code block"
                     ],
-                    "$comment": "Change this back to 'indentation' once ",
+                    "$comment": "Change this back to 'indentation' once I can make it a thing",
                     "default": "braces"
                 },
-                "operatorNotation": {
+                "binaryExpressionNotation": {
                     "title": "Operator Notation",
                     "type": "string",
                     "description": "This will change how Sapphire parse operators.",
@@ -375,7 +376,7 @@
             "oneOf": [
                 {
                     "type": "array",
-                    "oneOf": [
+                    "anyOf": [
                         {
                             "items": [
                                 {"type": "number", "minimum": 0},

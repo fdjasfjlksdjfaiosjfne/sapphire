@@ -23,14 +23,15 @@ class ValueEvalHandler(typing.NamedTuple):
 
 eval_registry: dict[type[Nodes.BaseASTNode], ExprEvalHandler | StmtEvalHandler | ValueEvalHandler] = {
     Nodes.IdentifierNode: ExprEvalHandler("eval_identifier"),
-    Nodes.IntNode: ValueEvalHandler("Int"),
-    Nodes.FloatNode: ValueEvalHandler("Float"),
-    Nodes.NullNode: ValueEvalHandler("Null"),
-    Nodes.StrNode: ValueEvalHandler("Str"),
-    Nodes.BoolNode: ValueEvalHandler("Bool"),
-    Nodes.ListNode: ValueEvalHandler("List"),
-    Nodes.TupleNode: ValueEvalHandler("Tuple"),
-    Nodes.SetNode: ValueEvalHandler("Set"),
+    Nodes.IntNode: ValueEvalHandler("IntValue"),
+    Nodes.FloatNode: ValueEvalHandler("FloatValue"),
+    Nodes.NullNode: ValueEvalHandler("NullValue"),
+    Nodes.StrNode: ValueEvalHandler("StringValue"),
+    Nodes.BoolNode: ValueEvalHandler("BoolValue"),
+    Nodes.ListNode: ValueEvalHandler("ListValue"),
+    Nodes.TupleNode: ValueEvalHandler("TupleValue"),
+    Nodes.SetNode: ValueEvalHandler("SetValue"),
+    Nodes.DictNode: ValueEvalHandler("DictValue"),
     Nodes.CodeBlockNode: ExprEvalHandler("eval_code_block"),
     Nodes.ConditionalNode: StmtEvalHandler("eval_conditional"),
     Nodes.WhileLoopNode: StmtEvalHandler("eval_while_loop"),
@@ -57,10 +58,10 @@ def evaluate(node: Nodes.BaseASTNode, env: Env) -> values.RuntimeValue:
         if not isinstance(node, node_class):
             continue
         if isinstance(handler, (StmtEvalHandler, ExprEvalHandler)):
-            handler(node, env)
+            return handler(node, env)
         elif isinstance(handler, ValueEvalHandler):
             if isinstance(node, Nodes.LiteralNode):
-                handler(node.value)
+                return handler(node.value)
             else:
                 raise errors.InternalError()
 

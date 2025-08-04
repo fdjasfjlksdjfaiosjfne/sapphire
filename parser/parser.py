@@ -1,10 +1,10 @@
 import typing
-from parser.lexer.lexer import Token, TokenType, Tokenizer
+from parser.lexer._lexer_lexer import Token, TokenType, Tokenizer
 from utils import config
 import parser.nodes as Nodes
 from backend import errors
-from parser.parsing.stmts.stmts import Stmts
-from parser.parsing.exprs.exprs import Exprs
+from parser.stmts.stmts import Stmts
+from parser.exprs.exprs import Exprs
 
 class Parser(Stmts, Exprs):
     def __init__(self, source: str, conf: config.ConfigCls = config.ConfigCls()):
