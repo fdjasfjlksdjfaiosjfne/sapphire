@@ -37,7 +37,6 @@ class LoopStatements(ParserNamespaceSkeleton):
 
     def _parse_cfor_stmt(self, **context) -> Nodes.GlorifiedWhileLoopNode:
         init = None
-        cond = None
         repeat = None
         els = None
         
@@ -54,8 +53,7 @@ class LoopStatements(ParserNamespaceSkeleton):
         ))
 
         self._advance_matchings([TokenType.NewLine])
-        if self._peek().type != TokenType.Symbols.ForLoopFromCArgumentSeparator:
-            cond = self._parse_expr(**context)
+        cond = self._parse_expr(**context)
         self._advance_matchings([TokenType.NewLine])
         self._advance([TokenType.Symbols.ForLoopFromCArgumentSeparator], errors.SyntaxError(
             "Expecting a ';'"

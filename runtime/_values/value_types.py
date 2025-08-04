@@ -18,11 +18,13 @@ class RuntimeValue:
                 self.attributes[k] = v
         
 
-    def get_attribute(self, name): 
+    def get_attribute(self, name) -> RuntimeValue: 
         """Get attributes from the runtime value."""
         # $ Check instance dictionary
         if hasattr(self, "attributes") and name in self.attributes:
+            
             attr = self.attributes[name]
+            assert isinstance(attr, RuntimeValue)
             if self.is_method(attr):
                 return attr.bind(self)
             return attr
@@ -32,10 +34,13 @@ class RuntimeValue:
             for type_in_mro in self.type.mro:
                 if name in type_in_mro.attributes:
                     attr = type_in_mro.attributes[name]
+                    assert isinstance(attr, RuntimeValue)
                     # Handle method binding for class methods too
                     if self.is_method(attr):
                         return attr.bind(self)
                     return attr
+        
+        raise errors.InProgress
     
     def set_attribute(self, name, value):
         raise errors.InProgress
@@ -109,7 +114,7 @@ class Instance(RuntimeValue):
         self.type_obj = type_obj
 
 class NumberValue(RuntimeValue): 
-    pass
+    value: int | float
 
 class IntValue(RuntimeValue):
     _cache = {}

@@ -4,7 +4,7 @@ import enum
 import typing
 
 
-from parser.lexer._lexer_lexer import TokenType
+from parser.lexer import TokenTypeEnum
 
 class ExprContext(enum.Enum):
     Load = 0
@@ -98,7 +98,7 @@ class WhileLoopNode(StmtNode):
 @dataclasses.dataclass
 class GlorifiedWhileLoopNode(StmtNode):
     init: ExprNode | VarDeclarationNode | None
-    condition: ExprNode | None
+    condition: ExprNode
     repeat: ExprNode | None
     code_block: CodeBlockNode
     else_block: CodeBlockNode | None
@@ -188,13 +188,13 @@ class MatchCaseNode(ExprNode):
 @dataclasses.dataclass
 class UnaryNode(ExprNode):
     expr: ExprNode
-    attachment: TokenType
+    attachment: TokenTypeEnum
     position: typing.Literal["Prefix", "Postfix"]
 
 @dataclasses.dataclass
 class BinaryNode(ExprNode):
     left: ExprNode
-    oper: TokenType
+    oper: TokenTypeEnum
     right: ExprNode
 
 @dataclasses.dataclass
@@ -224,7 +224,7 @@ class SubscriptionNode(ExprNode):
 @dataclasses.dataclass
 class ComparisonNode(ExprNode):
     left: ExprNode
-    operators: list[TokenType]
+    operators: list[TokenTypeEnum]
     exprs: list[ExprNode]
 
 class CallArgumentList(typing.NamedTuple):

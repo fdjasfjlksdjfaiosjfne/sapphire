@@ -2,7 +2,7 @@ import parser.nodes as Nodes
 from runtime.interpreter import evaluate
 from runtime.env import Env
 from runtime.eval.exprs import eval_code_block
-import runtime._expriemental.values as Values
+from runtime import values
 from backend import errors
 from runtime import native_fns
 
@@ -10,10 +10,10 @@ def eval_program(program: Nodes.ModuleNode, env: Env, /) -> None:
     eval_code_block(program.body, env)
 
 def eval_assignment(assign: Nodes.AssignmentNode, env: Env, /) -> None:
-    expr = evaluate(assign.idents_and_expr.pop(), env)
-    for ident in assign.idents_and_expr:
+    expr = evaluate(assign.value, env)
+    for ident in assign.targets:
         if not isinstance(ident, Nodes.IdentifierNode):
-            raise Exception()
+            raise errors.InProgress
         env.assign(ident.symbol, expr)
 
 def eval_var_declaration(decl: Nodes.VarDeclarationNode, env: Env, /) -> None:
@@ -52,11 +52,11 @@ def eval_break(node: Nodes.BreakNode, env: Env, /) -> None:
     raise errors.BreakLoop
 
 def eval_conditional(node: Nodes.ConditionalNode, env: Env, /) -> None:
-    cond = Values.Bool(evaluate(node.condition, env))
-    if not isinstance(cond, Values.NOT_IMPLEMENTED) and cond.value == True:
+    cond = values.BoolValue(evaluate(node.condition, env))
+    if cond is not values.NOT_IMPLEMENTED and cond.value == True:
         eval_code_block(node.code_block, env)
-    elif isinstance(cond, Values.NOT_IMPLEMENTED):
-        raise Exception()
+    elif cond is values.NOT_IMPLEMENTED:
+        raise errors.ValueError("Cannot convert into boolean")
     else:
         if isinstance(node.otherwise, Nodes.CodeBlockNode):
             eval_code_block(node.otherwise, env)
@@ -64,7 +64,7 @@ def eval_conditional(node: Nodes.ConditionalNode, env: Env, /) -> None:
             eval_conditional(node.otherwise, env)
 
 def eval_while_loop(loop: Nodes.WhileLoopNode, env: Env, /):
-    while Values.Bool(evaluate(loop.condition, env)):
+    while values.BoolValue(evaluate(loop.condition, env)):
         try:
             evaluate(loop.code_block, env)
         except errors.BreakLoop:
@@ -79,8 +79,9 @@ def eval_while_loop(loop: Nodes.WhileLoopNode, env: Env, /):
 
 def eval_glorified_while_loop(loop: Nodes.GlorifiedWhileLoopNode, env: Env, /):
     env = Env(parent = env)
-    evaluate(loop.init, env)
-    while Values.Bool(evaluate(loop.condition, env)):
+    if loop.init is not None:
+        evaluate(loop.init, env)
+    while values.BoolValue(evaluate(loop.condition, env)):
         try:
             evaluate(loop.code_block, env)
         except errors.BreakLoop:
@@ -90,7 +91,8 @@ def eval_glorified_while_loop(loop: Nodes.GlorifiedWhileLoopNode, env: Env, /):
             # todo label support
             continue
         finally:
-            evaluate(loop.repeat, env)
+            if loop.repeat is not None:
+                evaluate(loop.repeat, env)
     else:
         if loop.else_block is not None:
             evaluate(loop.else_block, env)

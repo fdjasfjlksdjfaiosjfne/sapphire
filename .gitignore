@@ -1,11 +1,5 @@
 # Python
 *.pyc
-*/__pycache__/*
-*/*/__pycache__/*
-*/*/*/__pycache__/*
-*/*/*/*/__pycache__/*
-*/__*__
-/__*__/*
 
 # IDE
 
@@ -22,5 +16,11 @@ tempCodeRunnerFile.*
 *.ignore.*
 samples
 .mypy_cache
-utils/sapconfig.schema.yaml
 .pytest_cache
+__*__/*
+*/__*__/*
+*/*/__*__/*
+*/*/*/__*__/*
+*/*/*/*/__*__/*
+*/*/*/*/*/__*__/*
+*/*/*/*/*/*/__*__/*
