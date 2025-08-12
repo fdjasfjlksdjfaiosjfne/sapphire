@@ -5,10 +5,10 @@ redefine = cust.redefine
 templates = CONFIG.templates
 
 ALIASES: dict = {
-    "EoF": "EoF",
-    "Identifier": "Identifier",
-    "NewLine": "NewLine",
-    "Arrow": "Arrow",
+    "EoF": ("EoF",),
+    "Identifier": ("Identifier",),
+    "NewLine": ("NewLine",),
+    "Arrow": ("Arrow",),
     "GDCologne": ("Symbols", "Colon"),
     "Parentheses": {
         "OpenParenthesis": ("Parentheses", "OpenParenthesis"),

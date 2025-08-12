@@ -1,9 +1,12 @@
 import typing
 
+# Creating the files
+from parser._lexer.meta import itt, token_types
+itt.write_file()
+token_types.write_file()
+
 from parser._lexer.lexer import Tokenizer, Token
-from parser._lexer.meta.token_types import write_file
-write_file() # ? Writing the token_types file first...
-del write_file # Alright, we're done with this.
+from parser._lexer.internal_token_types import *
 from parser._lexer.token_types import *
 
 TokenTypeSequence: typing.TypeAlias = (

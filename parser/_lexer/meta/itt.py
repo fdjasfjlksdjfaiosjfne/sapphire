@@ -11,6 +11,8 @@ from backend import errors
 from parser._lexer.data.aliases import get_all_itt_used
 
 async def write_subclass(name: str, ls: typing.Iterable[dict | str], indent = 4) -> list[str]:
+    if not ls:
+        return []
     pad = " " * indent
     lines: list[str] = [
         f"\n{pad}class {name}(ITTTypeChecking):"
@@ -20,6 +22,8 @@ async def write_subclass(name: str, ls: typing.Iterable[dict | str], indent = 4)
     return lines
 
 async def write_template_class(dct: dict[str, list[str]]) -> list[str]:
+    if not any(dct.values()):
+        return []
     lines = [
         f"\n    class Templates(ITTTypeChecking):"
     ]
@@ -86,7 +90,7 @@ async def write_class() -> list[str]:
 
     results = asyncio.gather(*tasks)
 
-    for i in itertools.chain(uncategorized, ["EoF", "_SkipPattern"]):
+    for i in set(uncategorized) | {"EoF", "_SkipPattern"}:
         lines.append(f"    {i} = enum.auto()")
     
     await results
