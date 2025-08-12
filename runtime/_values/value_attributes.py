@@ -102,10 +102,10 @@ def RUNTIME_VAL_METHODS():
         assert isinstance(self, RuntimeValue) and isinstance(other, RuntimeValue)
         lhs, rhs = (other, self) if right else (self, other)
         if not BoolValue(lhs).value:
-            if CONFIG.language_customization.logical_operator_behavior == "boolean_only":
+            if CONFIG.customization.logical_operator_behavior == "boolean_only":
                 return FALSE
             return lhs
-        if CONFIG.language_customization.logical_operator_behavior == "boolean_only":
+        if CONFIG.customization.logical_operator_behavior == "boolean_only":
             return BoolValue(rhs)
         return rhs
     
@@ -113,10 +113,10 @@ def RUNTIME_VAL_METHODS():
         assert isinstance(self, RuntimeValue) and isinstance(other, RuntimeValue)
         lhs, rhs = (other, self) if right else (self, other)
         if BoolValue(lhs).value:
-            if CONFIG.language_customization.logical_operator_behavior == "boolean_only":
+            if CONFIG.customization.logical_operator_behavior == "boolean_only":
                 return TRUE
             return lhs
-        if CONFIG.language_customization.logical_operator_behavior == "boolean_only":
+        if CONFIG.customization.logical_operator_behavior == "boolean_only":
             return BoolValue(rhs)
         return rhs
     
@@ -125,7 +125,7 @@ def RUNTIME_VAL_METHODS():
         if BoolValue(self).value == BoolValue(other).value:
             return FALSE
         
-        if CONFIG.language_customization.logical_operator_behavior != "extended_pythonic":
+        if CONFIG.customization.logical_operator_behavior != "extended_pythonic":
             return TRUE
         
         if BoolValue(self).value:

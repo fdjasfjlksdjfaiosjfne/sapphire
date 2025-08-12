@@ -4,7 +4,12 @@ class BaseSapphireError(Exception):
         if len(args) == 0 and hasattr(cls, "_default_msg"):
             args = [cls._default_msg]
         return super().__new__(cls, *args)
-    
+
+class SapphireBaseExceptionGroup(ExceptionGroup):
+    pass
+
+class SapphireExceptionGroup(SapphireBaseExceptionGroup):
+    pass
 
 class InternalError(BaseSapphireError):
     """

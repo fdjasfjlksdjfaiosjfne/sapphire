@@ -1,9 +1,10 @@
 # Auto-generated token_types.py for IntelliSense
-from parser._lexer.symbol_tokens import InternalTokenType
+# Beep bop
+from parser._lexer.internal_token_types import InternalTokenType
 import enum
+
 class TokenTypeEnum(enum.Enum):
     pass
-
 
 class TokenType(TokenTypeEnum):
     EoF = InternalTokenType.EoF
@@ -127,6 +128,7 @@ class TokenType(TokenTypeEnum):
         DirectImport = InternalTokenType.Keywords.Import
         ImportFrom = InternalTokenType.Keywords.From
         Return = InternalTokenType.Keywords.Return
+        Delete = InternalTokenType.Keywords.Del
 
     class Operators(TokenTypeEnum):
 
@@ -188,11 +190,20 @@ class TokenType(TokenTypeEnum):
         Null = InternalTokenType.Primitives.Null
         Ellipsis = InternalTokenType.Symbols.TripleDot
 
+    class Templates(TokenTypeEnum):
+
+        class InvertedComparisons(TokenTypeEnum):
+            Equality = InternalTokenType._SkipPattern
+            LessThan = InternalTokenType._SkipPattern
+            GreaterThan = InternalTokenType._SkipPattern
+            LessThanOrEqualTo = InternalTokenType._SkipPattern
+            GreaterThanOrEqualTo = InternalTokenType._SkipPattern
+
 Parentheses = TokenType.Parentheses
 Symbols = TokenType.Symbols
 AugmentedAssignOpers = Symbols.AugmentedAssignOpers
-Lefty = AugmentedAssignOpers.Lefty
-Righty = AugmentedAssignOpers.Righty
+LeftyAugmentedAssignOpers = AugmentedAssignOpers.Lefty
+RightyAugmentedAssignOpers = AugmentedAssignOpers.Righty
 Statements = TokenType.Statements
 ExceptionHandling = Statements.ExceptionHandling
 Declarations = Statements.Declarations
@@ -204,24 +215,28 @@ BinaryOperators = Operators.Binary
 TernaryOperators = Operators.Ternary
 UnaryOperators = Operators.Unary
 Primitives = TokenType.Primitives
+Templates = TokenType.Templates
+InvertedComparisons = Templates.InvertedComparisons
 
 __all__ = [
     "TokenType",
     "TokenTypeEnum",
+    "TernaryOperators",
+    "UnaryOperators",
+    "Primitives",
+    "Parentheses",
     "Loops",
+    "Templates",
+    "Symbols",
+    "InvertedComparisons",
     "AugmentedAssignOpers",
-    "Declarations",
+    "LeftyAugmentedAssignOpers",
+    "ExceptionHandling",
     "Conditional",
     "MatchCase",
-    "TernaryOperators",
-    "Righty",
-    "Operators",
-    "BinaryOperators",
-    "Primitives",
-    "Symbols",
     "Statements",
-    "Lefty",
-    "ExceptionHandling",
-    "Parentheses",
-    "UnaryOperators",
+    "Operators",
+    "RightyAugmentedAssignOpers",
+    "Declarations",
+    "BinaryOperators",
 ]

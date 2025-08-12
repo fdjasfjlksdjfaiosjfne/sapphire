@@ -16,13 +16,18 @@ class MatchCaseStatement(ParserNamespaceSkeleton):
         return Nodes.MatchCaseNode(subject, cases)
 
     def __parse_case_stmt(self, **context) -> Nodes.CaseNode:
-        self._advance([MatchCase.Case])
+        if self._peek().type == MatchCase.DefaultCase and self._peek().value == "default":
+            self._advance([MatchCase.DefaultCase])
+            pattern = Nodes.WildcardPatternNode()
+        else:
+            self._advance([MatchCase.Case])
+            pattern = self.__parse_match_pattern(**context)
+        
         guard = None
-        pattern = self.__parse_match_pattern(**context)
         if self._peek().type == MatchCase.ConditionGuard:
             self._advance([MatchCase.ConditionGuard], error = errors.InternalError(
                 "A redundant check for the 'if' token has been tripped\n"
-                "Location: MatchCase.parse_case_stmt()"
+                f"Location: {self.__parse_case_stmt.__qualname__}"
             ))
             guard = self._parse_expr(**context)
 
@@ -198,7 +203,7 @@ class MatchCaseStatement(ParserNamespaceSkeleton):
             case TokenType.Identifier:
                 val = Nodes.IdentifierNode(self._advance().value)
             # You can't do MatchCase.attr for whatever reason
-            case TokenType.Statements.MatchCase.DefaultCase:
+            case TokenType.Statements.MatchCase.DefaultCase if self._peek().value != "default":
                 return Nodes.WildcardPatternNode()
             case TokenType.Statements.MatchCase.VariableBinding:
                 name = self._advance(

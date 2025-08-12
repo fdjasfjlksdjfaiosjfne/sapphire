@@ -1,13 +1,27 @@
+import typing
+import itertools
+
 from backend import errors
 import parser.nodes as Nodes
 from runtime import values
 from runtime.env import Env
-from parser.lexer import TokenType, BinaryOperators, UnaryOperators
+from parser.lexer import (
+    TokenType,
+    BinaryOperators,
+    UnaryOperators,
+    InvertedComparisons
+)
 import runtime.eval.opers as opers
 from runtime.interpreter import evaluate
-import typing
+from utils.config import CONFIG
+
 
 def eval_code_block(code_block: Nodes.CodeBlockNode, env: Env, /):
+    if CONFIG.customization.function_hoisting:
+        c = itertools.count(start = 1)
+        code_block.body.sort(
+            key = lambda v: 0 if isinstance(v, Nodes.FunctionDeclarationNode) else next(c)
+        )
     for stmt in code_block:
         evaluate(stmt, env)
     return None
@@ -70,22 +84,21 @@ def eval_binary_expr(binop: Nodes.BinaryNode, env: Env, /) -> values.RuntimeValu
             )
 
 def eval_comparison_expr(comp_expr: Nodes.ComparisonNode, env: Env, /) -> values.RuntimeValue:
-    
     current = evaluate(comp_expr.left, env)
     for i, op in enumerate(comp_expr.operators):
         comparator = evaluate(comp_expr.exprs[i], env)
         match op:
-            case BinaryOperators.LessThan:
+            case BinaryOperators.LessThan | InvertedComparisons.LessThan:
                 result = opers.eval_lt(current, comparator, env)
-            case BinaryOperators.LessThanOrEqualTo:
+            case BinaryOperators.LessThanOrEqualTo | InvertedComparisons.LessThanOrEqualTo:
                 result = opers.eval_le(current, comparator, env)
-            case BinaryOperators.Equality:
+            case BinaryOperators.Equality | InvertedComparisons.Equality:
                 result = opers.eval_eq(current, comparator, env)
             case BinaryOperators.Inequality:
                 result = opers.eval_ne(current, comparator, env)
-            case BinaryOperators.GreaterThanOrEqualTo:
+            case BinaryOperators.GreaterThanOrEqualTo | InvertedComparisons.GreaterThanOrEqualTo:
                 result = opers.eval_ge(current, comparator, env)
-            case BinaryOperators.GreaterThan:
+            case BinaryOperators.GreaterThan | InvertedComparisons.GreaterThan:
                 result = opers.eval_gt(current, comparator, env)
             case _:
                 raise Exception()
@@ -104,7 +117,16 @@ def eval_ternary_expr(expr: Nodes.TernaryNode, env: Env, /) -> values.RuntimeVal
     return evaluate(expr.false, env)
 
 def eval_call_expr(expr: Nodes.CallNode, env: Env, /) -> values.RuntimeValue:
-    raise Exception()
+    call_rt = evaluate(expr.caller, env)
+    if hasattr(call_rt, "call"):
+        call_rt = typing.cast(values.FunctionValue, call_rt)
+        return call_rt.call(env, expr.args.args, expr.args.kwargs)
+    raise errors.TypeError(
+        f"Object of type '{type(call_rt)}' is not callable"
+    )
+
+def eval_subscription(expr: Nodes.SubscriptionNode, env: Env, /) -> values.RuntimeValue:
+    ...
 
 def eval_walrus(assign: Nodes.WalrusNode, env: Env, /) -> values.RuntimeValue:
     if not isinstance(assign.assignee, Nodes.IdentifierNode):

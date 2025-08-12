@@ -1,10 +1,10 @@
 """Meta-programming go brrrrrrrrrrrrrrrrrrrrr"""
 
 import itertools
+import pathlib
 import sys
-sys.path.insert(0, r"C:\Users\Tien Dung\Dropbox\Script\sapphireFamily\Sapphire")
-
-from parser._lexer.aliases import ALIASES
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent.parent))
+from parser._lexer.data.aliases import ALIASES
 
 CLASS_NAME = "TokenType"
 
@@ -32,6 +32,8 @@ def write_class(name, node, indent = 0):
 def get_shortcut_name(name: str):
     if name in ("Unary", "Binary", "Ternary"):
         return name + "Operators"
+    if name in ("Lefty", "Righty"):
+        return name + "AugmentedAssignOpers"
     return name
 
 def write_shortcuts(prefix: str = "TokenType", dct: dict = ALIASES, variable_set = None) -> tuple[list[str], set]:
@@ -52,13 +54,15 @@ def write_all_array(variables) -> list[str]:
     lines.append("]")
     return lines
 
-def main():
+def write_file():
     lines = [
         "# Auto-generated token_types.py for IntelliSense",
-        "from parser._lexer.symbol_tokens import InternalTokenType",
-        "import enum",
+        "# Beep bop",
+        "from parser._lexer.internal_token_types import InternalTokenType",
+        "import enum", 
+        "",
         "class TokenTypeEnum(enum.Enum):",
-        "    pass", ""
+        "    pass"
     ]
     
     lines += write_class(CLASS_NAME, ALIASES)
@@ -72,4 +76,4 @@ def main():
         f.write("\n".join(lines))
 
 if __name__ == "__main__":
-    main()
+    write_file()

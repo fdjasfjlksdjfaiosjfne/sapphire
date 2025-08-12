@@ -2,24 +2,29 @@ from abc import ABC, abstractmethod
 import typing
 
 from backend import errors
-from parser.lexer._lexer_lexer import Token, TokenType, Tokenizer, TokenTypeSequence, TokenTypeEnum
-from utils.config import ConfigCls
+from parser.lexer import Token, TokenType, Tokenizer, TokenTypeSequence, TokenTypeEnum
+from utils.config import ConfigCls, CONFIG
 from parser import nodes
 
 
 class ParserNamespaceSkeleton(ABC):
     tokens: Tokenizer
     conf: ConfigCls
+    if CONFIG.customization.semicolon_required:
+        _STATEMENT_SEPARATORS = [TokenType.Symbols.StatementSeparator]
+    else:
+        _STATEMENT_SEPARATORS = [TokenType.Symbols.StatementSeparator, TokenType.NewLine]
+
     @typing.final
     def __getattribute__(self, attr: str):
         if super().__getattribute__("__class__").__name__ != "Parser":
             raise errors.InternalError(
-                "An attempt to access an attribute from an incomplete namespace at runtime " \
-                "has been detected. Please use the full 'Parser()' class instead of just " \
+                "An attempt to access an attribute from an incomplete parser namespace at " \
+                "runtime has been detected. Please use the full 'Parser()' class instead of just " \
                 "poking at an imcomplete stub."
             )
         return super().__getattribute__(attr)
-    
+
     def _peek(self, offset: int = 0) -> Token:
         return self.tokens.peek(offset)
 

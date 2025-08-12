@@ -48,10 +48,13 @@ class Stmts(MatchCaseStatement, LoopStatements, DeclarationStatements):
                 return Nodes.ReturnNode(
                     self._parse_expr(allow_implicit_tuples = True, **context)
                 )
+            case TokenType.Statements.Delete:
+                self._advance()
+                return Nodes.DeleteNode(
+                    self._parse_expr(allow_implicit_tuples = True, **context)
+                )
             case _:
                 return self._parse_assignment_stmt(**context)
-
-
 
     def _parse_if_elif_else(self, **context):
         try:

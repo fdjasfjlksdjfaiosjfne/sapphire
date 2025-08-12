@@ -4,6 +4,7 @@ import enum
 import typing
 
 
+from parser._lexer.internal_token_types import ITTTypeChecking, InternalTokenType
 from parser.lexer import TokenTypeEnum
 
 class ExprContext(enum.Enum):
@@ -84,6 +85,10 @@ class ReturnNode(StmtNode):
     value: ExprNode
 
 @dataclasses.dataclass
+class DeleteNode(StmtNode):
+    value: ExprNode
+
+@dataclasses.dataclass
 class ConditionalNode(StmtNode):
     condition: ExprNode
     code_block: CodeBlockNode
@@ -141,10 +146,12 @@ class LiteralPatternNode(MatchPatternNode):
     # case null
     val: ExprNode
 
-@dataclasses.dataclass
 class WildcardPatternNode(MatchPatternNode):
-    # case _
-    pass
+    _instance = None
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = object.__new__(cls)
+        return cls._instance
 
 @dataclasses.dataclass
 class VariablePatternNode(MatchPatternNode):
@@ -188,13 +195,13 @@ class MatchCaseNode(ExprNode):
 @dataclasses.dataclass
 class UnaryNode(ExprNode):
     expr: ExprNode
-    attachment: TokenTypeEnum
+    attachment: TokenTypeEnum | ITTTypeChecking
     position: typing.Literal["Prefix", "Postfix"]
 
 @dataclasses.dataclass
 class BinaryNode(ExprNode):
     left: ExprNode
-    oper: TokenTypeEnum
+    oper: TokenTypeEnum | ITTTypeChecking
     right: ExprNode
 
 @dataclasses.dataclass
@@ -224,7 +231,7 @@ class SubscriptionNode(ExprNode):
 @dataclasses.dataclass
 class ComparisonNode(ExprNode):
     left: ExprNode
-    operators: list[TokenTypeEnum]
+    operators: list[TokenTypeEnum | ITTTypeChecking]
     exprs: list[ExprNode]
 
 class CallArgumentList(typing.NamedTuple):

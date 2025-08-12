@@ -4,7 +4,7 @@ import jsonschema
 
 from backend import errors
 from utils.config import CONFIG
-from parser.lexer import BinaryOperators, TokenTypeEnum, TokenTypeSequence
+from parser.lexer import BinaryOperators, InvertedComparisons, TokenTypeEnum, TokenTypeSequence
 from parser.core import ParserNamespaceSkeleton
 import parser.nodes as Nodes
 
@@ -23,8 +23,11 @@ BINARY_NODE_DICT = {
     "identity": [BinaryOperators.Identity, BinaryOperators.NotIdentity],
     "comparison": [BinaryOperators.LessThanOrEqualTo, BinaryOperators.LessThan,
                    BinaryOperators.Equality, BinaryOperators.Inequality,
-                   BinaryOperators.GreaterThanOrEqualTo, BinaryOperators.GreaterThan],
-    "additive": [BinaryOperators.Addition, BinaryOperators.Subtraction],
+                   BinaryOperators.GreaterThanOrEqualTo, BinaryOperators.GreaterThan,
+                   InvertedComparisons.GreaterThan, InvertedComparisons.LessThan,
+                   InvertedComparisons.GreaterThanOrEqualTo, InvertedComparisons.LessThanOrEqualTo,
+                   InvertedComparisons.Equality],
+    "additive": [BinaryOperators.Addition, BinaryOperators.Subtraction,],
     "multiplicative": [BinaryOperators.Multiplication, BinaryOperators.MatrixMultiplication,
                        BinaryOperators.TrueDivision, BinaryOperators.FloorDivision],
     "exponentiative": BinaryOperators.Exponentiation
@@ -157,7 +160,7 @@ class PostfixBinaryOperations(ParserNamespaceSkeleton):
         raise errors.InProgress
 
 
-match CONFIG.language_customization.binary_expression_notation:
+match CONFIG.customization.binary_expression_notation:
     case "infix":
         BinaryOperations = InfixBinaryOperations
     case "prefix":

@@ -1,75 +1,56 @@
 from __future__ import annotations
 
-from enum import Enum, auto
 import typing
 import pathlib
 import jsonschema.exceptions
 import jsonschema.validators
 import yaml
 import regex
-import dataclasses
+
+import sys, pathlib;sys.path.insert(0,str(pathlib.Path(__file__).parent.parent))
+
+from utils._config.conf_dataclasses import (
+    CustomizationMode,
+    CustomizationCls,
+    ConfigCls,
+    RedefineCls,
+    MultiLineComment,
+    IntegerBaseLiterals,
+    TemplateCls,
+    LASTEST_VERSION,
+)
 
 from backend import errors
 
-LASTEST_VERSION = (0,0,3)
-
-class CustomizationMode(Enum):
-    Disabled = 0
-    Enabled = 1
-    Forced = 2
-
-@dataclasses.dataclass(frozen = True)
-class RedefineCls:
-    inequality: typing.Literal["<>", "><", "!="] = "!="
-    function_def: typing.Literal["def", "fn", "fun", "func", "function"] = "fn"
-    class_def: typing.Literal["class", "cls"] = "class"
-    else_if: typing.Literal["else if", "elseif", "elsif", "elif"] = "elif"
-    spaceship_operator: typing.Literal["<=>", ">=<"] = "<=>"
-    true: str = "true"
-    false: str = "false"
-    null: str = "null"
-
-
-@dataclasses.dataclass(frozen = True)
-class LangCustomizationCls:
-    redefine: RedefineCls = RedefineCls()
-    code_blocks: typing.Literal["braces", "indentation", "end"] = "braces"
-    binary_expression_notation: typing.Literal["infix", "prefix", "postfix"] = "infix"
-    oop_model: typing.Literal["hybrid", "class", "prototype"] = "class"
-    forced_encapsulation: bool = True
-    encapsulation_method: typing.Literal["pythonic", "enforced"] = "enforced"
-    default_case_notation: typing.Literal["*", "_", "default"] = "_"
-    logical_operator_behavior: typing.Literal["boolean_only", "pythonic", "extended_pythonic"] = "extended_pythonic"
-    allow_booleans: bool = True
-    allow_null: bool = True
-    case_insensitive_booleans: bool = True
-    case_insensitive_null: bool = True
-    mutable_value_assignment_behavior: typing.Literal["copy", "reference"] = "copy"
-    mutable_argument_default_value_behavior: typing.Literal["copy", "reference"] = "copy"
-
-@dataclasses.dataclass(frozen = True)
-class LangModeCls:
-    inverted_operators: CustomizationMode = CustomizationMode.Disabled
-    methify: CustomizationMode = CustomizationMode.Disabled
-
-@dataclasses.dataclass(frozen = True)
-class ConfigCls:
-    language_customization: LangCustomizationCls = LangCustomizationCls()
-    language_customization_modes: LangModeCls = LangModeCls()
-    config_version: tuple[int, int, int] | tuple[int, int, int, int] = LASTEST_VERSION
-    custom_options: dict = dataclasses.field(default_factory = dict)
-
 CAMEL_TO_SNAKE_PATTERN = regex.compile('((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))')
 
-def camel_to_snake(name: str):
+def camel_to_snake(name: str) -> str:
     return CAMEL_TO_SNAKE_PATTERN.sub(r"_\1", name).lower()
 
-def solidify_config(conf: dict) -> ConfigCls:
-    config_version = typing.cast(list[int]|str, conf.get("configVersion", LASTEST_VERSION))
+def switch_casing(conf: dict) -> dict:
+    d = {}
+    for k, v in conf.items():
+        if isinstance(v, dict):
+            d[camel_to_snake(k)] = switch_casing(v)
+        else:
+            d[camel_to_snake(k)] = v
+    return d
+
+def solidify_config(conf: dict[str, typing.Any]) -> ConfigCls:
+    conf_ = switch_casing(conf)
+    customs: dict[str, typing.Any] = conf_.get("customization", {})
+    redef: dict = customs.pop("redefine", {})
+    int_bases: dict = customs.pop("integer_base_literals", {})
+    config_version: list[int]|str = conf.get("config_version", LASTEST_VERSION)
+    cus_opts: dict = conf_.get("custom_options", {})
+    templates: dict = conf_.get("template", {})
+    mtc: str = redef.pop("multi_line_comment", "/* */")
+    mtlcs, mtlce = mtc.split()
+
     if isinstance(config_version, str):
         config_version = [int(i) for i in config_version.split(".")]
     
-    # & I'm not adding multi-version support yet
+    # & I'm not adding multi-version support
     # & What's so important about supporting older development versions anyway?
     # & They just exist for like, a few days at most
     # & I'll add them once it's mainstream...Which is basically never.
@@ -80,7 +61,6 @@ def solidify_config(conf: dict) -> ConfigCls:
             f"Please use version {".".join(str(i) for i in LASTEST_VERSION)} "
             "instead."
         )
-
 
     # ^ languageCustomizationModes
     customization_mode_replace_dict = {
@@ -95,36 +75,66 @@ def solidify_config(conf: dict) -> ConfigCls:
         False: CustomizationMode.Disabled,
         True: CustomizationMode.Enabled,
     }
-    conf["languageCustomizationModes"] = {
+
+    templates = {
         k: customization_mode_replace_dict.get(v, CustomizationMode.Disabled) for k, v
-        in conf.get("languageCustomizationModes", {}).items()
+        in templates.items()
     }
 
-    lang_custom = typing.cast(dict[str, typing.Any], conf.get("languageCustomization", {}).copy())
-    lang_custom.pop("redefine", None)
+    customs = typing.cast(dict[str, typing.Any], conf_.get("customization", {}))
+    redef: dict = customs.pop("redefine", {})
+    int_bases = customs.pop("integer_base_literals", {})
 
-    # ^ Check for duplicates
-    for american, british in [("mutableValueAssignmentBehavior", "mutableValueAssignmentBehaviour"), 
-                              ("mutableArgumentDefaultValueBehavior", "mutableArgumentDefaultValueBehaviour"), 
-                              ("logicalOperatorBehavior", "logicalOperatorBehaviour")]:
-        if british in lang_custom:
-            if american in lang_custom:
+    for american, british in [("mutable_value_assignment_behavior", "mutable_value_assignment_behaviour"), 
+                              ("mutable_argument_default_value_behavior", "mutable_argument_default_value_behaviour"), 
+                              ("logical_operator_behavior", "logical_operator_behaviour")]:
+        if british in customs:
+            if american in customs:
                 raise errors.ConfigError(
                     "Both the American and British spelling of a configuration"
                     f"('{american}' and '{british}' respectively) is present"
                 )
-            lang_custom[american] = lang_custom[british]
-            del lang_custom[british]
+            customs[american] = customs[british]
+            del customs[british]
 
+    # ^ Check for identical values
+    redef_keys: dict[str, list] = {}
+    for k, val in redef.items():
+        if val is None:
+            continue
+        if val in redef_keys:
+            redef_keys[val].append(k)
+        redef_keys[val] = [k]
+    
+    duplicates = [v for v in redef_keys.values() if len(v) == 2]
+    if duplicates:
+        if len(duplicates) > 1:
+            start_msg = "Duplicates have"
+        else:
+            start_msg = "Dupliccate has"
+        raise errors.ConfigError(
+            f"{start_msg} been found: {"; ".join(str(i) for i in duplicates)}"
+        )
+    del duplicates
+
+    if int_bases.values() and not any(int_bases.values()):
+        raise errors.ConfigError(
+            "At least 1 of the integer bases should be allowed"
+        )
+    
     return ConfigCls(
-        LangCustomizationCls(
-            RedefineCls(**conf.get("languageCustomization", {}).get("redefine", {})),
-            **lang_custom
+        CustomizationCls(
+            RedefineCls(
+                multi_line_comment = MultiLineComment(mtlcs, mtlce),
+                **redef
+            ),
+            integer_base_literals = IntegerBaseLiterals(**int_bases),
+            **customs
         ),
-        LangModeCls(
-            **conf.get("languageCustomizationModes", {})
+        TemplateCls(
+            **templates
         ),
-        conf.get("customOptions", {})
+        **cus_opts
     )
 
 CONFIG = solidify_config({})

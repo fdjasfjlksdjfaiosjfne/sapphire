@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 import copy
+import itertools
 import typing
 
 from backend import errors
@@ -18,7 +19,7 @@ class RuntimeValue:
                 self.attributes[k] = v
         
 
-    def get_attribute(self, name) -> RuntimeValue: 
+    def get_attribute(self, name, default) -> RuntimeValue: 
         """Get attributes from the runtime value."""
         # $ Check instance dictionary
         if hasattr(self, "attributes") and name in self.attributes:
@@ -39,7 +40,6 @@ class RuntimeValue:
                     if self.is_method(attr):
                         return attr.bind(self)
                     return attr
-        
         raise errors.InProgress
     
     def set_attribute(self, name, value):
@@ -224,20 +224,20 @@ class NotImplementedValue(RuntimeValue):
         return cls._instance
 
 class ListValue(RuntimeValue):
-    def __init__(self, value):
-        self.value = list(value)
+    def __init__(self, value = None):
+        self.value = list(value or [])
 
 class TupleValue(RuntimeValue):
-    def __init__(self, value):
-        self.value = list(value)
+    def __init__(self, value = None):
+        self.value = list(value or [])
 
 class SetValue(RuntimeValue):
-    def __init__(self, value):
-        self.value = set(value)
+    def __init__(self, value = None):
+        self.value = set(value or [])
 
 class DictValue(RuntimeValue):
-    def __init__(self, value):
-        self.value = dict(value)
+    def __init__(self, value = None):
+        self.value = dict(value or {})
 
 class FnArgument(typing.NamedTuple):
     name: str
@@ -252,9 +252,9 @@ class FnArguments:
                  variadic_pos: FnArgument | None = None,
                  variadic_key: FnArgument | None = None
                 ):
-        self.positional_only_arguments = typing.cast(list[FnArgument], posonlys)
-        self.arguments = typing.cast(list[FnArgument], arguments)
-        self.keyword_only_arguments = typing.cast(list[FnArgument], keyonlys)
+        self.pos_only_args = posonlys or []
+        self.hybrid_args = arguments or []
+        self.kw_only_args = keyonlys or []
         self.variadic_pos = variadic_pos
         self.variadic_key = variadic_key
         for arg_name in ("positional_only_arguments", "arguments", "keyword_only_arguments"):
@@ -284,10 +284,10 @@ class NativeFunctionValue(FunctionValue):
     
     def bind(self, instance):
         args = copy.copy(self.args)
-        if args.positional_only_arguments:
-            args.positional_only_arguments = args.positional_only_arguments[1:]
-        elif args.arguments:
-            args.arguments = args.arguments[1:]
+        if args.pos_only_args:
+            args.pos_only_args = args.pos_only_args[1:]
+        elif args.hybrid_args:
+            args.hybrid_args = args.hybrid_args[1:]
         else:
             raise errors.ValueError("Cannot bind 'self' into method")
         return NativeFunctionValue(
@@ -298,9 +298,9 @@ class NativeFunctionValue(FunctionValue):
         )
     def call(self, parent_env, args: list, kwargs: dict) -> RuntimeValue:
         if self.needs_env:
-            return self.caller(args, kwargs, env = parent_env) # Pass env to natives that need it
+            return self.caller(args, kwargs, env = parent_env)
         else:
-            return self.caller(args, kwargs)  # Most natives don't need env
+            return self.caller(args, kwargs)
 
 class CustomFunctionValue(FunctionValue):
     def __init__(self, 
@@ -316,10 +316,10 @@ class CustomFunctionValue(FunctionValue):
     
     def bind(self, instance):
         args = copy.copy(self.args)
-        if args.positional_only_arguments:
-            args.positional_only_arguments = args.positional_only_arguments[1:]
-        elif args.arguments:
-            args.arguments = args.arguments[1:]
+        if args.pos_only_args:
+            args.pos_only_args = args.pos_only_args[1:]
+        elif args.hybrid_args:
+            args.hybrid_args = args.hybrid_args[1:]
         else:
             raise errors.ValueError("Cannot bind 'self' into method")
         bound_fn = BoundCustomFunction(
@@ -332,11 +332,127 @@ class CustomFunctionValue(FunctionValue):
         )
         return bound_fn
     
-    def call(self, parent_env: env.Env, args: list, kwargs: dict) -> RuntimeValue:
+    def call(self, parent_env: env.Env, args: list[RuntimeValue], kwargs: dict[str, RuntimeValue]) -> RuntimeValue:
         from runtime.interpreter import evaluate
         call_env = env.Env(parent_env)
+        if self.args.variadic_pos is not None:
+            call_env.assign(self.args.variadic_pos.name, TupleValue())
+        if self.args.variadic_key is not None:
+            call_env.assign(self.args.variadic_key.name, DictValue())
+
+        # $ Applying arguments
+        # & Don't ask me it's this long
+
+        def inserted_args_generator():
+            yield from args
+        
+        def expected_pos_only_args_generator():
+            yield from self.args.pos_only_args
+        
+        def expected_hybrid_args_generator():
+            yield from self.args.hybrid_args
+
+        iag = inserted_args_generator()
+        epag = expected_pos_only_args_generator()
+        ehag = expected_hybrid_args_generator()
+        occupied_hybrid_args = []
+        for called, expected in zip(iag, epag):
+            call_env.assign(expected.name, called)
+        
+        # ? Checking whether there's any missing or there's too much arguments
+        number_of_inserted_args = len(args)
+        number_of_expected_posonly_args = len(self.args.pos_only_args)
+
+        if number_of_inserted_args < number_of_expected_posonly_args:
+            if (first_ := next(epag)).default is None:
+                raise errors.ArgumentError(
+                    f"Function {self.name} expecting {number_of_expected_posonly_args} "
+                    f"positional arguments, got {number_of_inserted_args}"
+                )
+            
+            # $ All argument from this point should have default arguments
+            for missing_arg in itertools.chain([first_], epag):
+                if missing_arg.default is None:
+                    raise errors.InternalError(
+                        "It seems that an argument that does not have a default "
+                        f"value ('{missing_arg.name}') appears after an argument "
+                        "with one. This should not happened."
+                    )
+                call_env.assign(missing_arg.name, missing_arg.default)
+        if number_of_expected_posonly_args > number_of_inserted_args:
+            # $ Alright, hybrid arguments time
+            for inserted, expected in zip(iag, ehag):
+                occupied_hybrid_args.append(expected.name)
+                call_env.assign(expected.name, inserted)
+            number_of_inserted_args = number_of_inserted_args - number_of_expected_posonly_args
+            number_of_expected_hybrid_args = len(self.args.hybrid_args)
+            if number_of_inserted_args < number_of_expected_hybrid_args:
+                if (first_ := next(ehag)).default is None:
+                    raise errors.ArgumentError(
+                        f"Function {self.name} expecting {number_of_expected_posonly_args} "
+                        f"positional arguments, got {number_of_inserted_args}"
+                    )
+                
+                # $ All argument from this point should have default arguments
+                for missing_arg in itertools.chain([first_], ehag):
+                    if missing_arg.default is None:
+                        raise errors.InternalError(
+                            "It seems that an argument that does not have a default "
+                            f"value ('{missing_arg.name}') appears after an argument "
+                            "with one. This should not happened."
+                        )
+                    call_env.assign(missing_arg.name, missing_arg.default)
+            elif number_of_inserted_args > number_of_expected_hybrid_args:
+                if self.args.variadic_pos is None:
+                    raise errors.ArgumentError(
+                        f"Expecting {number_of_expected_posonly_args + number_of_expected_hybrid_args}, "
+                        f"got {number_of_inserted_args + number_of_expected_posonly_args}"
+                    )
+                call_env.assign(self.args.variadic_pos.name, TupleValue(iag))
+        
+        # $ Filling in keyword arguments
+        keyword_args = list(ehag) + self.args.kw_only_args
+        keyword_arg_names = [i.name for i in keyword_args]
+
+        for k in list(kwargs.keys()): # Make sure it does NOT change...
+            if k in keyword_arg_names:
+                call_env.assign(k, kwargs.pop(k))
+                index = keyword_arg_names.index(k)
+                keyword_arg_names.pop(index)
+                keyword_args.pop(index)
+            if k in occupied_hybrid_args:
+                raise errors.InternalError(
+                    f"Argument '{k}', which is attempted to being filled "
+                    "using keywords, has already been filled positionally "
+                    f"(at position {occupied_hybrid_args.index(k)}) "
+                )
+        if kwargs:
+            if self.args.variadic_key is None:
+                raise errors.AttributeError(
+                    "Redundant keyword arguments are given "
+                    f"({", ".join(kwargs.keys())})"
+                )
+            call_env.assign(self.args.variadic_key.name, DictValue(kwargs))
+        
+        missing_args = []
+        for i in keyword_args:
+            if i.default is None:
+                missing_args.append(i.name)
+            else:
+                call_env.assign(i.name, i.default)
+        
+        if len(missing_args) == 1:
+            raise errors.AttributeError(
+                f"A keyword argument ({missing_args[0]}) is not filled."
+            )
+        if missing_args:
+            raise errors.AttributeError(
+                f"Missing keyword arguments ({", ".join(missing_args)})"
+            )
+
+        # Run the function
         try:
-            evaluate(self.code_block, parent_env)
+            evaluate(self.code_block, call_env)
         except errors.ReturnValue as e:
             return e.args[0]
         return NULL

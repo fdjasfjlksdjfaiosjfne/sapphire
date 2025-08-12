@@ -2,16 +2,19 @@ from __future__ import annotations
 
 import typing
 from backend import errors
+
+_not_assigned = object()
+
 class Env:
     def __init__(self, parent: typing.Optional[Env] = None):
         self.parent = parent
         self.variables: dict[str, RuntimeValue | None] = {} # pyright: ignore[reportUndefinedVariable]
         self.constants: list[str] = []
 
-    def declare(self, name: str, value: RuntimeValue | None = None, const: bool = False) -> None: # pyright: ignore[reportUndefinedVariable]
+    def declare(self, name: str, value: RuntimeValue | object = _not_assigned, const: bool = False) -> None: # pyright: ignore[reportUndefinedVariable]
         if name in self.variables:
             raise errors.VariableError(f"Variable '{name}' is already declared")
-        if const and value is None:
+        if const and value is _not_assigned:
             raise errors.SyntaxError("A constant declaration must include a value")
         self.variables.setdefault(name, value)
         if const:
@@ -26,11 +29,15 @@ class Env:
                 raise errors.VariableError("Cannot change a constant value")
         self.variables[name] = value
     
-    def get(self, name: str) -> RuntimeValue: # pyright: ignore[reportUndefinedVariable]
-        env = self.resolve(name)
-        var = env.variables.get(name)
+    def get(self, name: str, ignore_parent: bool = False) -> RuntimeValue: # pyright: ignore[reportUndefinedVariable]
+        if ignore_parent:
+            var = self.variables.get(name)
+        else:
+            var = self.resolve(name).variables.get(name)
         if var is None:
-            raise errors.VariableError(f"Variable '{name}', although declared, has not been assigned")
+            raise errors.VariableError(f"Variable '{name}' has not been assigned")
+        if var is _not_assigned:
+            raise errors.VariableError(f"Although declared, variable '{name}' has not been assigned")
         return var
 
     def resolve(self, name: str) -> Env | typing.NoReturn:

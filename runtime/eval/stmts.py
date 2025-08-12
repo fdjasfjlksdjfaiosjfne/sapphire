@@ -6,7 +6,7 @@ from runtime import values
 from backend import errors
 from runtime import native_fns
 
-def eval_program(program: Nodes.ModuleNode, env: Env, /) -> None:
+def eval_module(program: Nodes.ModuleNode, env: Env, /) -> None:
     eval_code_block(program.body, env)
 
 def eval_assignment(assign: Nodes.AssignmentNode, env: Env, /) -> None:
