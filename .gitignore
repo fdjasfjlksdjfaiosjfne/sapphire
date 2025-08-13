@@ -1,3 +1,6 @@
+# Dynamically generated files
+/parser/_lexer/internal_token_types.py
+/parser/_lexer/token_types.py
 # Python
 *.pyc
 

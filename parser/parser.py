@@ -1,5 +1,5 @@
 import typing
-from parser.lexer import Token, TokenType, Tokenizer
+from parser.lexer import TokenType, Tokenizer
 from utils import config
 import parser.nodes as Nodes
 from backend import errors
