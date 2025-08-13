@@ -1,0 +1,282 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "title": "Redefinition",
+    "type": "object",
+    "description": "An category containing possible overrides for certain symbols and keywords in the language.\n",
+    "properties": {
+        "equality": {
+            "type": "string",
+            "enum": [
+                "==",
+                "==="
+            ],
+            "enumDescriptions": [
+                "The standard notation, used in most languages",
+                "JS's symbol for strict equality"
+            ],
+            "default": "=="
+        },
+        "looseEquality": {
+            "type": "string",
+            "enum": [
+                "~=",
+                "=="
+            ],
+            "enumDescriptions": [
+                "",
+                "Use by JS"
+            ],
+            "default": "~="
+        },
+        "inequality": {
+            "type": "string",
+            "enum": [
+                "!=",
+                "><",
+                "<>"
+            ],
+            "enumDescriptions": [
+                "The standard notation, use in most languages",
+                "It looks like a face I suppose...",
+                "A more uncommon symbol. Use by Pascal and Python prior to 3.0"
+            ],
+            "default": "!="
+        },
+        "looseInequality": {
+            "type": "string",
+            "enum": [
+                "!~=", "~!=",
+                "~<>", "~><",
+                "!="
+            ],
+            "enumDescriptions": [
+                "", "", "", "", "Use by JS"
+            ],
+            "default": "!~="
+        },
+        "floorDivision": {
+            "type": ["string", "null"],
+            "enum": [
+                "//",
+                "div",
+                null
+            ],
+            "enumDescriptions": [
+                "Use by Python",
+                "Use by Pascal",
+                "Disable the floor division operator entirely"
+            ],
+            "default": "//"
+        },
+        "modulus": {
+            "type": ["string", "null"],
+            "enum": [
+                "%",
+                "mod",
+                null
+            ],
+            "enumDescriptions": [
+                "Use by most languages",
+                "Use by C",
+                "Disable the modulus operator entirely"
+            ],
+            "default": "%"
+        },
+        "functionDef": {
+            "enum": ["def", "fn", "function", "fun", "func"],
+            "enumDescriptions": [
+                "Use by Python",
+                "Use by Rust",
+                "Use by JavaScript",
+                "Use by Kotlin",
+                "Use by Go"
+            ],
+            "default": "fn"
+        },
+        "classDef": {
+            "type": "string",
+            "enum": [
+                "class",
+                "cls"
+            ],
+            "enumDescriptions": [
+                "The standard notation, use by most languages",
+                "An optional shorthand. It's unknown whether it's used anywhere."
+            ],
+            "default": "class"
+        },
+        "elseIf": {
+            "type": "string",
+            "enum": [
+                "elseif",
+                "else if",
+                "elif",
+                "elsif"
+            ],
+            "enumDescriptions": [
+                "Use by Ruby",
+                "Use by a majority of C-based languages",
+                "Use by Python",
+                "Use by Perl"
+            ],
+            "default": "elif"
+        },
+        "throwError": {
+            "enum": [
+                "throw",
+                "raise",
+                "panic",
+                "die"
+            ],
+            "enumDescriptions": [
+                "Use by most languages",
+                "Use by Python and Dart",
+                "Use by Rust, although not as a statement",
+                "Use by Perl 5"
+            ],
+            "default": "throw"
+        },
+        "matchCaseStatement": {
+            "enum": [
+                "match",
+                "switch"
+            ],
+            "enumDescription": [
+                "Use by Rust and Python",
+                "Use by most other languages, albeit usually to a much less capable version of itself"
+            ],
+            "default": "match"
+        },
+        "handleExceptionPhrase": {
+            "enum": [
+                "catch",
+                "except",
+                "rescue"
+            ],
+            "enumDescriptions": [
+                "Use by most languages",
+                "Use by Python",
+                "Use by ?"
+            ],
+            "default": "catch"
+        },
+        "finalCleanupOfExceptionHandling": {
+            "enum": [
+                "finally",
+                "ensure"
+            ],
+            "enumDescriptions": [
+                "Use by most languages",
+                "Use by ?"
+            ],
+            "default": "finally"
+        },
+        "singleLineComment": {
+            "type": ["string", "null"],
+            "enum": ["#", "//", ";", "--", "%", null],
+            "enumDescriptions": [
+                "Use by Python, Powershell, Ruby, Bash, Perl, Julia, YAML, TOML, CoffeeScript and R, among others",
+                "Use by most C-styled languages. Note that, since this symbol matches the default floor division operator, you'd need to either redefine or disable it.",
+                "Use by Assembly and AutoHotKey. Note that, since this symbol matches the default modulus operator, you'd need to either redefine or disable it.",
+                "Use by Haskell and Lua",
+                "Use by MATLAB",
+                "Diasble single-line comments entirely"
+            ]
+        },
+        "multiLineComment": {
+            "type": ["string", "null"],
+            "enum": [
+                "/* */", "### ###", "#= =#",
+                "#* *#", "(* *)",
+                "<!-- -->", "{# #}", "{{!-- --}}",
+                "{{-- --}}", "--[[ ]]", "#| |#",
+                "%{ }%", null
+            ],
+            "enumDescriptions": [
+                "Use by most languages",
+                "Use by CoffeeScript",
+                "Use by Julia",
+                "Use by Velocity",
+                "Use by F#",
+                "Use by HTML, Markdown, XML among others",
+                "Use by Django, Genshi (not to be confused with Genshin) and Jinja",
+                "Use by Handlebars",
+                "Use by Laravel",
+                "Use by Lua",
+                "Use by Lisp",
+                "Use by MATLAB",
+                "Disable multi-line comments entirely"
+            ],
+            "default": "/* */"
+        },
+        "spaceshipOperator": {
+            "type": ["string", "null"],
+            "enum": ["<=>", ">=<", null],
+            "enumDescriptions": [
+                "The standard notation, use by most languages that has it",
+                "It looks like a quirky face I suppose...",
+                "Disable the spaceship operator entirely"
+            ],
+            "default": "<=>"
+        },
+        "true": {
+            "type": "string",
+            "description": "Note: \n1. This option will be ignored if 'languageCustomization.allowBooleans' is set to false\n2. If 'languageCustomization.caseInsensitiveBooleans' is disabled, certain options allowed will act identically",
+            "enum": ["true", "True", "TRUE", "yes", "Yes", "y", "Y", "Affirmative", "ye", "yup", "yay"],
+            "enumDescriptions": [
+                "The standard notation, use in most languages",
+                "Use by Python",
+                "Use by Excel",
+                "Use as a alternate way of saying 'true' by YAML",
+                "Use as a alternate way of saying 'true' by YAML",
+                "Use as a alternate way of saying 'true' by YAML",
+                "Use as a alternate way of saying 'true' by YAML",
+                "A polite way of saying 'true'",
+                "An informal way of saying 'true'",
+                "An informal way of saying 'true'",
+                "An informal way of saying 'true'"
+            ],
+            "default": "true"
+        },
+        "false": {
+            "type": "string",
+            "description": "Note: \n1. This option will be ignored if 'languageCustomization.allowBooleans' is set to false\n2. If 'languageCustomization.caseInsensitiveBooleans' is disabled, certain options allowed will act identically",
+            "enum": ["false", "False", "FALSE", "no", "No", "n", "N", "Negative", "nah", "nope", "nay"],
+            "enumDescriptions": [
+                "The standard notation, use in most languages",
+                "Use by Python",
+                "Use by Excel",
+                "Use as a alternate way of saying 'false' by YAML",
+                "Use as a alternate way of saying 'false' by YAML",
+                "Use as a alternate way of saying 'false' by YAML",
+                "Use as a alternate way of saying 'false' by YAML",
+                "A polite way of saying 'false'",
+                "An informal way of saying 'false'",
+                "An informal way of saying 'false'",
+                "An informal way of saying 'false'"
+            ],
+            "default": "false"
+        },
+        "null": {
+            "type": "string",
+            "description": "Note: \n1. This option will be ignored if 'languageCustomization.allowNull' is set to false\n2. If 'languageCustomization.caseInsensitiveNull' is disabled, certain options allowed will act identically",
+            "enum": ["null", "Null", "NULL", "None", "none", "NOTHING", "nothing", "Nothing", "undefined", "nil"],
+            "enumDescriptions": [
+                "The standard notation, use in most languages",
+                "The standard notation with a different casing",
+                "The standard notation with a different casing",
+                "Use by Python",
+                "Python's notation with a different casing",
+                "Python's notation with a different casing",
+                "An alternate way of spelling 'null'",
+                "An alternate way of spelling 'null'",
+                "An alternate way of spelling 'null'",
+                "An alternate way of spelling 'null'",
+                "Use by Ruby"
+            ],
+            "default": "null"
+        }
+    },
+    "additionalProperties": false
+
+}

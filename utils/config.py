@@ -38,7 +38,12 @@ def switch_casing(conf: dict) -> dict:
 
 def solidify_config(conf: dict[str, typing.Any]) -> ConfigCls:
     conf_ = switch_casing(conf)
-    customs: dict[str, typing.Any] = conf_.pop("customization", {})
+    if "customization" in conf_ and "customisation" in conf_:
+        raise errors.ConfigError(
+            "Both the American and British spelling of a configuration option"
+            f"('customization' and 'customisation' respectively) is present"
+        )
+    customs: dict[str, typing.Any] = conf_.pop("customization", conf_.pop("customisation", {}))
     redef: dict = customs.pop("redefine", {})
     int_bases: dict = customs.pop("integer_base_literals", {})
     config_version: list[int]|str = conf_.pop("config_version", LASTEST_VERSION)
@@ -87,7 +92,7 @@ def solidify_config(conf: dict[str, typing.Any]) -> ConfigCls:
         if british in customs:
             if american in customs:
                 raise errors.ConfigError(
-                    "Both the American and British spelling of a configuration"
+                    "Both the American and British spelling of a configuration option"
                     f"('{american}' and '{british}' respectively) is present"
                 )
             customs[american] = customs[british]
@@ -162,7 +167,7 @@ def get_config(current_path: pathlib.Path | None = None):
                 "Cannot find the schema to verify the Sapphire config file"
             )
         with open(json_schema_file_path) as schema_file:
-            # & Valid JSON is valid YAML, just use the YAML parser
+            # & Valid JSON is valid YAML, I'll just use the YAML parser
             schema = yaml.safe_load(schema_file)
             with open(file) as f:
                 c_ = yaml.safe_load(f)

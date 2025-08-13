@@ -1,0 +1,66 @@
+{
+    "$defs": {
+        "modeProperty": {
+            "oneOf": [
+                {
+                    "type": "string",
+                    "enum": ["disabled", "enabled", "forced"],
+                    "enumDescriptions": [
+                        "Disables the mode",
+                        "Enables the mode, while maintaining its built-in equivalent implementation",
+                        "Enables the mode, replacing its built-in equivalent implementation"
+                    ]
+                
+                },
+                {
+                    "type": "number", 
+                    "enum": [0, 1, 2],
+                    "enumDescriptions": [
+                        "Disables the mode",
+                        "Enables the mode, while maintaining its built-in equivalent implementation",
+                        "Enables the mode, replacing its built-in equivalent implementation"
+                    ]
+                },
+                {
+                    "type": "boolean", 
+                    "enum": [false, true],
+                    "enumDescriptions": [
+                        "Disables the mode",
+                        "Enables the mode, while maintaining its built-in equivalent implementation"
+                    ]
+                }
+            ]
+        },
+        "unforcedModeProperty": {
+            "oneOf": [
+                {
+                    "type": "string",
+                    "enum": ["disabled", "enabled"]
+                },
+                {
+                    "type": "number",
+                    "enum": [0, 1]
+                },
+                {
+                    "type": "boolean",
+                    "enum": [false, true]
+                }
+            ],
+            "enumDescriptions": [
+                "Disables the mode",
+                "Enables the mode"
+            ]
+        }
+    },
+    "type": "object",
+    "description": "A field where you can enable certain set configurations, which usually contain breaking syntax changes.",
+    "additionalProperties": false,
+    "properties": {
+        "invertedComparisons": {
+            "$ref": "#/$defs/modeProperty"
+        },
+        "methify": {
+            "$ref": "#/$defs/unforcedModeProperty"
+        }
+    }
+}

@@ -1,0 +1,325 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "title": "Language Customization",
+    "description": "A place to add customization that can modify how the compiler treats the code.\nThis can range from minor behavior changes to imcompatible syntax modifiers.\nAlso the simplest way to cause chaos for anyone that doesn't use a proper linter for whatever reason.",
+    "properties": {
+        "redefine": {"$ref": "redefine.schema.json"},
+        "stringInterpolation": {
+            "type": "object",
+            "properties": {
+                "acceessibility": {
+                    "type": "string",
+                    "description": "Determine whether how string interpolation will be access.",
+                    "enum": [
+                        "none",
+                        "optional",
+                        "default"
+                    ],
+                    "enumDescriptions": [
+                        "Disable string interpolation entirely",
+                        "Enable string interpolation by using special syntax",
+                        "Enable string interpolation by default without any special syntax. There may be some syntax to disable it."
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "trailingCommaPolicy": {
+            "type": "string",
+            "enum": ["always", "never", "single_tuple_only"],
+            "enumDescriptions": [
+                "Always allow trailing commas",
+                "Never allow trailing commas",
+                "Only allow in single-element tuples"
+            ],
+            "default": "always"
+        },
+        "softKeywords": {
+            "type": "boolean",
+            "description": "If true, keywords can be used as identifiers in non-keyword contexts.",
+            "default": false
+        },
+        "semicolonRequired": {
+            "type": "boolean",
+            "description": "Determines whether semicolon are required to terminate a statement.",
+            "default": false
+        },
+        "implicitReturn": {
+            "type": "boolean",
+            "description": "If true, functions will automatically return the last evaluated expression in a code block inside of it.",
+            "default": false
+        },
+        "numericSeparator": {
+            "type": "boolean",
+            "description": "If true, numberic literals can have underscores in them as separators.",
+            "default": true
+        },
+        "integerBaseLiterals": {
+            "type": "object",
+            "properties": {
+                "octal": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "hexadecimal": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "decimal": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "binary": {
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "additionalProperties": false
+        },
+        "stringDelimeters": {
+            "type": "array",
+            "items": {"enum": ["\"", "'", "`"]},
+            "uniqueItems": true,
+            "minItems": 1,
+            "additionalItems": false,
+            "default": ["\"", "'", "`"]
+        },
+        "allowGoto": {
+            "type": "boolean",
+            "description": "Determines whether `goto` or similar jump statements are allowed",
+            "default": false
+        },
+        "implicitGlobals": {
+            "type": "boolean",
+            "description": "If true, variables will be global by default unless clearly specified.",
+            "default": false
+        },
+        "functionHoisting": {
+            "type": "boolean",
+            "description": "If true, function declarations will be run before anything else.",
+            "default": true
+        },
+        "typeAnnotations": {
+            "type": "boolean",
+            "description": "If true, type annotations will be enabled",
+            "default": true
+        },
+        "multilineStrings": {
+            "type": "string",
+            "enum": [
+                "disabled",
+                "enabled",
+                "default"
+            ],
+            "enumDescriptions": [
+                "Multiline strings are not allowed",
+                "Multiline strings require explicit syntax (e.g., triple quotes)",
+                "Strings are multiline by default"
+            ]
+        },
+        "optionalCatchBinding": {
+            "type": "boolean",
+            "description": "Allow omitting the error variable in catch/except/rescue blocks.",
+            "default": true
+        },
+        "scientificNotation": {
+            "type": "boolean",
+            "description": "Determines whether scientific notation (e.g. 3e15) is allowed.",
+            "default": true
+        },
+        "looseEquality": {
+            "type": "boolean",
+            "description": "Determines whether the loose equality (~= by default) operator is enabled.",
+            "default": false
+        },
+        "codeBlocks": {
+            "title": "Code Blocks",
+            "type": "string",
+            "description": "How Sapphire should consider as a code block",
+            "enum": [
+                "indentation",
+                "braces",
+                "end"
+            ],
+            "enumDescriptions": [
+                "Uses curly braces (`{...}`) as code blocks",
+                "Use indentation to indicate code blocks",
+                "Use the `end` keyword to end a code block"
+            ],
+            "$comment": "Change this back to 'indentation' once I can make it a thing",
+            "default": "braces"
+        },
+        "binaryExpressionNotation": {
+            "title": "Operator Notation",
+            "type": "string",
+            "description": "This will change how Sapphire parse operators.",
+            "enum": [
+                "infix",
+                "prefix",
+                "postfix"
+            ],
+            "enumDescriptions": [
+                "Infix notation: `a + b`",
+                "Prefix notation: `+ a b`",
+                "Postfix notation: `a b +`"
+            ],
+            "default": "infix"
+        },
+        "oopModel": {
+            "type": "string",
+            "title": "OOP Model",
+            "enum": [
+                "class",
+                "prototype",
+                "hybrid"
+            ],
+            "enumDescriptions": [
+                "Use class-based OOP as its OOP model",
+                "Use prototype-based OOP from JavaScript as its OOP model",
+                "Use both class-based OOP and prototype-based OOP"
+            ],
+            "default": "class"
+        },
+        "forcedEncapsulation": {
+            "title": "Forced Encapsulation",
+            "type": "boolean",
+            "enum": [
+                true,
+                false
+            ],
+            "enumDescriptions": [
+                "Enforced encapsulation",
+                "Uses Python's conventions, by mangling the names of both protected and private methods in places that they shouldn't get accessed"
+            ],
+            "default": true
+        },
+        "encapsulationMethod": {
+            "title": "Encapsulation Method",
+            "description": "Determines how will Sapphire determine the acceessibility of an attribute.",
+            "type": "string",
+            "enum": [
+                "enforced",
+                "pythonic",
+                "disabled"
+            ],
+            "enumDescriptions": [
+                "Use keywords (`private`, `protected`, `public`)",
+                "Uses Pythonic naming conventions. Note that, when `forcedEncapsulation` is set to true, a single-underscore prefix name is analogous to `protected` and a double-underscore prefix name is analogous to `private`.",
+                "All methods and attributes will be public regardless of what. Not recommended."
+            ],
+            "default": "enforced"
+        },
+        "defaultCaseNotation": {
+            "title": "Notation for the default case in a match statement",
+            "type": "string",
+            "enum": [
+                "_",
+                "default",
+                "*"
+            ],
+            "enumDescriptions": [
+                "The default case will be written as `case _`. Use by Rust and Python",
+                "The default case will be written as `default`. Use by C, C++, and more",
+                "The default case will be written as `case *`. `*` is more universally associated to 'match anything' than `_`"
+            ],
+            "default": "_"
+        },
+        "allowBooleans": {
+            "title": "Allow Booleans",
+            "description": "Determines whether you can use booleans",
+            "type": "boolean",
+            "default": true
+        },
+        "allowNull": {
+            "title": "Allow Null",
+            "description": "Determines whether you can use null",
+            "type": "boolean",
+            "default": true
+        },
+        "caseInsensitiveBooleans": {
+            "title": "Case Insensitive Booleans",
+            "description": "Determines whether booleans are case-insensitive",
+            "type": "boolean",
+            "default": true
+        },
+        "caseInsensitiveNull": {
+            "title": "Case Insensitive Null",
+            "description": "Determines whether null is case-insensitive",
+            "type": "boolean",
+            "default": true
+        }
+    },
+    "$comment": "The next section is made as some love to Brits. Y'all have suffer for way too long at this point.",
+    "patternProperties": {
+        "mutableValueAssignmentBehaviou?r": {
+            "$comment": "This allows both 'mutableValueAssignmentBehavior' and 'mutableValueAssignmentBehaviour' to exists at the same time.",
+            "title": "Mutable Value Assignment Behavior",
+            "description": "Determines the behavior when a variable that contains a mutable value (e.g. a list) is used as the value expression in an assignment statement.",
+            "type": "string",
+            "enum": [
+                "copy",
+                "reference"
+            ],
+            "enumDescriptions": [
+                "Copies the value and assign the copy to the variable. This behavior is generally more predictable, at the cost of some extra memory.",
+                "Assign the variable a reference to the existing value."
+            ],
+            "default": "copy"
+        },
+        "mutableArgumentDefaultValueBehaviou?r": {
+            "title": "Mutable Argument Default Value Behavior",
+            "description": "Determines the behavior when a value that contains a mutable value (e.g. a list) is used as the default value for an argument in a function.",
+            "type": "string",
+            "enum": [
+                "copy",
+                "reference"
+            ],
+            "enumDescriptions": [
+                "Copies the value and assign the copy to the argument, should it ever be undefined. This behavior is a lot more predictable, at the cost of some extra time processing the value, every call.",
+                "Assign the variable a reference to the existing value."
+            ],
+            "default": "copy"
+        },
+        "logicalOperatorBehaviou?r": {
+            "title": "Logical Operator Behavior",
+            "description": "Determines what logical operators (`and` / `or` / `xor`) will return",
+            "type": "string",
+            "enum": [
+                "boolean_only",
+                "pythonic",
+                "extended_pythonic"
+            ],
+            "enumDescriptions": [
+                "Only explicitly returns boolean values (`true`/`false`). Doesn't apply to custom behaviors via duck typing.",
+                "Uses Python's convention. The `or` operator will return the first operand if it's truthy, and the `and` operator will return the first operand if it's falsy. The `xor` operator will still return booleans.",
+                "The same as 'pythonic', except that the logical `xor` will now return whichever operand is truthy, when only one of them are truthy. It will still return `false` if both are truthy or falsy."
+            ],
+            "default": "extended_pythonic"
+        }
+    },
+    "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "stringInterpolation": {
+                                "properties": {
+                                    "mode": {"const": "default"}
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "redefine": {
+                                "stringInterpolationPrefix": {
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+    "additionalProperties": false
+
+}
