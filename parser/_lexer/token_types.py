@@ -156,7 +156,9 @@ class TokenType(TokenTypeEnum):
             MatrixMultiplication = InternalTokenType.Symbols.At
             Exponentiation = InternalTokenType.Symbols.DoubleAsterisk
             Equality = InternalTokenType.Symbols.DoubleEqual
+            LooseEquality = InternalTokenType.Symbols.TildaAndEqual
             Inequality = InternalTokenType.Symbols.ExclamationAndEqual
+            LooseInequality = InternalTokenType.Symbols.ExclamationAndTildaAndEqual
             LessThan = InternalTokenType.Symbols.LessThan
             GreaterThan = InternalTokenType.Symbols.GreaterThan
             LessThanOrEqualTo = InternalTokenType.Symbols.LessThanAndEqual
@@ -221,22 +223,22 @@ InvertedComparisons = Templates.InvertedComparisons
 __all__ = [
     "TokenType",
     "TokenTypeEnum",
-    "Parentheses",
-    "RightyAugmentedAssignOpers",
+    "ExceptionHandling",
+    "LeftyAugmentedAssignOpers",
+    "UnaryOperators",
     "InvertedComparisons",
-    "Templates",
-    "Statements",
-    "MatchCase",
     "Declarations",
     "Loops",
     "Conditional",
-    "ExceptionHandling",
-    "BinaryOperators",
-    "Operators",
-    "LeftyAugmentedAssignOpers",
-    "Symbols",
     "TernaryOperators",
-    "Primitives",
-    "UnaryOperators",
+    "Templates",
+    "Statements",
+    "RightyAugmentedAssignOpers",
     "AugmentedAssignOpers",
+    "Parentheses",
+    "MatchCase",
+    "Operators",
+    "BinaryOperators",
+    "Primitives",
+    "Symbols",
 ]

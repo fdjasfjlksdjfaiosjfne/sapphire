@@ -5,16 +5,16 @@ import typing
 # ~ Feel free to comment out if it cause any problems
 # ~ Made by ChatGPT, might be brittle
 # & Thanks for the unelegant elegant importing system, Python.
-if __name__ == "__main__" and __package__ is None:
-    import sys
-    from pathlib import Path
+# if __name__ == "__main__" and __package__ is None:
+#     import sys
+#     from pathlib import Path
 
-    # Emulate as if we're inside the 'Sapphire' folder
-    sapphire_root = Path(__file__).resolve().parent.parent.parent.parent
-    sys.path.insert(0, str(sapphire_root))
+#     # Emulate as if we're inside the 'Sapphire' folder
+#     sapphire_root = Path(__file__).resolve().parent.parent.parent.parent
+#     sys.path.insert(0, str(sapphire_root))
 
-    # Optional but sometimes needed to avoid relative import failures
-    __package__ = "parser.parsing.exprs"
+#     # Optional but sometimes needed to avoid relative import failures
+#     __package__ = "parser.parsing.exprs"
 
 from backend import errors
 from parser.lexer import TokenType, UnaryOperators, TernaryOperators
@@ -23,6 +23,7 @@ from utils.config import CONFIG
 from parser.exprs.sap_collections import Collections
 from parser.exprs.attr_sub_call import AttributeSubcriptionCall
 from parser.exprs.strs import Strings
+from parser.exprs.binops import BinaryOperations
 
 # ^ The order of precendence, the top being the one that is processed first
 # Note that the last will be called first
@@ -48,7 +49,7 @@ from parser.exprs.strs import Strings
 ## [x] Assignment Operator (':=')
 ## [x] '[1, 2, 3, 4]' '{1, 2, 3, 4}' '{"a": "b"}'
 
-class Exprs(Collections, AttributeSubcriptionCall, Strings):
+class Exprs(Collections, BinaryOperations, AttributeSubcriptionCall, Strings):
 
     def _parse_expr(self, **context) -> Nodes.ExprNode:
         return self._parse_collections_expr(**context)

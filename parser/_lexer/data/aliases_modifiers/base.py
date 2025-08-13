@@ -8,6 +8,8 @@ def ne():
     match redefine.inequality:
         case "!=":
             return "Symbols", "ExclamationAndEqual"
+        case "!==":
+            return ("Symbols", "ExclamationAndDoubleEqual")
         case "<>":
             return "Symbols", "Diamond"
         case "><":

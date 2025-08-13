@@ -5,7 +5,7 @@ from utils._config.conf_base_classes import custom_dataclass
 
 from backend import errors
 
-LASTEST_VERSION = (0,0,4)
+LASTEST_VERSION = (0,0,5)
 class CustomizationMode(enum.Enum):
     Disabled = 0
     Enabled = 1
@@ -63,6 +63,7 @@ class CustomizationCls:
     mutable_value_assignment_behavior: typing.Literal["copy", "reference"] = "copy"
     mutable_argument_default_value_behavior: typing.Literal["copy", "reference"] = "copy"
     trailing_comma_policy: typing.Literal["always", "never", "single_tuple_only"] = "always"
+    loose_equality: bool = False
     soft_keywords: bool = False
     semicolon_required: bool = False
     implicit_return: bool = False

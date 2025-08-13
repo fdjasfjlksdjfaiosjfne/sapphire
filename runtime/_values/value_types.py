@@ -56,7 +56,7 @@ class RuntimeValue:
 
 class Type(RuntimeValue):
     """Represents classes/types (like Python's type)"""
-    def __init__(self, name, bases = None, methods = None):
+    def __init__(self, name, bases: list[Type] | None = None, methods = None):
         super().__init__()
         self.name = name
         self.bases = bases or []
@@ -70,7 +70,7 @@ class Type(RuntimeValue):
             return [self]
         
         base_mros = [base.mro for base in self.bases]
-        mro = [self] + self._c3_merge(base_mros + list(self.bases))
+        mro = [self] + self._c3_merge(base_mros + [self.bases])
         return mro
     
     def _c3_merge(self, sequences):

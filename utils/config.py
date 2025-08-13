@@ -38,10 +38,10 @@ def switch_casing(conf: dict) -> dict:
 
 def solidify_config(conf: dict[str, typing.Any]) -> ConfigCls:
     conf_ = switch_casing(conf)
-    customs: dict[str, typing.Any] = conf_.get("customization", {})
+    customs: dict[str, typing.Any] = conf_.pop("customization", {})
     redef: dict = customs.pop("redefine", {})
     int_bases: dict = customs.pop("integer_base_literals", {})
-    config_version: list[int]|str = conf.get("config_version", LASTEST_VERSION)
+    config_version: list[int]|str = conf_.pop("config_version", LASTEST_VERSION)
     cus_opts: dict = conf_.get("custom_options", {})
     templates: dict = conf_.get("template", {})
     mtc: str = redef.pop("multi_line_comment", "/* */")
@@ -54,7 +54,7 @@ def solidify_config(conf: dict[str, typing.Any]) -> ConfigCls:
     # & What's so important about supporting older development versions anyway?
     # & They just exist for like, a few days at most
     # & I'll add them once it's mainstream...Which is basically never.
-    if config_version != LASTEST_VERSION:
+    if tuple(config_version) != LASTEST_VERSION:
         raise errors.InternalError(
             "Due to the developer having an overdose of laziness, version "
             f"{".".join(str(i) for i in config_version)} is not supported. "
@@ -81,10 +81,6 @@ def solidify_config(conf: dict[str, typing.Any]) -> ConfigCls:
         in templates.items()
     }
 
-    customs = typing.cast(dict[str, typing.Any], conf_.get("customization", {}))
-    redef: dict = customs.pop("redefine", {})
-    int_bases = customs.pop("integer_base_literals", {})
-
     for american, british in [("mutable_value_assignment_behavior", "mutable_value_assignment_behaviour"), 
                               ("mutable_argument_default_value_behavior", "mutable_argument_default_value_behaviour"), 
                               ("logical_operator_behavior", "logical_operator_behaviour")]:
@@ -98,20 +94,20 @@ def solidify_config(conf: dict[str, typing.Any]) -> ConfigCls:
             del customs[british]
 
     # ^ Check for identical values
-    redef_keys: dict[str, list] = {}
+    redefs: dict[str, list] = {}
     for k, val in redef.items():
         if val is None:
             continue
-        if val in redef_keys:
-            redef_keys[val].append(k)
-        redef_keys[val] = [k]
+        if val not in redefs:
+            redefs[val] = []
+        redefs[val].append(k)
     
-    duplicates = [v for v in redef_keys.values() if len(v) == 2]
+    duplicates = [v for v in redefs.values() if len(v) == 2]
     if duplicates:
         if len(duplicates) > 1:
             start_msg = "Duplicates have"
         else:
-            start_msg = "Dupliccate has"
+            start_msg = "Duplicate has"
         raise errors.ConfigError(
             f"{start_msg} been found: {"; ".join(str(i) for i in duplicates)}"
         )
@@ -139,7 +135,7 @@ def solidify_config(conf: dict[str, typing.Any]) -> ConfigCls:
 
 CONFIG = solidify_config({})
 
-def get_config_dict(current_path: pathlib.Path | None = None):
+def get_config(current_path: pathlib.Path | None = None):
     global CONFIG
 
     if current_path == None:
@@ -160,7 +156,12 @@ def get_config_dict(current_path: pathlib.Path | None = None):
         config_files.extend(matches)
     
     for file in config_files:
-        with open(pathlib.Path(__file__).parent / "utils" / "sapconfig.schema.json") as schema_file:
+        json_schema_file_path = pathlib.Path(__file__).parent / "sapconfig.schema.json"
+        if not json_schema_file_path.exists():
+            raise errors.InternalError(
+                "Cannot find the schema to verify the Sapphire config file"
+            )
+        with open(json_schema_file_path) as schema_file:
             # & Valid JSON is valid YAML, just use the YAML parser
             schema = yaml.safe_load(schema_file)
             with open(file) as f:

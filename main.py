@@ -11,7 +11,7 @@ from utils import config
 # & I'm too lazy to setup args
 path = pathlib.Path(input("Path: "))
 
-config_ = config.get_config_dict(path)
+config_ = config.get_config(path)
 
 # ^ Reading the code
 try:

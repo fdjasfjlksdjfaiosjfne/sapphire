@@ -7,8 +7,18 @@ from utils.config import CONFIG, CustomizationMode
 cus = CONFIG.customization
 redef = cus.redefine
 
-class TokenPattern:
-    pattern: typing.Any
+@dataclasses.dataclass
+class StringTokenPattern:
+    pattern: str
+    associated_type: tuple[str, ...]
+
+@dataclasses.dataclass
+class RegExTokenPattern:
+    pattern: regex.Pattern
+    associated_type: tuple[str, ...]
+
+class TokenPattern(StringTokenPattern, RegExTokenPattern):
+    pattern: str | regex.Pattern # pyright: ignore[reportIncompatibleVariableOverride]
     associated_type: tuple[str, ...]
     def __new__(cls, pattern: typing.Any, associated_type: tuple[str, ...]):
         if isinstance(pattern, str):
@@ -17,17 +27,7 @@ class TokenPattern:
             return RegExTokenPattern(pattern, associated_type)
         raise errors.InternalError(
             f"'pattern' is of invalid type ('{type(pattern)!r}')"
-        )
-
-@dataclasses.dataclass
-class StringTokenPattern(TokenPattern):
-    pattern: str
-    associated_type: tuple[str, ...]
-
-@dataclasses.dataclass
-class RegExTokenPattern(TokenPattern):
-    pattern: regex.Pattern
-    associated_type: tuple[str, ...]
+    )
 
 S = typing.TypeVar("S", bound = list[StringTokenPattern])
 R = typing.TypeVar("R", bound = list[RegExTokenPattern])
@@ -173,7 +173,7 @@ def _numbers(plains: S, regexes: R) -> tuple[S, R]:
         )
     return plains, regexes
 
-def templates(plains: S, regexes: R) -> tuple[S, R]:
+def _templates(plains: S, regexes: R) -> tuple[S, R]:
     if CONFIG.templates.inverted_comparisons != CustomizationMode.Disabled:
         plains += [
             StringTokenPattern("!<>", ("Templates", "InvertedComparisons", "EqualityWithDiamond")),
@@ -185,12 +185,19 @@ def templates(plains: S, regexes: R) -> tuple[S, R]:
         ]
     return plains, regexes
 
-def inject_patterns(plains: S, regexes: R) -> tuple[S, R]:
-    plains, regexes = _numbers(*_str(*_null(*_booleans(plains, regexes))))
-    # ^ Single-line comments
+def _single_line_comments(plains: S, regexes: R) -> tuple[S, R]:
     if redef.single_line_comment is not None:
         regexes.append(RegExTokenPattern(
             regex.compile(f"{redef.single_line_comment}.*"),
             ("_IgnoreByTokenizer",)
         ))
     return plains, regexes
+
+def inject_patterns(p: S, r: R) -> tuple[S, R]:
+    _numbers(p, r)
+    _str(p, r)
+    _null(p, r)
+    _booleans(p, r)
+    _templates(p, r)
+    _single_line_comments(p, r)
+    return p, r

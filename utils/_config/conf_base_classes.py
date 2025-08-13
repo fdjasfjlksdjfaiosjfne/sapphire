@@ -101,7 +101,6 @@ class CustomDataclass:
             # Call original init
             original_init(self, *args, **kwargs)
         
-        # Legacy method for dynamic checking (keeping your old API)
         def is_filled(self, field_name: str) -> bool:
             """Legacy method for dynamic field checking."""
             return self._field_info[field_name]._is_explicit

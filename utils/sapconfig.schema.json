@@ -66,6 +66,29 @@
                     "type": "object",
                     "description": "An object containing possible overrides for certain symbols and keywords in the language.\n",
                     "properties": {
+                        "equality": {
+                            "type": "string",
+                            "enum": [
+                                "==",
+                                "==="
+                            ],
+                            "enumDescriptions": [
+                                "The standard notation, used in most languages",
+                                "JS's symbol for strict equality"
+                            ],
+                            "": []
+                        },
+                        "looseEquality": {
+                            "type": "string",
+                            "enum": [
+                                "~=",
+                                "=="
+                            ],
+                            "enumDescriptions": [
+                                "",
+                                "Use by JS"
+                            ]
+                        },
                         "inequality": {
                             "type": "string",
                             "enum": [
@@ -79,6 +102,18 @@
                                 "A more uncommon symbol. Use by Pascal and Python prior to 3.0"
                             ],
                             "default": "!="
+                        },
+                        "looseInequality": {
+                            "type": "string",
+                            "enum": [
+                                "!~=",
+                                "~!=",
+                                "!="
+                            ],
+                            "enumDescriptions": [
+                                "", "", "Use by JS"
+                            ],
+                            "default": "!~="
                         },
                         "floorDivision": {
                             "type": ["string", "null"],
@@ -103,8 +138,8 @@
                             ],
                             "enumDescriptions": [
                                 "Use by most languages",
-                                "Use by...eh...idk.",
-                                "Disable the modulus operator entirely."
+                                "Use by C",
+                                "Disable the modulus operator entirely"
                             ],
                             "default": "%"
                         },
@@ -407,6 +442,11 @@
                     "type": "boolean",
                     "description": "Determines whether scientific notation (e.g. 3e15) is allowed.",
                     "default": true
+                },
+                "looseEquality": {
+                    "type": "boolean",
+                    "description": "Determines whether the loose equality (~= by default) operator is enabled.",
+                    "default": false
                 },
                 "codeBlocks": {
                     "title": "Code Blocks",
