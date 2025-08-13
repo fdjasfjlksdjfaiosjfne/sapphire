@@ -3,7 +3,7 @@
 import itertools
 import pathlib
 import sys
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent.parent))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent.parent))
 from parser._lexer.data.aliases import ALIASES
 
 CLASS_NAME = "TokenType"

@@ -5,7 +5,7 @@ import itertools
 import pathlib
 import sys
 import typing
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent.parent))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent.parent))
 
 from backend import errors
 from parser._lexer.data.aliases import get_all_itt_used
@@ -116,7 +116,7 @@ def write_file():
         "        return next(_global_counter)"
     ]
 
-    with open(pathlib.Path(__file__).parent.parent / "internal_token_types.py", "w", encoding = "utf-8") as f:
+    with open(pathlib.Path(__file__).resolve().parent.parent / "internal_token_types.py", "w", encoding = "utf-8") as f:
         lines += asyncio.run(write_class())
         f.write("\n".join(lines))
 

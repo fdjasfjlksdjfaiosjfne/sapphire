@@ -1,9 +1,10 @@
 import pytest
+import pathlib
 import sys
-sys.path.insert(0, r"C:\Users\Tien Dung\Dropbox\Script\Sapphire Family\Sapphire")
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from parser.parser import Parser
 from backend import errors
-from parser.lexer._lexer_lexer import TokenType, Token
+from parser.lexer import TokenType, Token, BinaryOperators
 from parser import nodes as Nodes
 
 @pytest.mark.parametrize("src,expected", [
@@ -11,7 +12,7 @@ from parser import nodes as Nodes
         Nodes.CodeBlockNode([
             Nodes.BinaryNode(
             left = Nodes.IntNode(1),
-            oper = TokenType.BINOP_Addition,
+            oper = TokenType.Operators.Binary.Addition,
             right = Nodes.IntNode(2)
             )
         ])
@@ -20,10 +21,10 @@ from parser import nodes as Nodes
         Nodes.CodeBlockNode([
             Nodes.BinaryNode(
                 left = Nodes.IntNode(3),
-                oper = TokenType.BINOP_Addition,
+                oper = TokenType.Operators.Binary.Addition,
                 right = Nodes.BinaryNode(
                     left = Nodes.FloatNode(24.37),
-                    oper = TokenType.BINOP_Multiplication,
+                    oper = TokenType.Operators.Binary.Multiplication,
                     right = Nodes.IdentifierNode("foo")
                 )
             )

@@ -2,6 +2,12 @@
 Test cases for Method Resolution Order (MRO) algorithm using pytest
 """
 import pytest
+import sys
+import pathlib
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+
+from backend import errors
 from runtime.values import Type
 
 def test_single_inheritance():
@@ -90,7 +96,7 @@ def test_multiple_inheritance():
 def test_impossible_mro():
     """Test case that should fail due to inconsistent MRO"""
     
-    with pytest.raises(TypeError, match="Inconsistent MRO"):
+    with pytest.raises(errors.SapphireError, match="Inconsistent MRO"):
         # Create a problematic hierarchy
         A = Type("A")
         B = Type("B", [A])
@@ -107,4 +113,4 @@ if __name__ == "__main__":
     test_complex_inheritance()
     test_multiple_inheritance()
     test_impossible_mro()
-    print("🎉 All MRO tests passed!")
+    print("All MRO tests passed HELL YEAH")

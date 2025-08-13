@@ -1,41 +1,41 @@
 import pytest
+import pathlib
 import sys
-from pprint import pprint
 
-sys.path.insert(0, r"C:\Users\Tien Dung\Dropbox\Script\Sapphire Family\Sapphire")
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
-from parser.lexer._lexer_lexer import Tokenizer, Token, TokenType
+from parser.lexer import Tokenizer, Token, TokenType
 
 @pytest.mark.parametrize("src,expected", [
     ("1 + 2", [
-        Token(TokenType.PV_Int, "1"),
-        Token(TokenType.BINOP_Addition),
-        Token(TokenType.PV_Int, "2"),
+        Token(TokenType.Primitives.Int, "1"),
+        Token(TokenType.Operators.Binary.Addition),
+        Token(TokenType.Primitives.Int, "2"),
         Token(TokenType.EoF)
     ]),
     ("print('Hello World!')", [
         Token(TokenType.Identifier, "print"),
-        Token(TokenType.PR_OpenParenthesis),
-        Token(TokenType.PV_String, "'Hello World!'"),
-        Token(TokenType.PR_CloseParenthesis),
+        Token(TokenType.Parentheses.OpenParenthesis),
+        Token(TokenType.Primitives.String, "'Hello World!'"),
+        Token(TokenType.Parentheses.CloseParenthesis),
         Token(TokenType.EoF)
     ]),
     ("sapphire_root = Path(__file__).resolve().parent.parent.parent", [
         Token(TokenType.Identifier, "sapphire_root"),
-        Token(TokenType.AssignOper),
+        Token(TokenType.Symbols.AssignOper),
         Token(TokenType.Identifier, "Path"),
-        Token(TokenType.PR_OpenParenthesis),
+        Token(TokenType.Parentheses.OpenParenthesis),
         Token(TokenType.Identifier, "__file__"),
-        Token(TokenType.PR_CloseParenthesis),
-        Token(TokenType.SYM_Dot),
+        Token(TokenType.Parentheses.CloseParenthesis),
+        Token(TokenType.Symbols.AttributeAccess),
         Token(TokenType.Identifier, "resolve"),
-        Token(TokenType.PR_OpenParenthesis),
-        Token(TokenType.PR_CloseParenthesis),
-        Token(TokenType.SYM_Dot),
+        Token(TokenType.Parentheses.OpenParenthesis),
+        Token(TokenType.Parentheses.CloseParenthesis),
+        Token(TokenType.Symbols.AttributeAccess),
         Token(TokenType.Identifier, "parent"),
-        Token(TokenType.SYM_Dot),
+        Token(TokenType.Symbols.AttributeAccess),
         Token(TokenType.Identifier, "parent"),
-        Token(TokenType.SYM_Dot),
+        Token(TokenType.Symbols.AttributeAccess),
         Token(TokenType.Identifier, "parent"),
         Token(TokenType.EoF)
     ]),

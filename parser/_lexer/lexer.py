@@ -3,6 +3,7 @@ import ast
 import typing
 import regex
 from backend import errors
+from parser._lexer.data.pattern_injection import TokenPattern
 from parser._lexer.token_types import TokenTypeEnum
 from parser._lexer.internal_token_types import InternalTokenType, ITTTypeChecking
 from parser._lexer.data.patterns import (
@@ -23,7 +24,10 @@ TokenTypeSequence: typing.TypeAlias = (
 )
 
 class Token:
-    def __init__(self, type: TokenTypeEnum | ITTTypeChecking, value: str = ""):
+    def __init__(self, 
+                 type: TokenTypeEnum | ITTTypeChecking, 
+                 value: str = "" # This won't always be an string, it's just the most common occurence by FAR
+                 ):
         self.type = type
         self.value = value
 
@@ -87,18 +91,20 @@ class Tokenizer:
                     else:
                         self.src = self.src[1:]
         
-        # ^ Strings
-        
+        if self.src.startswith(self._get_start_of_format_strings()):
+            pass
 
         # ^ Everything else
         for token_pattern in self.token_patterns:
             if isinstance(token_pattern, RegExTokenPattern):
+                assert isinstance(token_pattern.pattern, regex.Pattern)
                 if m := token_pattern.pattern.match(self.src):
                     return self._emit_token(
                         match = m.group(),
                         token_type = self.resolve_itt_tuple(token_pattern.associated_type)
                     )
             elif isinstance(token_pattern, StringTokenPattern):
+                assert isinstance(token_pattern.pattern, str)
                 if self.src.startswith(token_pattern.pattern):
                     return self._emit_token(
                         match = token_pattern.pattern,
@@ -110,6 +116,10 @@ class Tokenizer:
                 )
         else:
             raise errors.SyntaxError(f"Invalid character found: U+{ord(self.src):x}")
+
+    @staticmethod
+    def _get_start_of_format_strings() -> tuple[str]:
+        ...
 
     @staticmethod
     def resolve_itt_tuple(tple: tuple[str, ...]) -> InternalTokenType:
@@ -124,6 +134,14 @@ class Tokenizer:
                 return getattr(InternalTokenType.Parentheses, name)
             case ("Primitives", name):
                 return getattr(InternalTokenType.Primitives, name)
+            case ("Templates", category, name):
+                return getattr(
+                    getattr(
+                        getattr(InternalTokenType, "Templates"),
+                        category
+                    ),
+                    name
+                )
             case _:
                 raise errors.InternalError(
                     "反恐打击非法你的卡覅哦啊就是覅加覅哦按实际覅怕佛都叫哦阿斯顿覅哦啊冰淇淋"
@@ -146,9 +164,9 @@ class Tokenizer:
         if tok_types is None: 
             tok_types = tuple()
         elif isinstance(tok_types, TokenTypeEnum):
-            tok_types = (tok_types, )
+            tok_types = (tok_types,)
         elif isinstance(tok_types, ITTTypeChecking):
-            tok_types = (tok_types, )
+            tok_types = (tok_types,)
         
         if len(tok_types) != 0:
             if tok.type not in tok_types:

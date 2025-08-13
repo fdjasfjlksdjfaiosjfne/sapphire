@@ -7,7 +7,7 @@ import jsonschema.validators
 import yaml
 import regex
 
-import sys, pathlib;sys.path.insert(0,str(pathlib.Path(__file__).parent.parent))
+import sys, pathlib;sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent.parent))
 
 from utils._config.conf_dataclasses import (
     CustomizationMode,
@@ -161,12 +161,13 @@ def get_config(current_path: pathlib.Path | None = None):
         config_files.extend(matches)
     
     for file in config_files:
-        json_schema_file_path = pathlib.Path(__file__).parent / "sapconfig.schema.json"
-        if not json_schema_file_path.exists():
+        schema_path = pathlib.Path(__file__).resolve().parent / "schemas" / "main.schema.json"
+        if not schema_path.exists():
             raise errors.InternalError(
-                "Cannot find the schema to verify the Sapphire config file"
+                "Cannot find the schema to verify the Sapphire config file "
+                f"({schema_path})"
             )
-        with open(json_schema_file_path) as schema_file:
+        with open(schema_path) as schema_file:
             # & Valid JSON is valid YAML, I'll just use the YAML parser
             schema = yaml.safe_load(schema_file)
             with open(file) as f:
