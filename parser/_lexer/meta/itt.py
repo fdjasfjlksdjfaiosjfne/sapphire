@@ -8,13 +8,16 @@ import typing
 import os
 import dotenv_vault
 
-from backend import errors
-from parser._lexer.data.aliases import get_all_itt_used
+
 
 dotenv_vault.load_dotenv()
 if not (ROOT_PATH := os.getenv("ROOT_PATH")):
-    raise errors.InternalError("ROOT_PATH does not exist in .env")
+    raise ValueError("ROOT_PATH does not exist in .env")
 sys.path.insert(0, ROOT_PATH)
+
+from backend import errors
+from parser._lexer.data.aliases import get_all_itt_used
+
 GENERATED_FILE_PATH = (pathlib.Path(ROOT_PATH) / "parser" / "_lexer" / "internal_token_types.py").resolve()
 
 async def write_subclass(name: str, ls: typing.Iterable[dict | str], indent = 4) -> list[str]:

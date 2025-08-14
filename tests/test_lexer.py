@@ -4,13 +4,15 @@ import sys
 import dotenv_vault
 import os
 
-from backend import errors
-from parser.lexer import Tokenizer, Token, TokenType
+
 
 dotenv_vault.load_dotenv()
 if not (ROOT_PATH := os.getenv("ROOT_PATH")):
-    raise errors.InternalError("ROOT_PATH does not exist in .env")
+    raise ValueError("ROOT_PATH does not exist in .env")
 sys.path.insert(0, ROOT_PATH)
+
+from backend import errors
+from parser.lexer import Tokenizer, Token, TokenType
 
 @pytest.mark.parametrize("src,expected", [
     ("1 + 2", [
