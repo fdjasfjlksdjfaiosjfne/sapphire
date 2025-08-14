@@ -1,5 +1,6 @@
 from __future__ import annotations
-
+import dotenv_vault
+import os
 import jsonschema.exceptions
 import jsonschema.validators
 import typing
@@ -8,10 +9,11 @@ import sys
 import yaml
 import regex
 
-sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent.parent))
+dotenv_vault.load_dotenv()
+sys.path.insert(0, os.getenv("ROOT_PATH") or "")
 
 from backend import errors
-from utils._config.conf_dataclasses import (
+from backend._config.conf_dataclasses import (
     CustomizationMode,
     CustomizationCls,
     ConfigCls,
@@ -186,7 +188,7 @@ def get_config(current_path: pathlib.Path | None = None):
         config_files.extend(matches)
     
     for file in config_files:
-        schema_path = pathlib.Path(__file__).resolve().parent / "schemas" / "main.schema.json"
+        schema_path = (pathlib.Path(__file__).parent / "schemas" / "main.schema.json").resolve()
         if not schema_path.exists():
             raise errors.InternalError(
                 "Cannot find the schema to verify the Sapphire config file "

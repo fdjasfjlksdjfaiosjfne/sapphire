@@ -3,10 +3,19 @@
 import itertools
 import pathlib
 import sys
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent.parent))
+import dotenv_vault
+import os
+
+from backend import errors
 from parser._lexer.data.aliases import ALIASES
 
 CLASS_NAME = "TokenType"
+
+dotenv_vault.load_dotenv()
+if not (ROOT_PATH := os.getenv("ROOT_PATH")):
+    raise errors.InternalError("ROOT_PATH does not exist in .env")
+sys.path.insert(0, ROOT_PATH)
+GENERATED_FILE_PATH = (pathlib.Path(ROOT_PATH) / "parser" / "_lexer" / "token_types.py").resolve()
 
 def resolve_enum(node):
     return f"InternalTokenType.{".".join(node)}"

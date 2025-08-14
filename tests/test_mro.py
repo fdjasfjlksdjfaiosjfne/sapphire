@@ -4,11 +4,16 @@ Test cases for Method Resolution Order (MRO) algorithm using pytest
 import pytest
 import sys
 import pathlib
-
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+import dotenv_vault
+import os
 
 from backend import errors
 from runtime.values import Type
+
+dotenv_vault.load_dotenv()
+if not (ROOT_PATH := os.getenv("ROOT_PATH")):
+    raise errors.InternalError("ROOT_PATH does not exist in .env")
+sys.path.insert(0, ROOT_PATH)
 
 def test_single_inheritance():
     """Test simple single inheritance chain"""

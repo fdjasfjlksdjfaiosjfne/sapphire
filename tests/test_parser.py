@@ -1,11 +1,18 @@
 import pytest
 import pathlib
 import sys
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+import dotenv_vault
+import os
+
 from parser.parser import Parser
 from backend import errors
 from parser.lexer import TokenType, Token, BinaryOperators
 from parser import nodes as Nodes
+
+dotenv_vault.load_dotenv()
+if not (ROOT_PATH := os.getenv("ROOT_PATH")):
+    raise errors.InternalError("ROOT_PATH does not exist in .env")
+sys.path.insert(0, ROOT_PATH)
 
 @pytest.mark.parametrize("src,expected", [
     ("1 + 2", Nodes.ModuleNode(

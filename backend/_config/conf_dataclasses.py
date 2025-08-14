@@ -1,8 +1,7 @@
 import typing
 import dataclasses
 import enum
-from utils._config.conf_base_classes import custom_dataclass
-
+from backend._config.conf_base_classes import custom_dataclass
 from backend import errors
 
 LASTEST_VERSION = (0,0,5)
