@@ -3,7 +3,7 @@ import typing
 
 from backend import errors
 from parser.lexer import Token, TokenType, Tokenizer, TokenTypeSequence, TokenTypeEnum
-from utils.config import ConfigCls, CONFIG
+from backend.config import ConfigCls, CONFIG
 from parser import nodes
 
 

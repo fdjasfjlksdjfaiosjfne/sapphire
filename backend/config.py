@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-import typing
-import pathlib
 import jsonschema.exceptions
 import jsonschema.validators
+import typing
+import pathlib
+import sys
 import yaml
 import regex
 
-import sys, pathlib;sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent.parent))
+sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent.parent))
 
+from backend import errors
 from utils._config.conf_dataclasses import (
     CustomizationMode,
     CustomizationCls,
@@ -19,8 +21,6 @@ from utils._config.conf_dataclasses import (
     TemplateCls,
     LASTEST_VERSION,
 )
-
-from backend import errors
 
 CAMEL_TO_SNAKE_PATTERN = regex.compile('((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))')
 
@@ -140,6 +140,31 @@ def solidify_config(conf: dict[str, typing.Any]) -> ConfigCls:
 
 CONFIG = solidify_config({})
 
+def get_resolver():
+    main_schema_dir = pathlib.Path("./schemas").resolve()
+    if not main_schema_dir.exists():
+        raise errors.InternalError(
+            "..."
+        )
+    base_uri = main_schema_dir.as_uri() + "/"
+
+    def load_file(uri):
+        if uri.startswith("file://"):
+            file_path = pathlib.Path(uri[7:])
+        else:
+            file_path = main_schema_dir / uri
+        
+        with open(file_path, "r") as f:
+            return yaml.safe_load(f)
+
+    resolver = jsonschema.validators.RefResolver(
+        base_uri = base_uri,
+        referrer = {},
+        handlers = {"file": load_file}
+    )
+
+    return resolver
+
 def get_config(current_path: pathlib.Path | None = None):
     global CONFIG
 
@@ -173,7 +198,11 @@ def get_config(current_path: pathlib.Path | None = None):
             with open(file) as f:
                 c_ = yaml.safe_load(f)
                 try:
-                    jsonschema.validators.validate(c_, schema)
+                    jsonschema.validators.validate(
+                        instance = c_, 
+                        schema = schema,
+                        resolver = get_resolver()
+                    )
                 except jsonschema.exceptions.ValidationError as e:
                     raise errors.ConfigError(f"Invalid config file\n{e}")
                 except jsonschema.exceptions.SchemaError:

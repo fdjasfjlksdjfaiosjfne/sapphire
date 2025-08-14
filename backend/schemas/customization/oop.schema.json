@@ -1,0 +1,49 @@
+{
+    "type": "object",
+    "properties": {
+        "oopModel": {
+            "type": "string",
+            "title": "OOP Model",
+            "enum": [
+                "class",
+                "prototype",
+                "hybrid"
+            ],
+            "enumDescriptions": [
+                "Use class-based OOP as its OOP model",
+                "Use prototype-based OOP from JavaScript as its OOP model",
+                "Use both class-based OOP and prototype-based OOP"
+            ],
+            "default": "class"
+        },
+        "forcedEncapsulation": {
+            "title": "Forced Encapsulation",
+            "type": "boolean",
+            "enum": [
+                true,
+                false
+            ],
+            "enumDescriptions": [
+                "Enforced encapsulation",
+                "Uses Python's conventions, by mangling the names of both protected and private methods in places that they shouldn't get accessed"
+            ],
+            "default": true
+        },
+        "encapsulationMethod": {
+            "title": "Encapsulation Method",
+            "description": "Determines how will Sapphire determine the acceessibility of an attribute.",
+            "type": "string",
+            "enum": [
+                "enforced",
+                "pythonic",
+                "disabled"
+            ],
+            "enumDescriptions": [
+                "Use keywords (`private`, `protected`, `public`)",
+                "Uses Pythonic naming conventions. Note that, when `forcedEncapsulation` is set to true, a single-underscore prefix name is analogous to `protected` and a double-underscore prefix name is analogous to `private`.",
+                "All methods and attributes will be public regardless of what. Not recommended."
+            ],
+            "default": "enforced"
+        }
+    }
+}

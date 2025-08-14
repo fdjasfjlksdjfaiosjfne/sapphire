@@ -13,7 +13,7 @@ from parser.lexer import (
 )
 import runtime.eval.opers as opers
 from runtime.interpreter import evaluate
-from utils.config import CONFIG
+from backend.config import CONFIG
 
 
 def eval_code_block(code_block: Nodes.CodeBlockNode, env: Env, /):

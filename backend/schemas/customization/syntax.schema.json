@@ -1,0 +1,107 @@
+{
+    "title": "Syntax and Parsing",
+    "type": "object",
+    "properties": {
+        "redefine": {"$ref": "customization/redefine/main.schema.json"},
+        "trailingCommaPolicy": {
+            "type": "string",
+            "enum": ["always", "never", "single_tuple_only"],
+            "enumDescriptions": [
+                "Always allow trailing commas",
+                "Never allow trailing commas",
+                "Only allow in single-element tuples"
+            ],
+            "default": "always"
+        },
+        "semicolonRequired": {
+            "type": "boolean",
+            "description": "Determines whether semicolon are required to terminate a statement.",
+            "default": false
+        },
+        "softKeywords": {
+            "type": "boolean",
+            "description": "If true, keywords can be used as identifiers in non-keyword contexts.",
+            "default": false
+        },
+        "stringDelimeters": {
+            "type": "array",
+            "items": {"enum": ["\"", "'", "`"]},
+            "uniqueItems": true,
+            "minItems": 1,
+            "additionalItems": false,
+            "default": ["\"", "'", "`"]
+        },
+        "codeBlocks": {
+            "title": "Code Blocks",
+            "type": "string",
+            "description": "How Sapphire should consider as a code block",
+            "enum": [
+                "indentation",
+                "braces",
+                "end"
+            ],
+            "enumDescriptions": [
+                "Uses curly braces (`{...}`) as code blocks",
+                "Use indentation to indicate code blocks",
+                "Use the `end` keyword to end a code block"
+            ],
+            "$comment": "Change this back to 'indentation' once I can make it a thing",
+            "default": "braces"
+        },
+        "binaryExpressionNotation": {
+            "title": "Operator Notation",
+            "type": "string",
+            "description": "This will change how Sapphire parse operators.",
+            "enum": [
+                "infix",
+                "prefix",
+                "postfix"
+            ],
+            "enumDescriptions": [
+                "Infix notation: `a + b`",
+                "Prefix notation: `+ a b`",
+                "Postfix notation: `a b +`"
+            ],
+            "default": "infix"
+        },
+        "multilineStrings": {
+            "type": "string",
+            "enum": [
+                "disabled",
+                "enabled",
+                "default"
+            ],
+            "enumDescriptions": [
+                "Multiline strings are not allowed",
+                "Multiline strings require explicit syntax (e.g., triple quotes)",
+                "Strings are multiline by default"
+            ]
+        },
+        "stringInterpolation": {
+            "type": "object",
+            "properties": {
+                "acceessibility": {
+                    "type": "string",
+                    "description": "Determine whether how string interpolation will be access.",
+                    "enum": [
+                        "none",
+                        "optional",
+                        "default"
+                    ],
+                    "enumDescriptions": [
+                        "Disable string interpolation entirely",
+                        "Enable string interpolation by using special syntax",
+                        "Enable string interpolation by default without any special syntax. There may be some syntax to disable it."
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "optionalCatchBinding": {
+            "type": "boolean",
+            "description": "Allow omitting the error variable in catch/except/rescue blocks.",
+            "default": true
+        }
+    },
+    "additionalProperties": false
+}

@@ -1,29 +1,34 @@
 # Dynamically generated files
-/parser/_lexer/internal_token_types.py
-/parser/_lexer/token_types.py
+parser/_lexer/internal_token_types.py
+parser/_lexer/token_types.py
+.env
+
 # Python
 *.pyc
 
-# IDE
-
+# IDEs
 .vscode/
 .idea/
 tempCodeRunnerFile.*
 *.code-workspace
 .mypy_cache/*
 
-# Git
-.gitignore
 
-# Other
 *.ignore.*
 samples
 .mypy_cache
 .pytest_cache
+
+# 🫠
 __*__/*
 */__*__/*
 */*/__*__/*
 */*/*/__*__/*
 */*/*/*/__*__/*
 */*/*/*/*/__*__/*
-*/*/*/*/*/*/__*__/*
+*/*/*/*/*/*/*/__*__/*
+*/*/*/*/*/*/*/*/__*__/*
+*/*/*/*/*/*/*/*/*/__*__/*
+*/*/*/*/*/*/*/*/*/*/__*__/*
+*/*/*/*/*/*/*/*/*/*/*/__*__/*
+*/*/*/*/*/*/*/*/*/*/*/*/__*__/*

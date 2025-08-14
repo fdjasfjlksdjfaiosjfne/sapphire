@@ -1,4 +1,4 @@
-from utils.config import CONFIG
+from backend.config import CONFIG
 from parser._lexer.data.aliases_modifiers import base, inverted_comparisons
 cust = CONFIG.customization
 redefine = cust.redefine

@@ -1,0 +1,67 @@
+{
+    "type": "object",
+    "properties": {
+        "numericSeparator": {
+            "type": "boolean",
+            "description": "If true, numberic literals can have underscores in them as separators.",
+            "default": true
+        },
+        "integerBaseLiterals": {
+            "type": "object",
+            "properties": {
+                "octal": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "hexadecimal": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "decimal": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "binary": {
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "additionalProperties": false
+        },
+        "scientificNotation": {
+            "type": "boolean",
+            "description": "Determines whether scientific notation (e.g. 3e15) is allowed.",
+            "default": true
+        },
+        "allowBooleans": {
+            "title": "Allow Booleans",
+            "description": "Determines whether you can use booleans",
+            "type": "boolean",
+            "default": true
+        },
+        "allowNull": {
+            "title": "Allow Null",
+            "description": "Determines whether you can use null",
+            "type": "boolean",
+            "default": true
+        },
+        "caseInsensitiveBooleans": {
+            "title": "Case Insensitive Booleans",
+            "description": "Determines whether booleans are case-insensitive",
+            "type": "boolean",
+            "default": true
+        },
+        "caseInsensitiveNull": {
+            "title": "Case Insensitive Null",
+            "description": "Determines whether null is case-insensitive",
+            "type": "boolean",
+            "default": true
+        },
+        "allowEllipsis": {
+            "title": "Allow Ellipsis",
+            "description": "Determines whether you can use the ellipsis value (...)",
+            "type": "string",
+            "default": true
+        }
+    }
+}

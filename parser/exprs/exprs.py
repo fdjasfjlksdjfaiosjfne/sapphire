@@ -19,7 +19,7 @@ import typing
 from backend import errors
 from parser.lexer import TokenType, UnaryOperators, TernaryOperators
 import parser.nodes as Nodes
-from utils.config import CONFIG
+from backend.config import CONFIG
 from parser.exprs.sap_collections import Collections
 from parser.exprs.attr_sub_call import AttributeSubcriptionCall
 from parser.exprs.strs import Strings

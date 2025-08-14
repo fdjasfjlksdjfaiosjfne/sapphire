@@ -5,44 +5,32 @@
     "properties": {
         "templates": {"$ref": "templates.schema.json"},
         "configVersion": {
+            "type": "object",
             "description": "Indicates the version of the configuration file, which supports SemVar or EpochSemVar.\nIt can either be an array containing numbers or a string containing the version",
-            "oneOf": [
-                {
-                    "type": "array",
-                    "anyOf": [
-                        {
-                            "items": [
-                                {"type": "number", "minimum": 0},
-                                {"type": "number", "minimum": 0, "maximum": 99},
-                                {"type": "number", "minimum": 0},
-                                {"type": "number", "minimum": 0}
-                            ]
-                        },
-                        {
-                            "items": [
-                                {"type": "number", "minimum": 0},
-                                {"type": "number", "minimum": 0},
-                                {"type": "number", "minimum": 0}
-                            ]
-                        }
-                    ],
-                    
-                    "minItems": 3,
-                    "maxItems": 4
+            "properties": {
+                "major": {
+                    "type": "number",
+                    "minimum": 0
                 },
-                {
+                "minor": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "patch": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "phase": {
                     "type": "string",
-                    "pattern": "(\\d+(\\.\\d+){2}|\\d+\\.\\d{1,2}(\\.\\d+){2})"
+                    "enum": [
+                        "indev",
+                        "alpha",
+                        "beta",
+                        "release"
+                    ],
+                    "default": "indev"
                 }
-            ],
-            "default": [0, 0, 4],
-            "examples": [
-                "1.2.3",
-                "13.50.123",
-                [4, 7, 5],
-                "2.34.94.134",
-                [1, 69, 420, 86]
-            ]
+            }
         },
         "customOptions": {
             "type": "object",
@@ -51,7 +39,7 @@
         }
     },
     "patternProperties": {
-        "customi(z|s)ation": {"$ref": "customization.schema.json"}
+        "customi(z|s)ation": {"$ref": "customization/main.schema.json"}
     },
     "additionalProperties": false
 }

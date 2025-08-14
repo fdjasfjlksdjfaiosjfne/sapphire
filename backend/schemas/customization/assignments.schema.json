@@ -1,0 +1,35 @@
+{
+    "type": "object",
+    "patternProperties": {
+        "mutableValueAssignmentBehaviou?r": {
+            "$comment": "This allows both 'mutableValueAssignmentBehavior' and 'mutableValueAssignmentBehaviour' to exists at the same time.",
+            "title": "Mutable Value Assignment Behavior",
+            "description": "Determines the behavior when a variable that contains a mutable value (e.g. a list) is used as the value expression in an assignment statement.",
+            "type": "string",
+            "enum": [
+                "copy",
+                "reference"
+            ],
+            "enumDescriptions": [
+                "Copies the value and assign the copy to the variable. This behavior is generally more predictable, at the cost of some extra memory.",
+                "Assign the variable a reference to the existing value."
+            ],
+            "default": "copy"
+        },
+        "mutableArgumentDefaultValueBehaviou?r": {
+            "title": "Mutable Argument Default Value Behavior",
+            "description": "Determines the behavior when a value that contains a mutable value (e.g. a list) is used as the default value for an argument in a function.",
+            "type": "string",
+            "enum": [
+                "copy",
+                "reference"
+            ],
+            "enumDescriptions": [
+                "Copies the value and assign the copy to the argument, should it ever be undefined. This behavior is a lot more predictable, at the cost of some extra time processing the value, every call.",
+                "Assign the variable a reference to the existing value."
+            ],
+            "default": "copy"
+        }
+    },
+    "additionalProperties": false
+}

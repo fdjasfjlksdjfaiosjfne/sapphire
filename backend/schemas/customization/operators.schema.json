@@ -1,0 +1,28 @@
+{
+    "type": "object",
+    "properties": {
+        "looseEquality": {
+            "type": "boolean",
+            "description": "Determines whether the loose equality (~= by default) operator is enabled.",
+            "default": false
+        }  
+    },
+    "patternProperties": {
+        "logicalOperatorBehaviou?r": {
+            "title": "Logical Operator Behavior",
+            "description": "Determines what logical operators (`and` / `or` / `xor`) will return",
+            "type": "string",
+            "enum": [
+                "boolean_only",
+                "pythonic",
+                "extended_pythonic"
+            ],
+            "enumDescriptions": [
+                "Only explicitly returns boolean values (`true`/`false`). Doesn't apply to custom behaviors via duck typing.",
+                "Uses Python's convention. The `or` operator will return the first operand if it's truthy, and the `and` operator will return the first operand if it's falsy. The `xor` operator will still return booleans.",
+                "The same as 'pythonic', except that the logical `xor` will now return whichever operand is truthy, when only one of them are truthy. It will still return `false` if both are truthy or falsy."
+            ],
+            "default": "extended_pythonic"
+        }
+    }
+}

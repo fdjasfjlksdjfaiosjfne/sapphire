@@ -1,0 +1,110 @@
+{
+    "type": "object",
+    "properties": {
+                "defaultCaseNotation": {
+            "title": "Notation for the default case in a match statement",
+            "type": "string",
+            "enum": [
+                "_",
+                "default",
+                "*"
+            ],
+            "enumDescriptions": [
+                "The default case will be written as `case _`. Use by Rust and Python",
+                "The default case will be written as `default`. Use by C, C++, and more",
+                "The default case will be written as `case *`. `*` is more universally associated to 'match anything' than `_`"
+            ],
+            "default": "_"
+        },
+        
+        "functionDef": {
+            "enum": ["def", "fn", "function", "fun", "func"],
+            "enumDescriptions": [
+                "Use by Python",
+                "Use by Rust",
+                "Use by JavaScript",
+                "Use by Kotlin",
+                "Use by Go"
+            ],
+            "default": "fn"
+        },
+        "classDef": {
+            "type": "string",
+            "enum": [
+                "class",
+                "cls"
+            ],
+            "enumDescriptions": [
+                "The standard notation, use by most languages",
+                "An optional shorthand. It's unknown whether it's used anywhere."
+            ],
+            "default": "class"
+        },
+        "elseIf": {
+            "type": "string",
+            "enum": [
+                "elseif",
+                "else if",
+                "elif",
+                "elsif"
+            ],
+            "enumDescriptions": [
+                "Use by Ruby",
+                "Use by a majority of C-based languages",
+                "Use by Python",
+                "Use by Perl"
+            ],
+            "default": "elif"
+        },
+        "throwError": {
+            "enum": [
+                "throw",
+                "raise",
+                "panic",
+                "die"
+            ],
+            "enumDescriptions": [
+                "Use by most languages",
+                "Use by Python and Dart",
+                "Use by Rust, although not as a statement",
+                "Use by Perl 5"
+            ],
+            "default": "throw"
+        },
+        "matchCaseStatement": {
+            "enum": [
+                "match",
+                "switch"
+            ],
+            "enumDescription": [
+                "Use by Rust and Python",
+                "Use by most other languages, albeit usually to a much less capable version of itself"
+            ],
+            "default": "match"
+        },
+        "handleExceptionPhrase": {
+            "enum": [
+                "catch",
+                "except",
+                "rescue"
+            ],
+            "enumDescriptions": [
+                "Use by most languages",
+                "Use by Python",
+                "Use by ?"
+            ],
+            "default": "catch"
+        },
+        "finalCleanupOfExceptionHandling": {
+            "enum": [
+                "finally",
+                "ensure"
+            ],
+            "enumDescriptions": [
+                "Use by most languages",
+                "Use by ?"
+            ],
+            "default": "finally"
+        }
+    }
+}

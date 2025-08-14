@@ -11,7 +11,7 @@ from parser._lexer.data.patterns import (
     StringTokenPattern,
     RegExTokenPattern,
     )
-from utils import config
+from backend import config
 
 TokenTypeSequence: typing.TypeAlias = (
     typing.Sequence[TokenTypeEnum]

@@ -1,5 +1,5 @@
 from backend import errors
-from utils.config import CONFIG, CustomizationMode
+from backend.config import CONFIG, CustomizationMode
 
 inverted = CONFIG.templates.inverted_comparisons
 

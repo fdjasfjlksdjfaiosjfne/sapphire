@@ -30,7 +30,7 @@ from runtime._values.value_types import (
     NOT_IMPLEMENTED,
     NULL
 )
-from utils.config import CONFIG
+from backend.config import CONFIG
 
 _name_counter = itertools.count()
 def _generate_unique_name(exclusions: typing.Sequence[str] | None = None) -> str:

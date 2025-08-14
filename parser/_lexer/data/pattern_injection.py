@@ -2,7 +2,7 @@ import dataclasses
 from backend import errors
 import typing
 import regex
-from utils.config import CONFIG, CustomizationMode
+from backend.config import CONFIG, CustomizationMode
 
 cus = CONFIG.customization
 redef = cus.redefine

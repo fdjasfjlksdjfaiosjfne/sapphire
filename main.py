@@ -4,7 +4,7 @@ from parser.parser import Parser
 from runtime.interpreter import evaluate
 from runtime.env import Env
 from backend import errors
-from utils import config
+from backend import config
 
 
 # ~ Type a path here...

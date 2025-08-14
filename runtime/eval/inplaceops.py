@@ -3,7 +3,7 @@ This file consists of functions that process inplace, also known as augmented or
 """
 import typing
 import runtime._expriemental.values as values
-import backend.errors as errors
+import backend.errors.errors as errors
 from runtime.eval import opers
 
 

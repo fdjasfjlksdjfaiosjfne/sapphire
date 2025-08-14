@@ -1,0 +1,17 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "title": "Language Customization",
+    "description": "A place to add customization that can modify how the compiler treats the code.\nThis can range from minor behavior changes to imcompatible syntax modifiers.\nAlso the simplest way to cause chaos for anyone that doesn't use a proper linter for whatever reason.",
+    "properties": {
+        "syntax": {"$ref": "customization/syntax.schema.json"},
+        "annotations": {"$ref": "customization/annotations.schema.json"},
+        "literals": {"$ref": "customization/literals.schema.json"},
+        "controlFlow": {"$ref": "customization/control.schema.json"},
+        "variables": {"$ref": "customization/variables.schema.json"},
+        "oop": {"$ref": "customization/oop.schema.json"},
+        "operators": {"$ref": "customization/operators.schema.json"},
+        "assignments": {"$ref": "customizatiom/assignment.schema.json"},
+        "uncategorized": {"$ref": "customization/uncategorized.schema.json"}
+    }
+}

@@ -1,6 +1,6 @@
 import typing
 from parser.lexer import TokenType, Tokenizer
-from utils import config
+from backend import config
 import parser.nodes as Nodes
 from backend import errors
 from parser.stmts.stmts import Stmts

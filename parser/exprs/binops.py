@@ -3,7 +3,7 @@ import typing
 import jsonschema
 
 from backend import errors
-from utils.config import CONFIG
+from backend.config import CONFIG
 from parser.lexer import BinaryOperators, InvertedComparisons, TokenTypeEnum, TokenTypeSequence
 from parser.core import ParserNamespaceSkeleton
 import parser.nodes as Nodes

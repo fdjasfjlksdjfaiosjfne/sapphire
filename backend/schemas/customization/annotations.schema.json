@@ -1,0 +1,10 @@
+{
+    "type": "object",
+    "properties": {
+        "typeAnnotations": {
+            "type": "boolean",
+            "description": "If true, type annotations will be enabled",
+            "default": true
+        }
+    }
+}

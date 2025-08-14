@@ -1,0 +1,20 @@
+{
+    "type": "object",
+    "properties": {
+        "implicitReturn": {
+            "type": "boolean",
+            "description": "If true, functions will automatically return the last evaluated expression in a code block inside of it.",
+            "default": false
+        },
+        "allowGoto": {
+            "type": "boolean",
+            "description": "Determines whether `goto` or similar jump statements are allowed",
+            "default": false
+        },
+        "allowPatternMatchingInMatchStatement": {
+            "type": "boolean",
+            "description": "Determine whether pattern matching is allowed in a match-case statement.",
+            "default": true
+        }
+    }
+}

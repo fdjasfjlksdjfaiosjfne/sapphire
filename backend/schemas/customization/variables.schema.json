@@ -1,0 +1,15 @@
+{
+    "type": "object",
+    "properties": {
+        "implicitGlobals": {
+            "type": "boolean",
+            "description": "If true, variables will be global by default unless clearly specified.",
+            "default": false
+        },
+        "functionHoisting": {
+            "type": "boolean",
+            "description": "If true, function declarations will be run before anything else.",
+            "default": true
+        }
+    }
+}

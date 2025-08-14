@@ -1,4 +1,4 @@
-from utils.config import CONFIG
+from backend.config import CONFIG
 
 cust = CONFIG.customization
 redefine = cust.redefine
