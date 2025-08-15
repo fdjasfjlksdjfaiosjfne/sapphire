@@ -1,0 +1,26 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "syntax": {
+            "type": "object",
+            "properties": {
+                "keyword": {
+                    "classDef": {
+                    "type": "string",
+                    "enum": [
+                        "class",
+                        "cls"
+                    ],
+                    "enumDescriptions": [
+                        "The standard notation, use by most languages",
+                        "An optional shorthand. It's unknown whether it's used anywhere."
+                    ],
+                    "default": "class"
+                }
+                }
+            }
+        }
+    },
+    "additionalProperties": false
+}

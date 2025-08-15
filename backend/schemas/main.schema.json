@@ -59,7 +59,16 @@
                     "additionalProperties": false
                 },
                 "comments": {"$ref": "customization/comments"},
-                "controlFlow": {"$ref": "customization/control"},
+                "controlFlow": {
+                    "type": "object",
+                    "properties": {
+                        "conditional": {"$ref": "customization/control/conditional"},
+                        "matchCase": {"$ref": "customization/control/matchCase"},
+                        "exceptionHandling": {"$ref": "customization/control/exceptionHandling"},
+                        "jumping": {"$ref": "customization/control/jumping"}
+                    },
+                    "additionalProperties": false
+                },
                 "variables": {"$ref": "customization/variables"},
                 "oop": {"$ref": "customization/oop"},
                 "operators": {

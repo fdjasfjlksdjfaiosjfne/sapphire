@@ -1,0 +1,44 @@
+{
+    "type": "object",
+    "properties": {
+        "enabled": {
+            "type": "boolean",
+            "default": true
+        },
+        "allowPatternMatching": {
+            "type": "boolean",
+            "description": "Determine whether pattern matching is allowed in a match-case statement. If disabled, the match-case statement is equivalent to the switch-case statement.",
+            "default": true
+        },
+        "syntax": {
+            "type": "object",
+            "properties": {
+                "defaultCaseSyntax": {
+                    "title": "Notation for the default case in a match statement",
+                    "type": "string",
+                    "enum": [
+                        "_",
+                        "default",
+                        "*"
+                    ],
+                    "enumDescriptions": [
+                        "The default case will be written as `case _`. Use by Rust and Python",
+                        "The default case will be written as `default`. Use by C, C++, and more",
+                        "The default case will be written as `case *`. `*` is more universally associated to 'match anything' than `_`"
+                    ],
+                    "default": "_"
+                },
+                "matchCase": {
+                    "type": "string",
+                    "enum": ["switch", "match"],
+                    "enumDescriptions":[
+                        "Use to refer to its counterpart that can't utilize pattern matching",
+                        "Use by most languages that has the match/case statement"
+                    ],
+                    "default": "match"
+                }
+            }
+        }
+        
+    }
+}

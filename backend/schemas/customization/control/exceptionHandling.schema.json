@@ -1,0 +1,95 @@
+{
+    "type": "object",
+    "properties": {
+        "enabled": {
+            "type": "boolean",
+            "default": true
+        },
+        "tryStatement": {
+            "type": "object",
+            "properties": {
+                "syntax": {}
+            },
+            "additionalProperties": false
+        },
+        "handlingException": {
+            "type": "object",
+            "properties": {
+                "optionalCatchBinding": {
+                    "type": "boolean",
+                    "description": "Allow omitting the error variable in catch blocks.",
+                    "default": true
+                },
+                "syntax": {
+                    "type": "string",
+                    "enum": [
+                        "catch",
+                        "except",
+                        "rescue"
+                    ],
+                    "enumDescriptions": [
+                        "Use by most languages",
+                        "Use by Python",
+                        "Use by ?"
+                    ],
+                    "default": "catch"
+                }
+            },
+            "additionalProperties": false
+        },
+        "noExceptions": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "syntax": {}
+            }
+        },
+        "finalCleanupOfExceptionHandling": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "syntax": {
+                    "enum": [
+                        "finally",
+                        "ensure"
+                    ],
+                    "enumDescriptions": [
+                        "Use by most languages",
+                        "Use by ?"
+                    ],
+                    "default": "finally"
+                }
+            }
+        },
+        "throwError": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "syntax": {
+                    "enum": [
+                        "throw",
+                        "raise",
+                        "panic",
+                        "die"
+                    ],
+                    "enumDescriptions": [
+                        "Use by most languages",
+                        "Use by Python and Dart",
+                        "Use by Rust, although not as a statement",
+                        "Use by Perl 5"
+                    ],
+                    "default": "throw"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "syntax": {
+            "type": "object",
+            "properties": {
+                "keyword": {
+                    "enum": ["def", "fn", "function", "fun", "func", "define"],
+                    "enumDescriptions": [
+                        "Use by Python",
+                        "Use by Rust",
+                        "Use by JavaScript",
+                        "Use by Kotlin",
+                        "Use by Go",
+                        "An extended version of 'def'"
+                    ],
+                    "default": "fn"
+                }
+            }
+        }
+    },
+    "additionalProperties": false
+}

@@ -1,75 +1,110 @@
 {
-    "type": "object",
-    "properties": {
-        "addition": {
-
+  "type": "object",
+  "properties": {
+    "addition": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
         },
-        "subtraction": {
-
-        },
-        "multiplication": {
-
-        },
-        "trueDivision": {
-
-        },
-        "floorDivision": {
-            "enabled": {
-                "type": "boolean",
-                "default": true
-            },
-            "syntax": {
-                "type": "string",
-                "enum": [
-                    "//",
-                    "div"
-                ],
-                "enumDescriptions": [
-                    "Use by Python",
-                    "Use by Pascal"
-                ],
-                "default": "//"
-            }
-        },
-        "modulus": {
-            "enabled": {
-                "type": "boolean",
-                "default": true
-            },
-            "syntax": {
-                "type": "string",
-                "enum": [
-                    "%",
-                    "mod"
-                ],
-                "enumDescriptions": [
-                    "Use by most languages",
-                    "Use by C"
-                ],
-                "default": "%"
-            }
-        },
-        "exponentiation": {
-            "enabled": {
-                "type": "boolean",
-                "default": true
-            },
-            "syntax": {
-                "type": "string",
-                "enum": ["**", "^"],
-                "default": "**"
-            }
-        },
-        "matrixMultiplication": {
-            "enabled": {
-                "type": "boolean",
-                "default": true
-            },
-            "syntax": {
-                "type": "string",
-                "enum": ["@"],
-                "default": "@"
-            }
+        "syntax": {
+            "type": "string",
+            "enum": ["+"],
+            "default": "+"
         }
+      },
+      "additionalProperties": false
+    },
+    "subtraction": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "syntax": {
+            "type": "string",
+            "enum": ["-"],
+            "default": "-"
+        }
+      },
+      "additionalProperties": false
+    },
+    "multiplication": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "syntax": {
+            "type": "string",
+            "enum": ["*"],
+            "default": "*"
+        }
+      },
+      "additionalProperties": false
+    },
+    "trueDivision": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "syntax": {
+            "type": "string",
+            "enum": ["/"],
+            "default": "/"
+        }
+      },
+      "additionalProperties": false
+    },
+    "floorDivision": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "syntax": {
+          "type": "string",
+          "enum": ["//", "div"],
+          "enumDescriptions": ["Use by Python", "Use by Pascal"],
+          "default": "//"
+        }
+      },
+      "additionalProperties": false
+    },
+    "modulus": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "syntax": {
+          "type": "string",
+          "enum": ["%", "mod"],
+          "enumDescriptions": ["Use by most languages", "Use by C"],
+          "default": "%"
+        }
+      }
+    },
+    "exponentiation": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "syntax": {
+          "type": "string",
+          "enum": ["**", "^"],
+          "default": "**"
+        }
+      }
     }
+  }
 }
