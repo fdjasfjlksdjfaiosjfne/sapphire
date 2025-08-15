@@ -1,20 +1,176 @@
 {
     "type": "object",
     "properties": {
-        "implicitReturn": {
-            "type": "boolean",
-            "description": "If true, functions will automatically return the last evaluated expression in a code block inside of it.",
-            "default": false
-        },
         "allowGoto": {
             "type": "boolean",
             "description": "Determines whether `goto` or similar jump statements are allowed",
             "default": false
         },
-        "allowPatternMatchingInMatchStatement": {
-            "type": "boolean",
-            "description": "Determine whether pattern matching is allowed in a match-case statement.",
-            "default": true
+        "conditional": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "syntax": {
+                    "elseIf": {
+                        "type": "string",
+                        "enum": [
+                            "elseif",
+                            "else if",
+                            "elif",
+                            "elsif"
+                        ],
+                        "enumDescriptions": [
+                            "Use by Ruby",
+                            "Use by a majority of C-based languages",
+                            "Use by Python",
+                            "Use by Perl"
+                        ],
+                        "default": "elif"
+                    }
+                }
+            }
+        },
+        "matchCaseStatement": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "allowPatternMatching": {
+                    "type": "boolean",
+                    "description": "Determine whether pattern matching is allowed in a match-case statement. If disabled, the match-case statement is equivalent to the switch-case statement.",
+                    "default": true
+                },
+                "syntax": {
+                    "type": "object",
+                    "properties": {
+                        "defaultCaseSyntax": {
+                            "title": "Notation for the default case in a match statement",
+                            "type": "string",
+                            "enum": [
+                                "_",
+                                "default",
+                                "*"
+                            ],
+                            "enumDescriptions": [
+                                "The default case will be written as `case _`. Use by Rust and Python",
+                                "The default case will be written as `default`. Use by C, C++, and more",
+                                "The default case will be written as `case *`. `*` is more universally associated to 'match anything' than `_`"
+                            ],
+                            "default": "_"
+                        },
+                        "matchCase": {
+                            "type": "string",
+                            "enum": ["switch", "match"],
+                            "enumDescriptions":[
+                                "Use to refer to its counterpart that can't utilize pattern matching",
+                                "Use by most languages that has the match/case statement"
+                            ],
+                            "default": "match"
+                        }
+                    }
+                }
+                
+            }
+        },
+        "exceptionHandling": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "tryStatement": {
+                    "type": "object",
+                    "properties": {
+                        "syntax": {}
+                    },
+                    "additionalProperties": false
+                },
+                "handlingException": {
+                    "type": "object",
+                    "properties": {
+                        "optionalCatchBinding": {
+                            "type": "boolean",
+                            "description": "Allow omitting the error variable in catch blocks.",
+                            "default": true
+                        },
+                        "syntax": {
+                            "type": "string",
+                            "enum": [
+                                "catch",
+                                "except",
+                                "rescue"
+                            ],
+                            "enumDescriptions": [
+                                "Use by most languages",
+                                "Use by Python",
+                                "Use by ?"
+                            ],
+                            "default": "catch"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "noExceptions": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "syntax": {}
+                    }
+                },
+                "finalCleanupOfExceptionHandling": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "syntax": {
+                            "enum": [
+                                "finally",
+                                "ensure"
+                            ],
+                            "enumDescriptions": [
+                                "Use by most languages",
+                                "Use by ?"
+                            ],
+                            "default": "finally"
+                        }
+                    }
+                },
+                "throwError": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "syntax": {
+                            "enum": [
+                                "throw",
+                                "raise",
+                                "panic",
+                                "die"
+                            ],
+                            "enumDescriptions": [
+                                "Use by most languages",
+                                "Use by Python and Dart",
+                                "Use by Rust, although not as a statement",
+                                "Use by Perl 5"
+                            ],
+                            "default": "throw"
+                        }
+                    }
+                }
+            }
         }
     }
 }

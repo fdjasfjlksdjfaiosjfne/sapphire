@@ -1,0 +1,75 @@
+{
+    "type": "object",
+    "properties": {
+        "addition": {
+
+        },
+        "subtraction": {
+
+        },
+        "multiplication": {
+
+        },
+        "trueDivision": {
+
+        },
+        "floorDivision": {
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            },
+            "syntax": {
+                "type": "string",
+                "enum": [
+                    "//",
+                    "div"
+                ],
+                "enumDescriptions": [
+                    "Use by Python",
+                    "Use by Pascal"
+                ],
+                "default": "//"
+            }
+        },
+        "modulus": {
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            },
+            "syntax": {
+                "type": "string",
+                "enum": [
+                    "%",
+                    "mod"
+                ],
+                "enumDescriptions": [
+                    "Use by most languages",
+                    "Use by C"
+                ],
+                "default": "%"
+            }
+        },
+        "exponentiation": {
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            },
+            "syntax": {
+                "type": "string",
+                "enum": ["**", "^"],
+                "default": "**"
+            }
+        },
+        "matrixMultiplication": {
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            },
+            "syntax": {
+                "type": "string",
+                "enum": ["@"],
+                "default": "@"
+            }
+        }
+    }
+}

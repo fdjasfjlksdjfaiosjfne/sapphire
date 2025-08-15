@@ -13,7 +13,7 @@ dotenv_vault.load_dotenv()
 sys.path.insert(0, os.getenv("ROOT_PATH") or "")
 
 from backend import errors
-from backend._config.conf_dataclasses import (
+from backend.config.conf_dataclasses import (
     CustomizationMode,
     CustomizationCls,
     ConfigCls,
@@ -21,9 +21,21 @@ from backend._config.conf_dataclasses import (
     MultiLineComment,
     IntegerBaseLiterals,
     TemplateCls,
-    LASTEST_VERSION,
+    ConfigVersionCls,
+    SyntaxCustomizationCls,
+    LiteralCustomizationCls,
+    OperatorCustomizationCls,
+    VariableCustomizationCls,
+    AnnotationCustomizationCls,
+    AssignmentCustomizationCls,
+    ControlFlowCustomizationCls,
+    UncategorizedCustomizationCls,
+    ControlRedefineCls,
+    OperatorRedefineCls,
+    
 )
 
+LASTEST_VERSION = ConfigVersionCls(2, 0, 0, "indev")
 CAMEL_TO_SNAKE_PATTERN = regex.compile('((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))')
 
 def camel_to_snake(name: str) -> str:
@@ -127,7 +139,7 @@ def solidify_config(conf: dict[str, typing.Any]) -> ConfigCls:
     
     return ConfigCls(
         CustomizationCls(
-            RedefineCls(
+            redefine = RedefineCls(
                 multi_line_comment = MultiLineComment(mtlcs, mtlce),
                 **redef
             ),

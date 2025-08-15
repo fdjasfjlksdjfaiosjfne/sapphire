@@ -3,21 +3,21 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
-        "templates": {"$ref": "templates.schema.json"},
+        "templates": {"$ref": "templates"},
         "configVersion": {
             "type": "object",
             "description": "Indicates the version of the configuration file, which supports SemVar or EpochSemVar.\nIt can either be an array containing numbers or a string containing the version",
             "properties": {
                 "major": {
-                    "type": "number",
+                    "type": "integer",
                     "minimum": 0
                 },
                 "minor": {
-                    "type": "number",
+                    "type": "integer",
                     "minimum": 0
                 },
                 "patch": {
-                    "type": "number",
+                    "type": "integer",
                     "minimum": 0
                 },
                 "phase": {
@@ -35,11 +35,62 @@
         "customOptions": {
             "type": "object",
             "$comment": "Is this description too long and unnessecary? It's probably too long and unnessecary...",
-            "description": "A field where you can assign it with anything you want. The only requirement for this field is that it should be an object.\nThis is intended for external tools, like linters, to put their own configurations into a single configuration file, for both convenience and cleanliness. Of course, other uses (aside for malicious purposes) are also welcome.\nIt is recommended to make a schema to check for the fields inside of this file."
+            "description": "A field where you can assign it with anything you want. The only requirement for this field is that it should be an object.\nThis is intended for external tools, like linters, to put their own configurations into a single configuration file, for both convenience and cleanliness. Of course, other uses (aside for malicious purposes) are also welcome.\nIt is recommended to make a schema to check for the fields inside of this file.",
+            "additionalProperties": true
         }
     },
     "patternProperties": {
-        "customi(z|s)ation": {"$ref": "customization/main.schema.json"}
+        "customi(z|s)ation": {
+            "type": "object",
+            "title": "Language Customization",
+            "description": "A place to add customization that can modify how the compiler treats the code.\nThis can range from minor behavior changes to imcompatible syntax modifiers.\nAlso the simplest way to cause chaos for anyone that doesn't use a proper linter for whatever reason.",
+            "properties": {
+                "syntax": {"$ref": "customization/syntax"},
+                "annotations": {"$ref": "customization/annotations"},
+                "literals": {
+                    "type": "object",
+                    "properties": {
+                        "numbers": {"$ref": "customization/literals/number"},
+                        "booleans": {"$ref": "customization/literals/booleans"},
+                        "string": {"$ref": "customization/literals/strings"},
+                        "ellipsis": {"$ref": "customization.literals/ellipsis"},
+                        "null": {"$ref": "customization/literals/null"}
+                    },
+                    "additionalProperties": false
+                },
+                "comments": {"$ref": "customization/comments"},
+                "controlFlow": {"$ref": "customization/control"},
+                "variables": {"$ref": "customization/variables"},
+                "oop": {"$ref": "customization/oop"},
+                "operators": {
+                    "type": "object",
+                    "properties": {
+                        "logical": {"$ref": "customization/operators/logical"},
+                        "arithmetic": {"$ref": "customization/operators/arithmetic"},
+                        "comparison": {"$ref": "customization/operators/comparison"},
+                        "binaryExpressionNotation": {
+                            "title": "Operator Notation",
+                            "type": "string",
+                            "description": "This will change how Sapphire parse operators.",
+                            "enum": [
+                                "infix",
+                                "prefix",
+                                "postfix"
+                            ],
+                            "enumDescriptions": [
+                                "Infix notation: `a + b`",
+                                "Prefix notation: `+ a b`",
+                                "Postfix notation: `a b +`"
+                            ],
+                            "default": "infix"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "assignments": {"$ref": "customization/assignments"},
+                "uncategorized": {"$ref": "customization/uncategorized"}
+            }
+        }
     },
     "additionalProperties": false
 }

@@ -2,7 +2,6 @@
     "type": "object",
     "patternProperties": {
         "mutableValueAssignmentBehaviou?r": {
-            "$comment": "This allows both 'mutableValueAssignmentBehavior' and 'mutableValueAssignmentBehaviour' to exists at the same time.",
             "title": "Mutable Value Assignment Behavior",
             "description": "Determines the behavior when a variable that contains a mutable value (e.g. a list) is used as the value expression in an assignment statement.",
             "type": "string",

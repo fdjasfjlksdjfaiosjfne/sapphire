@@ -8,7 +8,7 @@ import operator
 import typing
 
 from backend import errors
-from runtime._values.value_types import (
+from runtime.values.value_types import (
     RuntimeValue,
     Type,
     NumberValue,

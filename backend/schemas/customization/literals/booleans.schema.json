@@ -1,0 +1,55 @@
+{
+    "type": "object",
+    "properties": {
+        "enabled": {
+            "description": "Determines whether you can use booleans",
+            "type": "boolean",
+            "default": true
+        },
+        "caseInsensitivity": {
+            "title": "Case Insensitive Booleans",
+            "description": "Determines whether booleans are case-insensitive",
+            "type": "boolean",
+            "default": true
+        },
+        "trueSyntax": {
+            "type": "string",
+            "description": "Note: If 'languageCustomization.caseInsensitiveBooleans' is disabled, certain options allowed will act identically",
+            "enum": ["true", "True", "TRUE", "yes", "Yes", "y", "Y", "Affirmative", "ye", "yup", "yay"],
+            "enumDescriptions": [
+                "The standard notation, use in most languages",
+                "Use by Python",
+                "Use by Excel",
+                "Use as a alternate way of saying 'true' by YAML",
+                "Use as a alternate way of saying 'true' by YAML",
+                "Use as a alternate way of saying 'true' by YAML",
+                "Use as a alternate way of saying 'true' by YAML",
+                "A polite way of saying 'true'",
+                "An informal way of saying 'true'",
+                "An informal way of saying 'true'",
+                "An informal way of saying 'true'"
+            ],
+            "default": "true"
+        },
+        "falseSyntax": {
+            "type": "string",
+            "description": "Note: If 'languageCustomization.caseInsensitiveBooleans' is disabled, certain options allowed will act identically",
+            "enum": ["false", "False", "FALSE", "no", "No", "n", "N", "Negative", "nah", "nope", "nay", null],
+            "enumDescriptions": [
+                "The standard notation, use in most languages",
+                "Use by Python",
+                "Use by Excel",
+                "Use as a alternate way of saying 'false' by YAML",
+                "Use as a alternate way of saying 'false' by YAML",
+                "Use as a alternate way of saying 'false' by YAML",
+                "Use as a alternate way of saying 'false' by YAML",
+                "A polite way of saying 'false'",
+                "An informal way of saying 'false'",
+                "An informal way of saying 'false'",
+                "An informal way of saying 'false'",
+                "Disable `false` entirely"
+            ],
+            "default": "false"
+        }
+    }
+}

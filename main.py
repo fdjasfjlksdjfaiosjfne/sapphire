@@ -14,7 +14,7 @@ path = pathlib.Path(input("Path: "))
 config_ = config.get_config(path)
 
 # ^ Reading the code
-try:
+try: 
     global_env = Env()
     with open(path) as file:
         program_ast = Parser(file.read(), config_).parse_module()

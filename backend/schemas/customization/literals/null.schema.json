@@ -1,0 +1,35 @@
+{
+    "type": "object",
+    "properties": {
+        "enabled": {
+            "description": "Determines whether you can use null",
+            "type": "boolean",
+            "default": true
+        },
+        "caseInsensitivity": {
+            "title": "Case Insensitive Null",
+            "description": "Determines whether null is case-insensitive",
+            "type": "boolean",
+            "default": true
+        },
+        "syntax": {
+            "type": "string",
+            "description": "Note: If 'languageCustomization.caseInsensitiveNull' is disabled, certain options allowed will act identically",
+            "enum": ["null", "Null", "NULL", "None", "none", "NOTHING", "nothing", "Nothing", "undefined", "nil"],
+            "enumDescriptions": [
+                "The standard notation, use in most languages",
+                "The standard notation with a different casing",
+                "The standard notation with a different casing",
+                "Use by Python",
+                "Python's notation with a different casing",
+                "Python's notation with a different casing",
+                "An alternate way of spelling 'null'",
+                "An alternate way of spelling 'null'",
+                "An alternate way of spelling 'null'",
+                "An alternate way of spelling 'null'",
+                "Use by Ruby"
+            ],
+            "default": "null"
+        }
+    }
+}

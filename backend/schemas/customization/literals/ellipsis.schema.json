@@ -1,0 +1,10 @@
+{
+    "type": "object",
+    "properties": {
+        "enabled": {
+            "description": "Determines whether you can use the ellipsis value (...)",
+            "type": "boolean",
+            "default": true
+        }
+    }
+}

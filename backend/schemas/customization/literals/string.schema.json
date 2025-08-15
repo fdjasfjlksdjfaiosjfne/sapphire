@@ -1,0 +1,119 @@
+{
+    "type": "object",
+    "$defs": {
+        "bracketEscapeSymbol": {
+            "type": "string",
+            "enum": [
+                "backslash",
+                "double"
+            ],
+            "enumDescriptions": [
+                "Use a backslash prefix (e.g. \\$)",
+                "Type the symbol twice (e.g. }})"
+            ]
+        }
+    },
+    "properties": {
+        "interpolation": {
+            "type": "object",
+            "properties": {
+                "acceessibility": {
+                    "type": "string",
+                    "description": "Determine whether how string interpolation will be access.",
+                    "enum": [
+                        "none",
+                        "prefix",
+                        "default"
+                    ],
+                    "enumDescriptions": [
+                        "Disable string interpolation entirely",
+                        "Enable string interpolation by adding a prefix before the string",
+                        "Enable string interpolation by default without any special syntax. There may be some syntax to disable it."
+                    ]
+                },
+                "expressionSyntax": {
+                    "type": "string",
+                    "enum": [
+                        "{ }", "( )", "[ ]",
+                        "${ }", "$( )", "$[ ]",
+                        "#{ }", "#( )", "#[ ]",
+                        "\\{ }", "\\( )", "\\[ ]",
+                        "%{ }", "%( )", "%[ ]"
+                    ],
+                    "enumDescriptions": [
+                        "Use by Python, Scala, Nim and PHP",
+                        "",
+                        "",
+                        "Use by JS, Bash, Dart, Groovy and Kotlin",
+                        "Use by Julia",
+                        "",
+                        "Use by Ruby and CoffeeScript",
+                        "",
+                        "",
+                        "Use by Java 21 and 22",
+                        "Use by Swift",
+                        ""
+                    ]
+                },
+                "identifierPrefixSyntax": {
+                    "type": "string",
+                    "enum": [
+                        "$", "#", "\\", "%"
+                    ],
+                    "enumDescriptions": [
+                        "Use by Bash, Dart, Groovy, Julia, Kotlin, Perl, PHP and Scala", "", "", ""
+                    ]
+                },
+                "bracketEscapeMethod": {
+                    "oneOf": [
+                        {"$ref": "#/$defs/bracketEscapeSymbol"},
+                        {
+                            "type": "object",
+                            "properties": {
+                                "opening": {"$ref": "#/$defs/bracketEscapeSymbol"},
+                                "closing": {"$ref": "#/$defs/bracketEscapeSymbol"}
+                            },
+                            "additionalProperties": false
+                        }
+                    ]
+                },
+                "forceEscapeClosingBracket": {
+                    "type": "boolean",
+                    "description": "Determines whether the matching closing bracket in a formatted string must be escaped",
+                    "default": true
+                }
+            },
+            "additionalProperties": false
+        },
+        "multiline": {
+            "type": "object",
+            "properties": {
+                "acceessibility": {
+                    "type": "string",
+                    "enum": [
+                        "disabled",
+                        "enabled",
+                        "default"
+                    ],
+                    "enumDescriptions": [
+                        "Multiline strings are not allowed",
+                        "Multiline strings require explicit syntax",
+                        "Strings are multiline by default"
+                    ]
+                },
+                "syntax": {
+                    "": ""
+                },
+                ""
+            }
+        },
+        "delimeters": {
+            "type": "array",
+            "items": {"enum": ["\"", "'", "`"]},
+            "uniqueItems": true,
+            "minItems": 1,
+            "additionalItems": false,
+            "default": ["\"", "'", "`"]
+        }
+    }
+}

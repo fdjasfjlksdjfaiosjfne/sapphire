@@ -1,0 +1,101 @@
+{
+    "type": "object",
+    "properties": {
+        "equality": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "syntax": {
+                    "type": "string",
+                    "enum": [
+                        "==",
+                        "==="
+                    ],
+                    "enumDescriptions": [
+                        "The standard notation, used in most languages",
+                        "JS's symbol for strict equality"
+                    ],
+                    "default": "=="
+                }
+            }
+        },
+        "inequality": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "syntax": {
+                    "type": "string",
+                    "enum": [
+                        "!=",
+                        "><",
+                        "<>"
+                    ],
+                    "enumDescriptions": [
+                        "The standard notation, use in most languages",
+                        "It looks like a face I suppose...",
+                        "A more uncommon symbol. Use by Pascal and Python prior to 3.0"
+                    ],
+                    "default": "!="
+                }
+            }
+        },
+        "looseEquality": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "equalitySyntax": {
+                    "type": "string",
+                    "enum": [
+                        "~=",
+                        "=="
+                    ],
+                    "enumDescriptions": [
+                        "Default, use to differentiate from ==",
+                        "Use by JS"
+                    ],
+                    "default": "~="
+                },
+                "inequalitySyntax": {
+                    "type": "string",
+                    "enum": [
+                        "!~=", "~!=",
+                        "~<>", "~><",
+                        "!="
+                    ],
+                    "enumDescriptions": [
+                        "", "", "", "", "Use by JS"
+                    ],
+                    "default": "!~="
+                }
+            }
+        },
+        "spaceshipOperator": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "syntax": {
+                    "type": ["string", "null"],
+                    "enum": ["<=>", ">=<", null],
+                    "enumDescriptions": [
+                        "The standard notation, use by most languages that has it",
+                        "It looks like a quirky face I suppose...",
+                        "Disable the spaceship operator entirely"
+                    ],
+                    "default": "<=>"
+                }
+            }
+        }
+    }
+}
