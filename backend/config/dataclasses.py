@@ -1,7 +1,7 @@
 import typing
 import dataclasses
 import enum
-from backend.config.conf_base_classes import custom_dataclass
+from backend.config.baseclasses import custom_dataclass
 from backend import errors
 
 

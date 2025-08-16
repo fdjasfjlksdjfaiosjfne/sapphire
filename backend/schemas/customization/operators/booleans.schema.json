@@ -11,9 +11,9 @@
                 "syntax": {
                     "type": "string",
                     "enum": [
-                        "xor", "^^", "^", "b^"
+                        "xor", "^^", "^"
                     ],
-                    "default": "b^"
+                    "default": "^"
                 }
             },
             "additionalProperties": false
@@ -30,7 +30,7 @@
                     "enum": [
                         "or", "||", "ior", "|"
                     ],
-                    "default": "b|"
+                    "default": "|"
                 }
             },
             "additionalProperties": false
@@ -47,7 +47,7 @@
                     "enum": [
                         "and", "&&", "&"
                     ],
-                    "default": "b&"
+                    "default": "&"
                 }
             },
             "additionalProperties": false

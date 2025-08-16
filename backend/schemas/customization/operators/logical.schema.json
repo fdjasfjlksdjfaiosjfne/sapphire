@@ -1,0 +1,57 @@
+{
+    "type": "object",
+    "properties": {
+        "exclusiveOr": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "syntax": {
+                    "type": "string",
+                    "enum": [
+                        "xor", "^^", "^"
+                    ],
+                    "default": "xor"
+                }
+            },
+            "additionalProperties": false
+        },
+        "inclusiveOr": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "syntax": {
+                    "type": "string",
+                    "enum": [
+                        "or", "||", "ior", "|"
+                    ],
+                    "default": "or"
+                }
+            },
+            "additionalProperties": false
+        },
+        "and": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "syntax": {
+                    "type": "string",
+                    "enum": [
+                        "and", "&&", "&"
+                    ],
+                    "default": "and"
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

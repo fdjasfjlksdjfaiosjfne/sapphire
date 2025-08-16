@@ -1,4 +1,5 @@
 from __future__ import annotations
+import dataclasses
 import dotenv_vault
 import os
 import jsonschema.exceptions
@@ -13,26 +14,9 @@ dotenv_vault.load_dotenv()
 sys.path.insert(0, os.getenv("ROOT_PATH") or "")
 
 from backend import errors
-from backend.config.conf_dataclasses import (
-    CustomizationMode,
-    CustomizationCls,
-    ConfigCls,
-    RedefineCls,
-    MultiLineComment,
-    IntegerBaseLiterals,
-    TemplateCls,
+from backend.config.dataclass import (
     ConfigVersionCls,
-    SyntaxCustomizationCls,
-    LiteralCustomizationCls,
-    OperatorCustomizationCls,
-    VariableCustomizationCls,
-    AnnotationCustomizationCls,
-    AssignmentCustomizationCls,
-    ControlFlowCustomizationCls,
-    UncategorizedCustomizationCls,
-    ControlRedefineCls,
-    OperatorRedefineCls,
-    
+
 )
 
 LASTEST_VERSION = ConfigVersionCls(2, 0, 0, "indev")
@@ -60,24 +44,21 @@ def solidify_config(conf: dict[str, typing.Any]) -> ConfigCls:
     customs: dict[str, typing.Any] = conf_.pop("customization", conf_.pop("customisation", {}))
     redef: dict = customs.pop("redefine", {})
     int_bases: dict = customs.pop("integer_base_literals", {})
-    config_version: list[int]|str = conf_.pop("config_version", LASTEST_VERSION)
+    config_version: dict = conf_.pop("config_version", LASTEST_VERSION)
     cus_opts: dict = conf_.get("custom_options", {})
     templates: dict = conf_.get("template", {})
     mtc: str = redef.pop("multi_line_comment", "/* */")
     mtlcs, mtlce = mtc.split()
-
-    if isinstance(config_version, str):
-        config_version = [int(i) for i in config_version.split(".")]
     
     # & I'm not adding multi-version support
     # & What's so important about supporting older development versions anyway?
     # & They just exist for like, a few days at most
     # & I'll add them once it's mainstream...Which is basically never.
-    if tuple(config_version) != LASTEST_VERSION:
+    if config_version != dataclasses.asdict(LASTEST_VERSION):
         raise errors.InternalError(
             "Due to the developer having an overdose of laziness, version "
             f"{".".join(str(i) for i in config_version)} is not supported. "
-            f"Please use version {".".join(str(i) for i in LASTEST_VERSION)} "
+            f"Please use version {".".join(str(i) for i in dataclasses.astuple(LASTEST_VERSION))} "
             "instead."
         )
 
@@ -152,7 +133,7 @@ def solidify_config(conf: dict[str, typing.Any]) -> ConfigCls:
         **cus_opts
     )
 
-CONFIG = solidify_config({})
+#CONFIG = solidify_config({})
 
 def get_resolver():
     main_schema_dir = pathlib.Path("./schemas").resolve()

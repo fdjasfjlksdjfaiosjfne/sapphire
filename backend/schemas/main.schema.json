@@ -45,7 +45,6 @@
             "title": "Language Customization",
             "description": "A place to add customization that can modify how the compiler treats the code.\nThis can range from minor behavior changes to imcompatible syntax modifiers.\nAlso the simplest way to cause chaos for anyone that doesn't use a proper linter for whatever reason.",
             "properties": {
-                "syntax": {"$ref": "customization/syntax"},
                 "annotations": {"$ref": "customization/annotations"},
                 "literals": {
                     "type": "object",
@@ -96,7 +95,6 @@
                     },
                     "additionalProperties": false
                 },
-                "assignments": {"$ref": "customization/assignments"},
                 "uncategorized": {"$ref": "customization/uncategorized"}
             }
         }
