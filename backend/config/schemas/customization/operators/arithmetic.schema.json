@@ -12,6 +12,10 @@
             "type": "string",
             "enum": ["+"],
             "default": "+"
+        },
+        "allowStringConcanentation": {
+          "type": "boolean",
+          "default": false
         }
       },
       "additionalProperties": false
@@ -101,7 +105,8 @@
         },
         "syntax": {
           "type": "string",
-          "enum": ["**", "^"],
+          "enum": ["**", "^",
+                   "exp", "pow"],
           "default": "**"
         }
       }

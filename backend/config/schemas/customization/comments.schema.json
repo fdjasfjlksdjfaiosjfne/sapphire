@@ -1,0 +1,67 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "inlineComment": {
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            },
+            "syntax": {
+                "type": "string",
+                "enum": ["#", "//", "%", ";", "--"],
+                "enumDescriptions": [
+                    "Use by Python, Powershell, Ruby, Bash, Perl, Julia, YAML, TOML, CoffeeScript and R, among others",
+                    "Use by most C-styled languages. Note that, since this symbol matches the default floor division operator, you'd need to either redefine or disable it.",
+                    "Use by MATLAB. Note that, since this symbol matches the default modulus operator, you'd need to either redefine or disable it.",
+                    "Use by Assembly and AutoHotKey.",
+                    "Use by Haskell and Lua"
+                    
+                ],
+                "default": "#"
+            },
+            "spaceRequired": {
+                "type": "boolean",
+                "description": "Determine whether it is required to have an extra space after the single-line comment syntax for it to be consider as a comment."
+            }
+        },
+        "multilineComment": {
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            },
+            "syntax": {
+                "type": "object",
+                "enum": [
+                    {"start": "/*", "end": "*/"},
+                    {"start": "###", "end": "###"},
+                    {"start": "#=", "end": "=#"},
+                    {"start": "#*", "end": "*#"},
+                    {"start": "(*", "end": "*)"},
+                    {"start": "<!--", "end": "-->"},
+                    {"start": "{#", "end": "#}"},
+                    {"start": "{{!--", "end": "--}}"},
+                    {"start": "{{--", "end": "--}}"},
+                    {"start": "--[[", "end": "]]"},
+                    {"start": "#|", "end": "|#"},
+                    {"start": "%{", "end": "}%"}
+                ],
+                "enumDescriptions": [
+                    "Use by most languages",
+                    "Use by CoffeeScript",
+                    "Use by Julia",
+                    "Use by Velocity",
+                    "Use by F#",
+                    "Use by HTML, Markdown, XML among others",
+                    "Use by Django, Genshi (not to be confused with Genshin) and Jinja",
+                    "Use by Handlebars",
+                    "Use by Laravel",
+                    "Use by Lua",
+                    "Use by Lisp",
+                    "Use by MATLAB"
+                ],
+                "default": "/* */"
+            }
+        }
+    }
+}

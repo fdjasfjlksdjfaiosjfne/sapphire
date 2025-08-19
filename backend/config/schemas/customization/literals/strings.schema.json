@@ -1,0 +1,156 @@
+{
+    "type": "object",
+    "$defs": {
+        "bracketEscapeSymbol": {
+            "type": "string",
+            "enum": [
+                "backslash",
+                "double"
+            ],
+            "enumDescriptions": [
+                "Use a backslash prefix (e.g. \\$)",
+                "Type the symbol twice (e.g. }})"
+            ]
+        },
+        "stringDelimeters": {
+            "type": "array",
+            "items": {"enum": ["\"", "'", "`"]},
+            "uniqueItems": true,
+            "minItems": 1,
+            "additionalItems": false,
+            "default": ["\"", "'", "`"]
+        },
+        "acceessibility": {
+            "type": "string",
+            "enum": [
+                "never",
+                "enable_by_prefix",
+                "enable_by_delimeter",
+                "disable_by_prefix",
+                "disable_by_delimeter",
+                "always"
+            ]
+        }
+    },
+    "properties": {
+        "interpolation": {
+            "type": "object",
+            "properties": {
+                "acceessibility": {
+                    "$ref": "#/$defs/acceessibility",
+                
+                    "description": "Determine whether how string interpolation will be accessed.",
+                    "enumDescriptions": [
+                        "Disable string interpolation entirely",
+                        "Enable string interpolation by adding a prefix before the string",
+                        "Enable string interpolation using a special delimeter",
+                        "Enable string interpolation by default. You may disable it using a string prefix",
+                        "Enable string interpolation by default. You may disable it using one, or more specific string delimeter",
+                        "Always enable string interpolation, with no way to disable it."
+                    ]
+                },
+                "expressionSyntax": {
+                    "type": "object",
+                    "enum": [
+                        {"start": "{", "end": "}"},
+                        {"start": "${", "end": "}"},
+                        {"start": "#{", "end": "}"},
+                        {"start": "\\{", "end": "}"},
+                        {"start": "%{", "end": "}"},
+                        {"start": "[", "end": "]"},
+                        {"start": "$[", "end": "]"},
+                        {"start": "#[", "end": "]"},
+                        {"start": "\\[", "end": "]"},
+                        {"start": "%[", "end": "]"},
+                        {"start": "(", "end": ")"},
+                        {"start": "$(", "end": ")"},
+                        {"start": "#(", "end": ")"},
+                        {"start": "\\(", "end": ")"},
+                        {"start": "%(", "end": ")"}
+                    ],
+                    "enumDescriptions": [
+                        "Use by Python, Scala, Nim and PHP",
+                        "Use by JS, Bash, Dart, Groovy and Kotlin",
+                        "Use by Ruby and CoffeeScript",
+                        "Use by Java 21 and 22",
+                        "Use by Swift",
+                        "",
+                        "Use by Julia",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ]
+                },
+                "allowIdentifierSyntax": {
+                    "type": "boolean"
+                },
+                "identifierPrefixSyntax": {
+                    "type": "string",
+                    "enum": [
+                        "$", "#", "\\", "%"
+                    ],
+                    "enumDescriptions": [
+                        "Use by Bash, Dart, Groovy, Julia, Kotlin, Perl, PHP and Scala", "", "", ""
+                    ]
+                },
+                "bracketEscapeMethod": {
+                    "oneOf": [
+                        {"$ref": "#/$defs/bracketEscapeSymbol"},
+                        {
+                            "type": "object",
+                            "properties": {
+                                "opening": {"$ref": "#/$defs/bracketEscapeSymbol"},
+                                "closing": {"$ref": "#/$defs/bracketEscapeSymbol"}
+                            },
+                            "additionalProperties": false
+                        }
+                    ]
+                },
+                "forceEscapeClosingBracket": {
+                    "type": "boolean",
+                    "description": "Determines whether the matching closing bracket in a formatted string must be escaped",
+                    "default": true
+                },
+                "delimeterSyntax": {
+                    "description": "Determine the specific string delimeters use to either enable or disable interpolation.\nThis option is ignored if the 'acceessibility' field is not 'disable_by_delimeter' or 'enable_by_delimeter'",
+                    "$ref": "#/$defs/stringDelimeters"
+                },
+                "prefix": {
+                    "description": "Determine the prefix use to either enable or disable interpolation.\nThis option is ignored if the 'acceessibility' field is not 'disable_by_format' or 'enable_by_delimeter'",
+                    "enum": ["f", "i"],
+                    "default": "f"
+                }
+            },
+            "additionalProperties": false
+        },
+        "multiline": {
+            "type": "object",
+            "properties": {
+                "acceessibility": {
+                    "type": "string",
+                    "enum": [
+                        "disabled",
+                        "enabled",
+                        "default"
+                    ],
+                    "enumDescriptions": [
+                        "Multiline strings are not allowed",
+                        "Multiline strings require explicit syntax",
+                        "Strings are multiline by default"
+                    ]
+                },
+                "delimeterSyntax": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "const": "triple"
+                        },
+                        {"$ref": "#/$defs/stringDelimeters"}
+                    ]
+                }
+            }
+        },
+        "delimeters": {"$ref": "#/$defs/stringDelimeters"}
+    }
+}

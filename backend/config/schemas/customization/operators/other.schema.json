@@ -10,7 +10,7 @@
                 },
                 "syntax": {
                     "type": "string",
-                    "enum": [".."],
+                    "enum": ["..", "||"],
                     "default": ".."
                 }
             },

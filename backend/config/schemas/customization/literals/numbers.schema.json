@@ -2,9 +2,19 @@
     "type": "object",
     "properties": {
         "numericSeparator": {
-            "type": "boolean",
-            "description": "If true, numberic literals can have underscores in them as separators.",
-            "default": true
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "If true, numberic literals can have underscores in them as separators.",
+                    "default": true
+                },
+                "syntax": {
+                    "type": "string",
+                    "enum": ["_", " "],
+                    "default": "_"
+                }
+            }
         },
         "integerBaseLiterals": {
             "type": "object",

@@ -28,7 +28,7 @@
                 "syntax": {
                     "type": "string",
                     "enum": [
-                        "or", "||", "ior", "|"
+                        "or", "||", "ior", "|", "b|"
                     ],
                     "default": "b|"
                 }
@@ -45,7 +45,7 @@
                 "syntax": {
                     "type": "string",
                     "enum": [
-                        "and", "&&", "&"
+                        "and", "&&", "&", "b&"
                     ],
                     "default": "b&"
                 }

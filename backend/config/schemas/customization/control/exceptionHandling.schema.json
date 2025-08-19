@@ -8,14 +8,17 @@
         "tryStatement": {
             "type": "object",
             "properties": {
-                "syntax": {}
+                "syntax": {
+                    "enum": ["try"],
+                    "default": "try"
+                }
             },
             "additionalProperties": false
         },
         "handlingException": {
             "type": "object",
             "properties": {
-                "optionalCatchBinding": {
+                "optionalErrorBinding": {
                     "type": "boolean",
                     "description": "Allow omitting the error variable in catch blocks.",
                     "default": true
@@ -44,10 +47,16 @@
                     "type": "boolean",
                     "default": true
                 },
-                "syntax": {}
+                "syntax": {
+                    "enum": [
+                        "else",
+                        "otherwise"
+                    ],
+                    "default": "else"
+                }
             }
         },
-        "finalCleanupOfExceptionHandling": {
+        "finalCleanup": {
             "type": "object",
             "properties": {
                 "enabled": {

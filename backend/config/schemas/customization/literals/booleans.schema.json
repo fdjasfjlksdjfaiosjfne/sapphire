@@ -34,7 +34,7 @@
         "falseSyntax": {
             "type": "string",
             "description": "Note: If 'languageCustomization.caseInsensitiveBooleans' is disabled, certain options allowed will act identically",
-            "enum": ["false", "False", "FALSE", "no", "No", "n", "N", "Negative", "nah", "nope", "nay", null],
+            "enum": ["false", "False", "FALSE", "no", "No", "n", "N", "Negative", "nah", "nope", "nay"],
             "enumDescriptions": [
                 "The standard notation, use in most languages",
                 "Use by Python",
@@ -46,8 +46,7 @@
                 "A polite way of saying 'false'",
                 "An informal way of saying 'false'",
                 "An informal way of saying 'false'",
-                "An informal way of saying 'false'",
-                "Disable `false` entirely"
+                "An informal way of saying 'false'"
             ],
             "default": "false"
         }

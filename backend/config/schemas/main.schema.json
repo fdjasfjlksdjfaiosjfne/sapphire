@@ -51,7 +51,7 @@
                     "properties": {
                         "numbers": {"$ref": "customization/literals/number"},
                         "booleans": {"$ref": "customization/literals/booleans"},
-                        "string": {"$ref": "customization/literals/strings"},
+                        "strings": {"$ref": "customization/literals/strings"},
                         "ellipsis": {"$ref": "customization.literals/ellipsis"},
                         "null": {"$ref": "customization/literals/null"}
                     },
@@ -69,6 +69,14 @@
                     "additionalProperties": false
                 },
                 "variables": {"$ref": "customization/variables"},
+                "objects": {
+                    "type": "object",
+                    "properties": {
+                        "classes": {"$ref": "customization/objects/classes"},
+                        "functions": {"$ref": "customization/objects/functions"},
+                        "enums": {"$ref": "customization/objects/enums"}
+                    }
+                },
                 "oop": {"$ref": "customization/oop"},
                 "operators": {
                     "type": "object",
@@ -100,4 +108,4 @@
         }
     },
     "additionalProperties": false
-}
+} 
