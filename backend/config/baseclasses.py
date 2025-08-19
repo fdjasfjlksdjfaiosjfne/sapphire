@@ -1,3 +1,4 @@
+from calendar import c
 import dataclasses
 import typing
 
@@ -6,11 +7,6 @@ from backend import errors
 _UNFILLED = object()
 
 class ConfigDescriptor[T]:
-    @classmethod
-    def __class_getitem__(cls, item: T):
-        # & It exists, trust me bro
-        return super().__class_getitem__(item) # pyright: ignore[reportAttributeAccessIssue]
-    
     def __init__(self, value: T, default: T = _UNFILLED): 
         self._v = value
         if default is _UNFILLED:
@@ -53,10 +49,12 @@ class ConfigDescriptor[T]:
             "Any of the values in the config class are not allowed to be deleted."
         )
 
-def custom_dataclass[T](cls: type[T]) -> type[T]:
-    if not dataclasses.is_dataclass(cls):
-        cls = dataclasses.dataclass(cls, frozen = True, kw_only = True)
-    def __init__(self, **kwargs):
+class CustomDataclass:
+    def __init__(self, **kwargs) -> None:
+        if not dataclasses.is_dataclass(self):
+            raise errors.InternalError(
+                "Any subclasses of CustomDataclass must be a dataclass"
+            )
         for field in dataclasses.fields(self):
             if field.name not in kwargs:
                 if field.default is not dataclasses.MISSING:
@@ -69,5 +67,3 @@ def custom_dataclass[T](cls: type[T]) -> type[T]:
             raise AttributeError(
                 f"{type(self).__name__}.__init__() recieve redundant keyword arguments ({",".join(kwargs.keys())})"
             )
-    object.__setattr__(cls, "__init__", __init__)
-    return cls

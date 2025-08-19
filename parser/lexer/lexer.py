@@ -3,10 +3,10 @@ import ast
 import typing
 import regex
 from backend import errors
-from parser._lexer.data.pattern_injection import TokenPattern
-from parser._lexer.token_types import TokenTypeEnum
-from parser._lexer.internal_token_types import InternalTokenType, ITTTypeChecking
-from parser._lexer.data.patterns import (
+from parser.lexer.data.pattern_injection import TokenPattern
+from parser.lexer.token_types import TokenTypeEnum
+from parser.lexer.internal_token_types import InternalTokenType, ITTTypeChecking
+from parser.lexer.data.patterns import (
     get_token_patterns,
     StringTokenPattern,
     RegExTokenPattern,

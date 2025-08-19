@@ -1,10 +1,20 @@
+from __future__ import annotations
 import typing
-from dataclasses import dataclass, fields
+import regex
+from dataclasses import dataclass, fields, is_dataclass
 
-from backend.config.baseclasses import custom_dataclass
+
+from backend import errors
+from backend.config.checks import asserting_config_dict
+from backend.config.baseclasses import CustomDataclass
 
 from backend.config.dataclass.customization import (
     CustomizationConfigCls,
+    EnumsConfigCls,
+    ClassesConfigCls,
+    JumpingConfigCls,
+    ObjectsConfigCls,
+    InlineCommentCls,
     LiteralsConfigCls,
     NumberLiteralsConfigCls,
     NumericSeparatorConfigCls,
@@ -20,12 +30,6 @@ from backend.config.dataclass.customization import (
     ControlFlowConfigCls,
     ConditionalConfigCls,
     CommentConfigCls,
-    EnumsConfigCls,
-    ClassesConfigCls,
-    JumpingConfigCls,
-    ObjectsConfigCls,
-    ConditionalSyntaxConfigCls,
-    ComparisonOperatorsConfigCls,
     FunctionsConfigCls,
     MatchCaseConfigCls,
     OperatorsConfigCls,
@@ -37,14 +41,13 @@ from backend.config.dataclass.customization import (
     UncategorizedConfigCls,
     OtherOperatorsConfigCls,
     BinaryOperatorsConfigCls,
-    StringConcanentationConfigCls,
-    InlineCommentCls,
     ModulusOperatorConfigCls,
     AdditionOperatorConfigCls,
     BooleanOperatorsConfigCls,
     EqualityOperatorConfigCls,
     LogicalOperatorsConfigCls,
     MultilineCommentConfigCls,
+    ConditionalSyntaxConfigCls,
     BinaryAndOperatorConfigCls,
     ExceptionHandlingConfigCls,
     NoExceptionClauseConfigCls,
@@ -54,6 +57,8 @@ from backend.config.dataclass.customization import (
     LogicalAndOperatorConfigCls,
     ArithmeticOperatorsConfigCls,
     SubtractionOperatorConfigCls,
+    ComparisonOperatorsConfigCls,
+    StringConcanentationConfigCls,
     MatrixMultiplicationConfigCls,
     TrueDivisionOperatorConfigCls,
     ExponentationOperatorConfigCls,
@@ -70,15 +75,25 @@ from backend.config.dataclass.customization import (
     LogicalInclusiveOrOperatorConfigCls
 )
 
+CAMEL_TO_SNAKE_PATTERN = regex.compile('((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))')
+
+def camel_to_snake(string: str) -> str:
+    return CAMEL_TO_SNAKE_PATTERN.sub(r"_\1", string).lower()
+
 ForcableTemplate: typing.TypeAlias = typing.Literal["disabled", "enabled", "forced"]
 UnforcableTemplate: typing.TypeAlias = typing.Literal["disabled", "enabled"]
 
-@custom_dataclass
+FIELD_ALIASES = {
+    "customization": ["customization", "customisation"],
+    "mutable_value_assignment_behavior": ["mutable_value_assignment_behavior", "mutable_value_assignment_behaviour"],
+    "mutable_value_as_default_behavior": ["mutable_Value_as_default_behavior", "mutable_value_as_default_behaviour"]
+}
+
 @dataclass(frozen=True, kw_only=True)
-class ConfigVersionCls:
+class ConfigVersionCls(CustomDataclass):
     major: int = 2
     minor: int = 1
-    patch: int = 0
+    patch: int = 1
     phase: typing.Literal["indev", "alpha",
                           "beta", "release"] = "indev"
     def __repr__(self) -> str:
@@ -87,24 +102,28 @@ class ConfigVersionCls:
             f"; phase {self.phase}>"
         )
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class TemplatesCls:
+class TemplatesCls(CustomDataclass):
     inverted_comparisons: ForcableTemplate = "disabled"
     methify: ForcableTemplate = "disabled"
-    def __post_init__(self):
-        for field in fields(self):
-            match getattr(self, field.name).get_value():
-                case 0 | False:
-                    object.__setattr__(self, field.name, "disabled")
-                case 1 | True:
-                    object.__setattr__(self, field.name, "enabled")
-                case 2:
-                    object.__setattr__(self, field.name, "forced")
+    def __init__(self, **kwargs):
+        for k, v in list(kwargs.items()):
+            match v:
+                case 1 | "enabled" | True:
+                    kwargs[k] = "enabled"
+                case 2 | "forced":
+                    kwargs[k] = "forced"
+                case 0 | "disabled" | False:
+                    kwargs[k] = "disabled"
+                case _:
+                    raise errors.InternalError(
+                        f"Invalid value in {k}: {v}"
+                    )
+        super().__init__(**kwargs)
 
-@custom_dataclass
+
 @dataclass(frozen=True, kw_only=True)
-class RootConfigCls:
+class RootConfigCls(CustomDataclass):
     """The very root of the configuration object.
 
     This field contains three attributes:
@@ -135,3 +154,74 @@ class RootConfigCls:
     customization: CustomizationConfigCls = CustomizationConfigCls()
     templates: TemplatesCls = TemplatesCls()
     config_version: ConfigVersionCls = ConfigVersionCls()
+
+    @classmethod
+    def from_dict(cls, config_dict: dict[str, typing.Any]) -> RootConfigCls:
+        """
+        Factory method that handles pre-processing of config dictionaries.
+        """
+        normalized_dict = cls._normalize_aliases(config_dict)
+        asserting_config_dict(config_dict)
+        return typing.cast(
+            RootConfigCls,
+            RootConfigCls._solidify_config_dict(RootConfigCls, config_dict)
+        )
+    
+    @staticmethod
+    def _normalize_aliases(data: dict[str, typing.Any]) -> dict[str, typing.Any]:
+        alias_to_canonical = {}
+        for canonical, alias_list in FIELD_ALIASES.items():
+            alias_to_canonical.update(
+                {alias: canonical for alias in alias_list if alias != canonical}
+            )
+        
+        def recursive(d):
+            if not isinstance(d, dict):
+                return d
+            
+            normalized = {}
+            for key, value in d.items():
+                key = camel_to_snake(key)
+                canonical_key = alias_to_canonical.get(key, key)
+                normalized[canonical_key] = recursive(value)
+            return normalized
+
+        return recursive(data)
+    
+    @staticmethod
+    def _solidify_config_dict[T1, T2: dict](cls_: type[T1], data: T2) -> T1 | T2:
+        """
+        Recursively build dataclass instances from nested dictionaries.
+        Automatically handles nested dataclasses and missing keys.
+        """
+        if not is_dataclass(cls_):
+            return data
+        
+        kwargs = {}
+        type_hints = typing.get_type_hints(cls_)
+
+        for field in fields(cls_):
+            field_name = field.name
+            field_type = type_hints.get(field_name, field.type)
+            field_value = None
+            found_keys = []
+
+            possible_names = FIELD_ALIASES.get(field_name, [field_name])
+            for possible_name in possible_names:
+                if possible_name in data:
+                    found_keys.append(possible_name)
+                    field_value = data[possible_name]
+            
+            if len(found_keys) > 1:
+                raise errors.ConfigError(
+                    f"Multiple spellings found for field '{field_name}': {found_keys}. "
+                    f"Use only one of: {possible_names}"
+                )
+            
+            if field_value is not None:
+                if hasattr(field_type, "__dataclass_fields__"):
+                    kwargs[field_name] = RootConfigCls._solidify_config_dict(field_type, field_value)
+                else:
+                    kwargs[field_name] = field_value
+        
+        return cls_(**kwargs)

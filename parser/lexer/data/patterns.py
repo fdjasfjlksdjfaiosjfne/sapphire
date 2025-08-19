@@ -1,5 +1,5 @@
 import regex
-from parser._lexer.data.pattern_injection import (
+from parser.lexer.data.pattern_injection import (
     TokenPattern,
     StringTokenPattern,
     RegExTokenPattern,

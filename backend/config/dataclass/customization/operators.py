@@ -1,54 +1,46 @@
 import typing
 from dataclasses import dataclass
 
-from backend.config.baseclasses import custom_dataclass
+from backend.config.baseclasses import CustomDataclass
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class AdditionOperatorConfigCls:
+class AdditionOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["+"] = "+"
     allow_string_concanentation: bool = False
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class SubtractionOperatorConfigCls:
+class SubtractionOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["-"] = "-"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class MultiplicationOperatorConfigCls:
+class MultiplicationOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["*"] = "*"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class TrueDivisionOperatorConfigCls:
+class TrueDivisionOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["/"] = "/"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class FloorDivisionOperatorConfigCls:
+class FloorDivisionOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["//", "div"] = "//"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class ModulusOperatorConfigCls:
+class ModulusOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["%", "mod"] = "%"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class ExponentationOperatorConfigCls:
+class ExponentationOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["**", "^", "exp", "pow"] = "**"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class ArithmeticOperatorsConfigCls:
+class ArithmeticOperatorsConfigCls(CustomDataclass):
     addition: AdditionOperatorConfigCls = AdditionOperatorConfigCls()
     subtraction: SubtractionOperatorConfigCls = SubtractionOperatorConfigCls()
     multiplication: MultiplicationOperatorConfigCls = MultiplicationOperatorConfigCls()
@@ -57,130 +49,110 @@ class ArithmeticOperatorsConfigCls:
     modulus: ModulusOperatorConfigCls = ModulusOperatorConfigCls()
     exponentiaion: ExponentationOperatorConfigCls = ExponentationOperatorConfigCls()
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class BinaryExclusiveOrOperatorConfigCls:
+class BinaryExclusiveOrOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["^^", "b^", "^", "xor"] = "b^"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class BinaryInclusiveOrOperatorConfigCls:
+class BinaryInclusiveOrOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["||", "b|", "|", "ior", "or"] = "b|"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class BinaryAndOperatorConfigCls:
+class BinaryAndOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["&&", "b&", "&", "and"] = "b&"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class BinaryOperatorsConfigCls:
+class BinaryOperatorsConfigCls(CustomDataclass):
     exclusive_or: BinaryExclusiveOrOperatorConfigCls = BinaryExclusiveOrOperatorConfigCls()
     inclusive_or: BinaryInclusiveOrOperatorConfigCls = BinaryInclusiveOrOperatorConfigCls()
     and_: BinaryAndOperatorConfigCls = BinaryAndOperatorConfigCls()
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class BooleanExclusiveOrOperatorConfigCls:
+class BooleanExclusiveOrOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["^^", "b^", "^", "xor"] = "^"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class BooleanInclusiveOrOperatorConfigCls:
+class BooleanInclusiveOrOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["||", "b|", "|", "ior", "or"] = "|"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class BooleanAndOperatorConfigCls:
+class BooleanAndOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["&&", "b&", "&", "and"] = "&"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class BooleanOperatorsConfigCls:
+class BooleanOperatorsConfigCls(CustomDataclass):
     exclusive_or: BooleanExclusiveOrOperatorConfigCls = BooleanExclusiveOrOperatorConfigCls()
     inclusive_or: BooleanInclusiveOrOperatorConfigCls = BooleanInclusiveOrOperatorConfigCls()
     and_: BooleanAndOperatorConfigCls = BooleanAndOperatorConfigCls()
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class LogicalExclusiveOrOperatorConfigCls:
+class LogicalExclusiveOrOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["^^", "^", "xor"] = "xor"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class LogicalInclusiveOrOperatorConfigCls:
+class LogicalInclusiveOrOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["||", "|", "ior", "or"] = "or"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class LogicalAndOperatorConfigCls:
+class LogicalAndOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["&&", "&", "and"] = "and"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class LogicalOperatorsConfigCls:
+class LogicalOperatorsConfigCls(CustomDataclass):
     exclusive_or: LogicalExclusiveOrOperatorConfigCls = LogicalExclusiveOrOperatorConfigCls()
     inclusive_or: LogicalInclusiveOrOperatorConfigCls = LogicalInclusiveOrOperatorConfigCls()
     and_: LogicalAndOperatorConfigCls = LogicalAndOperatorConfigCls()
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class EqualityOperatorConfigCls:
+class EqualityOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["===", "=="] = "=="
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class InequalityOperatorConfigCls:
+class InequalityOperatorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["!==", "!=", "<>", "><"] = "!="
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class LooseEqualityOperatorsConfigCls:
+class LooseEqualityOperatorsConfigCls(CustomDataclass):
     enabled: bool = True
     equality_syntax: typing.Literal["==", "~="] = "~="
     inequality_syntax: typing.Literal["~!=", "!~=",
                                       "!=", "~<>",
                                       "~><"] = "!~="
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class ComparisonOperatorsConfigCls:
+class ComparisonOperatorsConfigCls(CustomDataclass):
     equality: EqualityOperatorConfigCls = EqualityOperatorConfigCls()
     inequality: InequalityOperatorConfigCls = InequalityOperatorConfigCls()
     loose_equality: LooseEqualityOperatorsConfigCls = LooseEqualityOperatorsConfigCls()
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class StringConcanentationConfigCls:
+class StringConcanentationConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["..", "||"] = ".."
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class MatrixMultiplicationConfigCls:
+class MatrixMultiplicationConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["@"] = "@"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class OtherOperatorsConfigCls:
+class OtherOperatorsConfigCls(CustomDataclass):
     string_concanentation: StringConcanentationConfigCls = StringConcanentationConfigCls()
     matrix_multiplication: MatrixMultiplicationConfigCls = MatrixMultiplicationConfigCls()
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class OperatorsConfigCls:
+class OperatorsConfigCls(CustomDataclass):
     arithmetic: ArithmeticOperatorsConfigCls = ArithmeticOperatorsConfigCls()
     binary: BinaryOperatorsConfigCls = BinaryOperatorsConfigCls()
     booleans: BooleanOperatorsConfigCls = BooleanOperatorsConfigCls()

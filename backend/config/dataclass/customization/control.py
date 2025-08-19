@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 import typing
 
-from backend.config.baseclasses import custom_dataclass
+from backend.config.baseclasses import CustomDataclass
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class ConditionalSyntaxConfigCls:
+class ConditionalSyntaxConfigCls(CustomDataclass):
     conditional: typing.Literal["if"] = "if"
     fallback_with_condition: typing.Literal["elseif", "else if",
                                             "elif", "elsif",
@@ -13,49 +12,47 @@ class ConditionalSyntaxConfigCls:
                                             "but what about if"] = "elif"
     fallback: typing.Literal["else", "otherwise"] = "else"
 
-@custom_dataclass
+
 @dataclass(frozen=True, kw_only=True)
-class ConditionalConfigCls:
+class ConditionalConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: ConditionalSyntaxConfigCls = ConditionalSyntaxConfigCls()
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class MatchCaseConfigCls:
+class MatchCaseConfigCls(CustomDataclass):
     enabled: bool = True
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class TryStatementConfigCls:
+class TryStatementConfigCls(CustomDataclass):
     syntax: typing.Literal["try"] = "try"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class ExceptionHandlingClauseConfigCls:
+class ExceptionHandlingClauseConfigCls(CustomDataclass):
     syntax: typing.Literal["catch", "except", "rescue"] = "catch"
     optional_error_binding: bool = True
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class NoExceptionClauseConfigCls:
+class NoExceptionClauseSyntaxConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["else", "otherwise"] = "else"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class FinalCleanupClauseConfigCls:
+class NoExceptionClauseConfigCls(CustomDataclass):
+    enabled: bool = True
+    syntax: typing.Literal["else", "otherwise"] = "else"
+
+@dataclass(frozen=True, kw_only=True)
+class FinalCleanupClauseConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["finally", "ensure"] = "finally"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class ThrowErrorConfigCls:
+class ThrowErrorConfigCls(CustomDataclass):
     enabled: bool = True
     syntax: typing.Literal["die", "throw", "raise", "panic"] = "throw"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class ExceptionHandlingConfigCls:
+class ExceptionHandlingConfigCls(CustomDataclass):
     enabled: bool = True
     try_statement: TryStatementConfigCls = TryStatementConfigCls()
     exception_handling: ExceptionHandlingClauseConfigCls = ExceptionHandlingClauseConfigCls()
@@ -63,14 +60,12 @@ class ExceptionHandlingConfigCls:
     final_cleanup: FinalCleanupClauseConfigCls = FinalCleanupClauseConfigCls()
     throw_error: ThrowErrorConfigCls = ThrowErrorConfigCls()
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class JumpingConfigCls:
+class JumpingConfigCls(CustomDataclass):
     enabled: bool = True
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class ControlFlowConfigCls:
+class ControlFlowConfigCls(CustomDataclass):
     conditional: ConditionalConfigCls = ConditionalConfigCls()
     match_case: MatchCaseConfigCls = MatchCaseConfigCls()
     exception_handling: ExceptionHandlingConfigCls = ExceptionHandlingConfigCls()

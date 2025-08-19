@@ -1,33 +1,29 @@
 from dataclasses import dataclass
 import typing
 
-from backend.config.baseclasses import custom_dataclass
+from backend.config.baseclasses import CustomDataclass
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class ClassesConfigCls:
+class ClassesConfigCls(CustomDataclass):
     syntax: typing.Literal["class", "cls"] = "class"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class EnumsConfigCls:
+class EnumsConfigCls(CustomDataclass):
     syntax: typing.Literal["enum"] = "enum"
 
-@custom_dataclass
+
 @dataclass(frozen=True, kw_only=True)
-class FnArgumentsConfigCls:
+class FnArgumentsConfigCls(CustomDataclass):
     allow_keyword_arguments: bool = True
     mutable_value_as_default_behavior: typing.Literal["copy", "reference"] = "copy"
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class FunctionsConfigCls:
+class FunctionsConfigCls(CustomDataclass):
     keyword: typing.Literal["fn", "fun", "func", "def", "function"] = "fn"
     arguments: FnArgumentsConfigCls = FnArgumentsConfigCls()
 
-@custom_dataclass
 @dataclass(frozen=True, kw_only=True)
-class ObjectsConfigCls:
+class ObjectsConfigCls(CustomDataclass):
     classes: ClassesConfigCls = ClassesConfigCls()
     enums: EnumsConfigCls = EnumsConfigCls()
     functions: FunctionsConfigCls = FunctionsConfigCls()

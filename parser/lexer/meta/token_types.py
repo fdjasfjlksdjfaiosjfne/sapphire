@@ -17,7 +17,7 @@ sys.path.insert(0, ROOT_PATH)
 GENERATED_FILE_PATH = (pathlib.Path(ROOT_PATH) / "parser" / "_lexer" / "token_types.py").resolve()
 
 from backend import errors
-from parser._lexer.data.aliases import ALIASES
+from parser.lexer.data.aliases import ALIASES
 
 def resolve_enum(node):
     return f"InternalTokenType.{".".join(node)}"
@@ -69,7 +69,7 @@ def write_file():
     lines = [
         "# Auto-generated token_types.py for IntelliSense",
         "# Beep bop",
-        "from parser._lexer.internal_token_types import InternalTokenType",
+        "from parser.lexer.internal_token_types import InternalTokenType",
         "import enum", 
         "",
         "class TokenTypeEnum(enum.Enum):",

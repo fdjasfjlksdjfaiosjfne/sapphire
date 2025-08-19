@@ -1,6 +1,6 @@
 # Auto-generated token_types.py for IntelliSense
 # Beep bop
-from parser._lexer.internal_token_types import InternalTokenType
+from parser.lexer.internal_token_types import InternalTokenType
 import enum
 
 class TokenTypeEnum(enum.Enum):

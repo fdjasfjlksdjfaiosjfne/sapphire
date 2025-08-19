@@ -16,7 +16,7 @@ if not (ROOT_PATH := os.getenv("ROOT_PATH")):
 sys.path.insert(0, ROOT_PATH)
 
 from backend import errors
-from parser._lexer.data.aliases import get_all_itt_used
+from parser.lexer.data.aliases import get_all_itt_used
 
 GENERATED_FILE_PATH = (pathlib.Path(ROOT_PATH) / "parser" / "_lexer" / "internal_token_types.py").resolve()
 
