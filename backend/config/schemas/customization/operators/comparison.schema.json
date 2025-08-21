@@ -34,12 +34,14 @@
                     "enum": [
                         "!=",
                         "><",
-                        "<>"
+                        "<>",
+                        "!=="
                     ],
                     "enumDescriptions": [
                         "The standard notation, use in most languages",
                         "It looks like a face I suppose...",
-                        "A more uncommon symbol. Use by Pascal and Python prior to 3.0"
+                        "A more uncommon symbol. Use by Pascal and Python prior to 3.0",
+                        "JavaScript's symbol for strict inequality"
                     ],
                     "default": "!="
                 }

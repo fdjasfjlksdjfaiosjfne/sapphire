@@ -1,0 +1,57 @@
+{
+    "type": "object",
+    "properties": {
+        "enabled": {
+            "type": "boolean",
+            "description": "Determines whether the classic conditional statement is usable.\nTurn this off if you're feeling masochistic.",
+            "default": true
+        },
+        "enableInvertedIf": {
+            "type": "boolean",
+            "description": "Determines whether an inverted conditional statement can be used.",
+            "default": true
+        },
+        "syntax": {
+            "type": "object",
+            "properties": {
+                "conditonal": {
+                    "enum": ["if"],
+                    "default": "if"
+                },
+                "unless": {
+                    "enum": ["unless", "if not"],
+                    "default": "if"
+                },
+                "fallbackWithCondition": {
+                    "type": "string",
+                    "enum": [
+                        "elseif",
+                        "else if",
+                        "elif",
+                        "elsif",
+                        "perchance",
+                        "assuming",
+                        "but what about if"
+                    ],
+                    "enumDescriptions": [
+                        "Use by Ruby",
+                        "Use by a majority of C-based languages",
+                        "Use by Python",
+                        "Use by Perl",
+                        "A alternate, formal way",
+                        "A alternate, formal way",
+                        "Its design is very human"
+                    ],
+                    "default": "elif"
+                },
+                "fallback": {
+                    "enum": [
+                        "else",
+                        "otherwise"
+                    ],
+                    "default": "else"
+                }
+            }
+        }
+    }
+}

@@ -18,7 +18,7 @@ from backend.config.dataclass import ConfigVersionCls, RootConfigCls
 from backend.config.checks import asserting_config_dict
 
 
-LASTEST_VERSION = ConfigVersionCls(major = 2, minor = 1, patch = 1, phase = "indev")
+LASTEST_VERSION = ConfigVersionCls(major = 2, minor = 1, patch = 1, phase = "indev") # pyright: ignore[reportArgumentType]
 
 CONFIG = RootConfigCls.from_dict({})
 

@@ -6,7 +6,7 @@ from dataclasses import dataclass, fields, is_dataclass
 
 from backend import errors
 from backend.config.checks import asserting_config_dict
-from backend.config.baseclasses import CustomDataclass
+from backend.config.baseclasses import CustomDataclass, ConfigDescriptor, _UNFILLED
 
 from backend.config.dataclass.customization import (
     CustomizationConfigCls,
@@ -28,7 +28,7 @@ from backend.config.dataclass.customization import (
     StrInterpolationExpressionSyntaxConfigCls,
     MultilineStrConfigCls,
     ControlFlowConfigCls,
-    ConditionalConfigCls,
+    ClassicConditionalConfigCls,
     CommentConfigCls,
     FunctionsConfigCls,
     MatchCaseConfigCls,
@@ -47,7 +47,7 @@ from backend.config.dataclass.customization import (
     EqualityOperatorConfigCls,
     LogicalOperatorsConfigCls,
     MultilineCommentConfigCls,
-    ConditionalSyntaxConfigCls,
+    ClassicConditionalSyntaxConfigCls,
     BinaryAndOperatorConfigCls,
     ExceptionHandlingConfigCls,
     NoExceptionClauseConfigCls,
@@ -91,11 +91,12 @@ FIELD_ALIASES = {
 
 @dataclass(frozen=True, kw_only=True)
 class ConfigVersionCls(CustomDataclass):
-    major: int = 2
-    minor: int = 1
-    patch: int = 1
-    phase: typing.Literal["indev", "alpha",
-                          "beta", "release"] = "indev"
+    major: ConfigDescriptor[int] = ConfigDescriptor(_UNFILLED, 2)
+    minor: ConfigDescriptor[int] = ConfigDescriptor(_UNFILLED, 1)
+    patch: ConfigDescriptor[int] = ConfigDescriptor(_UNFILLED, 1)
+    phase: ConfigDescriptor[
+           typing.Literal["indev", "alpha",
+                          "beta", "release"]] = "indev" # type: ignore
     def __repr__(self) -> str:
         return (
             f"<ConfigVersionCls: {self.major}.{self.minor}.{self.patch}"
@@ -104,8 +105,8 @@ class ConfigVersionCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class TemplatesCls(CustomDataclass):
-    inverted_comparisons: ForcableTemplate = "disabled"
-    methify: ForcableTemplate = "disabled"
+    inverted_comparisons: ConfigDescriptor[ForcableTemplate] = "disabled" # type: ignore
+    methify: ConfigDescriptor[ForcableTemplate] = "disabled" # type: ignore
     def __init__(self, **kwargs):
         for k, v in list(kwargs.items()):
             match v:
@@ -124,16 +125,16 @@ class TemplatesCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class RootConfigCls(CustomDataclass):
-    """The very root of the configuration object.
+    """The very root of the configuration dataclass object.
 
-    This field contains three attributes:
+    This field itself contains three attributes:
     - `customization`: Has most of the options you're looking for.
     - `templates`: A list of optional, fixed modifications.
     - `config_version`: Self-explanatory.
 
     Note that every attribute (including subcategories btw) is 
     actually a descriptor. The static type checker may say 
-    otherwise, but they...they are all descriptors, trust me :<
+    otherwise, but they...they are all descriptors, trust me pls :<
 
     Here's a list of the descriptor methods:
     - `__get__()` (aka. just don't call anything): For most 
@@ -147,20 +148,18 @@ class RootConfigCls(CustomDataclass):
     `_UNFILLED` sentinel object.
     - `is_explicit()`: Returns `True` if the value is explicitly
     filled (i.e. not `_UNFILLED`)
-    - `is_default()`: It's `not is_explicit()`.
-    - `__set__()`, `__del__()` and `__delete__()`: Just throw an error.
-    Don't bother.
+    - `is_default()`: The opposite of the aforementioned.
     """
-    customization: CustomizationConfigCls = CustomizationConfigCls()
-    templates: TemplatesCls = TemplatesCls()
-    config_version: ConfigVersionCls = ConfigVersionCls()
+    customization: ConfigDescriptor[CustomizationConfigCls] = CustomizationConfigCls() # type: ignore
+    templates: ConfigDescriptor[TemplatesCls] = TemplatesCls() # type: ignore
+    config_version: ConfigDescriptor[ConfigVersionCls] = ConfigVersionCls() # type: ignore
 
     @classmethod
     def from_dict(cls, config_dict: dict[str, typing.Any]) -> RootConfigCls:
         """
         Factory method that handles pre-processing of config dictionaries.
         """
-        normalized_dict = cls._normalize_aliases(config_dict)
+        normalized_dict = cls._normalize_dict(config_dict)
         asserting_config_dict(config_dict)
         return typing.cast(
             RootConfigCls,
@@ -168,7 +167,7 @@ class RootConfigCls(CustomDataclass):
         )
     
     @staticmethod
-    def _normalize_aliases(data: dict[str, typing.Any]) -> dict[str, typing.Any]:
+    def _normalize_dict(data: dict[str, typing.Any]) -> dict[str, typing.Any]:
         alias_to_canonical = {}
         for canonical, alias_list in FIELD_ALIASES.items():
             alias_to_canonical.update(

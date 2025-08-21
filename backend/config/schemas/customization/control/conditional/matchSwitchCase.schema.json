@@ -5,10 +5,14 @@
             "type": "boolean",
             "default": true
         },
-        "allowPatternMatching": {
-            "type": "boolean",
-            "description": "Determine whether pattern matching is allowed in a match-case statement. If disabled, the match-case statement is equivalent to the switch-case statement.",
-            "default": true
+        "patternMatching": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                }
+            }
         },
         "syntax": {
             "type": "object",
@@ -28,17 +32,15 @@
                     ],
                     "default": "_"
                 },
-                "matchCase": {
+                "statement": {
                     "type": "string",
-                    "enum": ["switch", "match"],
-                    "enumDescriptions":[
+                    "enum": ["switch", "match", "compare"],
+                    "enumDescriptions": [
                         "Use to refer to its counterpart that can't utilize pattern matching",
                         "Use by most languages that has the match/case statement"
-                    ],
-                    "default": "match"
+                    ]
                 }
             }
         }
-        
     }
 }

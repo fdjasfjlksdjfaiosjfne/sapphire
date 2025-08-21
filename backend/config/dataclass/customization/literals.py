@@ -1,9 +1,7 @@
-
-
 import typing
 from dataclasses import dataclass, field
 
-from backend.config.baseclasses import CustomDataclass
+from backend.config.baseclasses import CustomDataclass, ConfigDescriptor, _UNFILLED
 
 Accessibility: typing.TypeAlias = typing.Literal["never", "always",
                                                   "enable_by_prefix",
@@ -15,74 +13,64 @@ StringDelimeters: typing.TypeAlias = list[typing.Literal["'", '"', "`"]]
 
 @dataclass(frozen=True, kw_only=True)
 class NumericSeparatorConfigCls(CustomDataclass):
-    enabled: bool = True
-    syntax: typing.Literal["_", " "] = "_"
+    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    syntax: ConfigDescriptor[typing.Literal["_", " "]] = ConfigDescriptor(_UNFILLED, "_")
 
 @dataclass(frozen=True, kw_only=True)
 class IntegerBaseLiteralsConfigCls(CustomDataclass):
-    binary: bool = True
-    decimal: bool = True
-    octal: bool = True
-    hexadecimal: bool = True
+    binary: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    decimal: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    octal: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    hexadecimal: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
 class NumberLiteralsConfigCls(CustomDataclass):
-    numeric_separator: NumericSeparatorConfigCls = NumericSeparatorConfigCls()
-    integer_base_literals: IntegerBaseLiteralsConfigCls = IntegerBaseLiteralsConfigCls()
-    scientific_notation: bool = True
+    numeric_separator: ConfigDescriptor[NumericSeparatorConfigCls] = ConfigDescriptor(_UNFILLED, NumericSeparatorConfigCls())
+    integer_base_literals: ConfigDescriptor[IntegerBaseLiteralsConfigCls] = ConfigDescriptor(_UNFILLED, IntegerBaseLiteralsConfigCls())
+    scientific_notation: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
 class BooleanSyntaxConfigCls(CustomDataclass):
-    true: typing.Literal["true", "True", "TRUE", "yes", "Yes", "y", "Y", "Affirmative", "ye", "yup", "yay"] = "true"
-    false: typing.Literal["false", "False", "FALSE", "no", "No", "n", "N", "Negative", "nah", "nope", "nay"] = "false"
+    true: ConfigDescriptor[typing.Literal["true", "True", "TRUE", "yes", "Yes", "y", "Y", "Affirmative", "ye", "yup", "yay"]] = ConfigDescriptor(_UNFILLED, "true")
+    false: ConfigDescriptor[typing.Literal["false", "False", "FALSE", "no", "No", "n", "N", "Negative", "nah", "nope", "nay"]] = ConfigDescriptor(_UNFILLED, "false")
 
 @dataclass(frozen=True, kw_only=True)
 class BooleanLiteralsConfigCls(CustomDataclass):
-    enabled: bool = True
-    case_insensivity: bool = False
-    syntax: BooleanSyntaxConfigCls = BooleanSyntaxConfigCls()
+    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    case_insensivity: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, False)
+    syntax: ConfigDescriptor[BooleanSyntaxConfigCls] = ConfigDescriptor(_UNFILLED, BooleanSyntaxConfigCls())
 
 @dataclass(frozen=True, kw_only=True)
 class NullLiteralConfigCls(CustomDataclass):
-    enabled: bool = True
-    case_insensivity: bool = False
-    syntax: typing.Literal["null", "Null", "NULL", "None", "none", "NOTHING", "nothing", "Nothing", "undefined", "nil"] = "null"
+    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    case_insensivity: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, False)
+    syntax: ConfigDescriptor[typing.Literal["null", "Null", "NULL", "None", "none", "NOTHING", "nothing", "Nothing", "undefined", "nil"]] = ConfigDescriptor(_UNFILLED, "null")
 
 @dataclass(frozen=True, kw_only=True)
 class StrInterpolationExpressionSyntaxConfigCls(CustomDataclass):
-    start: typing.Literal["{", "${", "#{", "%{", "\\{",
-                          "[", "$[", "#[", "%[", "\\[",
-                          "(", "$(", "#(", "%(", "\\("] = "{"
-    end: typing.Literal["]", "}", ")"] = "}"
-
+    start: ConfigDescriptor[typing.Literal["{", "${", "#{", "%{", "\\{", "[", "$[", "#[", "%[", "\\[", "(", "$(", "#(", "%(", "\\("]] = ConfigDescriptor(_UNFILLED, "{")
+    end: ConfigDescriptor[typing.Literal["]", "}", ")"]] = ConfigDescriptor(_UNFILLED, "}")
 
 @dataclass(frozen=True, kw_only=True)
 class StrInterpolationConfigCls(CustomDataclass):
-    accessibility: Accessibility = "enable_by_prefix"
-    expression_syntax: StrInterpolationExpressionSyntaxConfigCls = StrInterpolationExpressionSyntaxConfigCls()
-    allow_identifier_syntax: bool = False
-    identifier_prefix_syntax: typing.Literal["$", "#", "\\", "%"] = "$"
-    force_escape_closing_bracket: bool = True
-    delimeter_syntax: StringDelimeters = None # type: ignore
-    prefix: typing.Literal["f", "i"] = "f"
-    def __post_init__(self):
-        if self.delimeter_syntax is None:
-            object.__setattr__(self, "delimeter_syntax", ["'", "\"", "`"])
+    accessibility: ConfigDescriptor[Accessibility] = ConfigDescriptor(_UNFILLED, "enable_by_prefix")
+    expression_syntax: ConfigDescriptor[StrInterpolationExpressionSyntaxConfigCls] = ConfigDescriptor(_UNFILLED, StrInterpolationExpressionSyntaxConfigCls())
+    allow_identifier_syntax: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, False)
+    identifier_prefix_syntax: ConfigDescriptor[typing.Literal["$", "#", "\\", "%"]] = ConfigDescriptor(_UNFILLED, "$")
+    force_escape_closing_bracket: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    delimeter_syntax: ConfigDescriptor[StringDelimeters] = ConfigDescriptor(_UNFILLED, ["'", "\"", "`"])
+    prefix: ConfigDescriptor[typing.Literal["f", "i"]] = ConfigDescriptor(_UNFILLED, "f")
 
 @dataclass(frozen=True, kw_only=True)
 class MultilineStrConfigCls(CustomDataclass):
-    acceessibility: Accessibility = "enable_by_delimeter"
-    delimeter_syntax: StringDelimeters | typing.Literal["triple"] = "triple"
-
+    acceessibility: ConfigDescriptor[Accessibility] = ConfigDescriptor(_UNFILLED, "enable_by_delimeter")
+    delimeter_syntax: ConfigDescriptor[StringDelimeters | typing.Literal["triple"]] = ConfigDescriptor(_UNFILLED, "triple")
 
 @dataclass(frozen=True, kw_only=True)
 class StringLiteralsConfigCls(CustomDataclass):
-    delimeters: StringDelimeters = None # type: ignore
-    interpolation: StrInterpolationConfigCls = StrInterpolationConfigCls()
-    multiline: MultilineStrConfigCls = MultilineStrConfigCls()
-    def __post_init__(self):
-        if self.delimeters is None:
-            object.__setattr__(self, "delimeters", ["\"", "'", "`"])
+    delimeters: ConfigDescriptor[StringDelimeters] = ConfigDescriptor(_UNFILLED, ["\"", "'", "`"])
+    interpolation: ConfigDescriptor[StrInterpolationConfigCls] = ConfigDescriptor(_UNFILLED, StrInterpolationConfigCls())
+    multiline: ConfigDescriptor[MultilineStrConfigCls] = ConfigDescriptor(_UNFILLED, MultilineStrConfigCls())
 
 @dataclass(frozen=True, kw_only=True)
 class EllipsisLiteralConfigCls(CustomDataclass):
@@ -90,8 +78,8 @@ class EllipsisLiteralConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class LiteralsConfigCls(CustomDataclass):
-    numbers: NumberLiteralsConfigCls = NumberLiteralsConfigCls()
-    booleans: BooleanLiteralsConfigCls = BooleanLiteralsConfigCls()
-    null: NullLiteralConfigCls = NullLiteralConfigCls()
-    strings: StringLiteralsConfigCls = StringLiteralsConfigCls()
-    ellipsis: EllipsisLiteralConfigCls = EllipsisLiteralConfigCls()
+    numbers: ConfigDescriptor[NumberLiteralsConfigCls] = ConfigDescriptor(_UNFILLED, NumberLiteralsConfigCls())
+    booleans: ConfigDescriptor[BooleanLiteralsConfigCls] = ConfigDescriptor(_UNFILLED, BooleanLiteralsConfigCls())
+    null: ConfigDescriptor[NullLiteralConfigCls] = ConfigDescriptor(_UNFILLED, NullLiteralConfigCls())
+    strings: ConfigDescriptor[StringLiteralsConfigCls] = ConfigDescriptor(_UNFILLED, StringLiteralsConfigCls())
+    ellipsis: ConfigDescriptor[EllipsisLiteralConfigCls] = ConfigDescriptor(_UNFILLED, EllipsisLiteralConfigCls())

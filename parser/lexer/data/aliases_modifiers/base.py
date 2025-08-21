@@ -1,31 +1,36 @@
 from backend.config import CONFIG
 
 cust = CONFIG.customization
-redefine = cust.redefine
+operators = cust.operators
+objects = cust.objects
+literals = cust.literals
+control = cust.control_flow
 templates = CONFIG.templates
 
 def ne():
-    match redefine.inequality:
+    if not operators.comparison.inequality.enabled:
+        return ("_SkipPattern",)
+    match operators.comparison.inequality.syntax:
         case "!=":
-            return "Symbols", "ExclamationAndEqual"
+            return ("Symbols", "ExclamationAndEqual")
         case "!==":
             return ("Symbols", "ExclamationAndDoubleEqual")
         case "<>":
-            return "Symbols", "Diamond"
+            return ("Symbols", "Diamond")
         case "><":
-            return "Symbols", "InvertedDiamond"
+            return ("Symbols", "InvertedDiamond")
 
 def sps():
-    match redefine.spaceship_operator:
+    if not operators.comparison.spaceship_operator.enabled:
+        return ("_SkipPattern",)
+    match operators.comparison.spaceship_operator.syntax:
         case "<=>":
             return "Symbols", "SpaceCapsule"
         case ">=<":
             return "Symbols", "QuirkyLookingFace"
-        case None:
-            return ("_SkipPattern",)
 
 def default_case():
-    match cust.default_case_notation:
+    match control.match_case.syntax.default_case_notation:
         case "*":
             return "Symbols", "Asterisk"
         case "_":
@@ -34,7 +39,9 @@ def default_case():
             return "Keywords", "Default"
 
 def floordiv():
-    match redefine.floor_division:
+    if not operators.arithmetic.floor_division.enabled:
+        return ("_SkipPattern",)
+    match operators.arithmetic.floor_division.syntax.get_value():
         case "//":
             return "Symbols", "DoubleForwardSlash"
         case "div":
@@ -43,20 +50,20 @@ def floordiv():
             return ("_SkipPattern",)
 
 def modulus():
-    match redefine.modulus:
+    if not operators.arithmetic.modulus.enabled:
+        return ("_SkipPattern",)
+    match operators.arithmetic.modulus.syntax:
         case "%":
             return "Symbols", "Percent"
         case "mod":
             return "Keywords", "Mod"
-        case None:
-            return ("_SkipPattern",)
 
 def null():
-    if cust.allow_null:
+    if cust.literals.null.enabled:
         return ("Primitives", "Null")
     return ("_SkipPattern", )
 
 def boolean():
-    if cust.allow_null:
+    if cust.literals.booleans.enabled:
         return ("Primitives", "Boolean")
     return ("_SkipPattern", )

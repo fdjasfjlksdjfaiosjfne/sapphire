@@ -3,7 +3,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
-        "templates": {"$ref": "templates"},
+        "templates": {"$ref": "templates.schema.json"},
         "configVersion": {
             "type": "object",
             "description": "Indicates the version of the configuration file, which supports SemVar or EpochSemVar.\nIt can either be an array containing numbers or a string containing the version",
@@ -37,6 +37,11 @@
             "$comment": "Is this description too long and unnessecary? It's probably too long and unnessecary...",
             "description": "A field where you can assign it with anything you want. The only requirement for this field is that it should be an object.\nThis is intended for external tools, like linters, to put their own configurations into a single configuration file, for both convenience and cleanliness. Of course, other uses (aside for malicious purposes) are also welcome.\nIt is recommended to make a schema to check for the fields inside of this file.",
             "additionalProperties": true
+        },
+        "masochisticMode": {
+            "type": "boolean",
+            "description": "If true, disable most of the guardrails that would otherwise make the language experience, at least, tolorable.\nFor anyone who enable this: Good luck. And have fun.",
+            "default": false
         }
     },
     "patternProperties": {
@@ -45,45 +50,54 @@
             "title": "Language Customization",
             "description": "A place to add customization that can modify how the compiler treats the code.\nThis can range from minor behavior changes to imcompatible syntax modifiers.\nAlso the simplest way to cause chaos for anyone that doesn't use a proper linter for whatever reason.",
             "properties": {
-                "annotations": {"$ref": "customization/annotations"},
+                "annotations": {"$ref": "customization/annotations.schema.json"},
                 "literals": {
                     "type": "object",
                     "properties": {
-                        "numbers": {"$ref": "customization/literals/number"},
-                        "booleans": {"$ref": "customization/literals/booleans"},
-                        "strings": {"$ref": "customization/literals/strings"},
-                        "ellipsis": {"$ref": "customization.literals/ellipsis"},
-                        "null": {"$ref": "customization/literals/null"}
+                        "numbers": {"$ref": "customization/literals/numbers.schema.json"},
+                        "booleans": {"$ref": "customization/literals/booleans.schema.json"},
+                        "strings": {"$ref": "customization/literals/strings.schema.json"},
+                        "ellipsis": {"$ref": "customization/literals/ellipsis.schema.json"},
+                        "null": {"$ref": "customization/literals/null.schema.json"}
                     },
                     "additionalProperties": false
                 },
-                "comments": {"$ref": "customization/comments"},
+                "comments": {"$ref": "customization/comments.schema.json"},
                 "controlFlow": {
                     "type": "object",
                     "properties": {
-                        "conditional": {"$ref": "customization/control/conditional"},
-                        "matchCase": {"$ref": "customization/control/matchCase"},
-                        "exceptionHandling": {"$ref": "customization/control/exceptionHandling"},
-                        "jumping": {"$ref": "customization/control/jumping"}
+                        "conditional": {
+                            "type": "object",
+                            "properties": {
+                                "ifs": {"$ref": "customization/control/conditional/classic.schema.json"},
+                                "matchCase": {"$ref": "customization/control/conditional/matchCase.schema.json"},
+                                "switchCase": {"$ref": "customization/control/conditional/switchCase.schema.json"}
+                            }
+                        },
+                        "exceptionHandling": {"$ref": "customization/control/exceptionHandling.schema.json"},
+                        "jumping": {"$ref": "customization/control/jumping.schema.json"}
                     },
                     "additionalProperties": false
                 },
-                "variables": {"$ref": "customization/variables"},
+                "variables": {"$ref": "customization/variables.schema.json"},
                 "objects": {
                     "type": "object",
                     "properties": {
-                        "classes": {"$ref": "customization/objects/classes"},
-                        "functions": {"$ref": "customization/objects/functions"},
-                        "enums": {"$ref": "customization/objects/enums"}
+                        "classes": {"$ref": "customization/objects/classes.schema.json"},
+                        "functions": {"$ref": "customization/objects/functions.schema.json"},
+                        "enums": {"$ref": "customization/objects/enums.schema.json"}
                     }
                 },
-                "oop": {"$ref": "customization/oop"},
+                "oop": {"$ref": "customization/oop.schema.json"},
                 "operators": {
                     "type": "object",
                     "properties": {
-                        "logical": {"$ref": "customization/operators/logical"},
-                        "arithmetic": {"$ref": "customization/operators/arithmetic"},
-                        "comparison": {"$ref": "customization/operators/comparison"},
+                        "logical": {"$ref": "customization/operators/logical.schema.json"},
+                        "arithmetic": {"$ref": "customization/operators/arithmetic.schema.json"},
+                        "comparison": {"$ref": "customization/operators/comparison.schema.json"},
+                        "binary": {"$ref": "customization/operators/binary.schema.json"},
+                        "booleans": {"$ref": "customization/operators/booleans.schema.json"},
+                        "other": {"$ref": "customization/operators/other.schema.json"},
                         "binaryExpressionNotation": {
                             "title": "Operator Notation",
                             "type": "string",
@@ -103,7 +117,7 @@
                     },
                     "additionalProperties": false
                 },
-                "uncategorized": {"$ref": "customization/uncategorized"}
+                "uncategorized": {"$ref": "customization/uncategorized.schema.json"}
             }
         }
     },

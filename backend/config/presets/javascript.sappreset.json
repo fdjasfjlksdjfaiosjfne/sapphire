@@ -1,0 +1,50 @@
+{
+    "customization": {
+        "annotations": {"enabled": false},
+        "operators": {
+            "arithmetic": {
+                "addition": {
+                    "enabled": true,
+                    "syntax": "+",
+                    "allowStringConcanentation": true
+                },
+                "multiplication": {
+                    "enabled": true
+                }
+            },
+            "comparison": {
+                "equality": {
+                    "syntax": "==="
+                },
+                "inequality": {
+                    "syntax": "!=="
+                },
+                "looseEquality": {
+                    "enabled": true,
+                    "equalitySyntax": "==",
+                    "inequalitySyntax": "!="
+                }
+            },
+            "other": {
+                "stringConcanentation": {"enabled": false},
+                "matrixMultiplication": {"enabled": false}
+            }
+        },
+        "controlFlow": {
+            "conditional": {
+                "ifs": {
+                    "enabled": true,
+                    "syntax": {
+                        "conditonal": "if",
+                        "fallbackWithCondition": "else if",
+                        "fallback": "else"
+                    }
+                },
+                "switchCase": {
+                    "enabled": true,
+                    "syntax": {}
+                }
+            }
+        }
+    }
+}

@@ -56,6 +56,26 @@
     "description": "A field where you can enable certain set configurations, which usually contain breaking syntax changes.",
     "additionalProperties": false,
     "properties": {
+        "languagePresets": {
+            "type": "object",
+            "properties": {
+                "javascript": {"$ref": "#/$defs/unforcedModeProperty"},
+                "java": {"$ref": "#/$defs/unforcedModeProperty"},
+                "python": {"$ref": "#/$defs/unforcedModeProperty"},
+                "typescript": {"$ref": "#/$defs/unforcedModeProperty"},
+                "c": {"$ref": "#/$defs/unforcedModeProperty"},
+                "cpp": {"$ref": "#/$defs/unforcedModeProperty"},
+                "kotlin": {"$ref": "#/$defs/unforcedModeProperty"},
+                "swift": {"$ref": "#/$defs/unforcedModeProperty"},
+                "perl": {"$ref": "#/$defs/unforcedModeProperty"},
+                "coffeescript": {"$ref": "#/$defs/unforcedModeProperty"},
+                "cs": {"$ref": "#/$defs/unforcedModeProperty"},
+                "ruby": {"$ref": "#/$defs/unforcedModeProperty"},
+                "elixir": {"$ref": "#/$defs/unforcedModeProperty"},
+                "rust": {"$ref": "#/$defs/unforcedModeProperty"},
+                "haskell": {"$ref": "#/$defs/unforcedModeProperty"}
+            }
+        },
         "invertedComparisons": {
             "$ref": "#/$defs/modeProperty"
         },
