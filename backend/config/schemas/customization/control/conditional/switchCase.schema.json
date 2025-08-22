@@ -1,12 +1,21 @@
 {
-    "$ref": "customization/control/conditional/matchSwitchCase.schema.json",
+    "allOf": [{"$ref": "matchSwitchCase.schema.json"}],
     "properties": {
         "patternMatching": {
-            "description": "Determine whether pattern matching is allowed in a switch-case statement. If enabled, the switch-case statement is equivalent to the match-case statement."
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Determine whether pattern matching is allowed in a switch-case statement. If enabled, the switch-case statement is equivalent to the match-case statement.",
+                    "default": false
+                }
+            }
         },
         "syntax": {
             "type": "object",
             "properties": {
+                "defaultCaseSyntax": {
+                    "title": "Notation for the default case in a switch/case statement."
+                },
                 "statement": {
                     "default": "switch"
                 }

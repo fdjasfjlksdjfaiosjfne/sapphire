@@ -1,0 +1,63 @@
+{
+    "description": "A field for determine simple actions to certain operator combinations.\nIf you wish to make more complicated tasks and/or conditions, consider using `impl` instead.",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "target": {
+                "anyOf": [
+                    {"$ref": "type_couple.schema.json"},
+                    {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "items": {"$ref": "type_couple.schema.json"}
+                    }
+                ]
+            },
+            "positionDependant": {
+                "type": "boolean",
+                "default": false
+            },
+            "behavior": {
+                "enum": [
+                    "error",
+                    "run_function"
+                ]
+            }
+        },
+        "required": ["target", "behavior"],
+        "allOf": [
+            {
+                "if": {
+                    "properties": {
+                        "behavior": {"const": "run_function"}
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "file_location": {"type": "string"},
+                        "function_name": {"type": "string"},
+                        "passRightArgument": {"type": "boolean", "default": true}
+                    },
+                    "required": ["file_location", "function_name"]
+                }
+            },
+            {
+                "if": {
+                    "properties": {
+                        "behavior": {"const": "error"}
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "error_args": {
+                            "type": "array"
+                        }
+                    },
+                    "required": ["error_args"]
+                }
+            }
+        ]
+    },
+    "uniqueItems": true
+}

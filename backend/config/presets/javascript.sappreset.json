@@ -6,10 +6,93 @@
                 "addition": {
                     "enabled": true,
                     "syntax": "+",
-                    "allowStringConcanentation": true
+                    "typeBehavior": [
+                        {
+                            "target": [],
+                            "behavior": "run_function",
+                            "file_location": "./javascript.py",
+                            "function_name": "add",
+                            "passRightArgument": true
+                        }
+                    ]
+                },
+                "subtraction": {
+                    "enabled": true,
+                    "syntax": "-",
+                    "typeBehavior": [
+                        {
+                            "target": [],
+                            "behavior": "run_function",
+                            "file_location": "./javascript.py",
+                            "function_name": "sub",
+                            "passRightArgument": true
+                        }
+                    ]
                 },
                 "multiplication": {
-                    "enabled": true
+                    "enabled": true,
+                    "syntax": "*",
+                    "typeBehavior": [
+                        {
+                            "target": [],
+                            "behavior": "run_function",
+                            "file_location": "./javascript.py",
+                            "function_name": "mul",
+                            "passRightArgument": true
+                        }
+                    ]
+                },
+                "trueDivision": {
+                    "enabled": true,
+                    "syntax": "/",
+                    "typeBehavior": [
+                        {
+                            "target": [],
+                            "behavior": "run_function",
+                            "file_location": "./javascript.py",
+                            "function_name": "truediv",
+                            "passRightArgument": true
+                        }
+                    ]
+                },
+                "floorDivision": {
+                    "enabled": true,
+                    "syntax": "//",
+                    "typeBehavior": [
+                        {
+                            "target": [],
+                            "behavior": "run_function",
+                            "file_location": "./javascript.py",
+                            "function_name": "floordiv",
+                            "passRightArgument": true
+                        }
+                    ]
+                },
+                "modulus": {
+                    "enabled": true,
+                    "syntax": "%",
+                    "typeBehavior": [
+                        {
+                            "target": [],
+                            "behavior": "run_function",
+                            "file_location": "./javascript.py",
+                            "function_name": "mod",
+                            "passRightArgument": true
+                        }
+                    ]
+                },
+                "exponentiation": {
+                    "enabled": true,
+                    "syntax": "**",
+                    "typeBehavior": [
+                        {
+                            "target": [],
+                            "behavior": "run_function",
+                            "file_location": "./javascript.py",
+                            "function_name": "exp",
+                            "passRightArgument": true
+                        }
+                    ]
                 }
             },
             "comparison": {
@@ -42,9 +125,48 @@
                 },
                 "switchCase": {
                     "enabled": true,
-                    "syntax": {}
+                    "patternMatching": {
+                        "enabled": false
+                    },
+                    "syntax": {
+                        "defaultCaseSyntax": "default",
+                        "statement": "switch"
+                    }
+                },
+                "matchCase": {"enabled": false}
+            }
+        },
+        "oop": {
+            "oopModel": "prototype"
+        },
+        "comments": {
+            "inlineComment": {
+                "enabled": true,
+                "spaceRequired": false,
+                "syntax": "//"
+            },
+            "multilineComment": {
+                "enabled": true,
+                "syntax": {
+                    "start": "/*",
+                    "end": "*/"
                 }
             }
+        },
+        "objects": {
+            "functions": {
+                "syntax": {
+                    "keyword": "function"
+                }
+            }
+        },
+        "literals": {},
+        "uncategorized": {
+            "codeBlocks": "braces",
+            "implicitReturn": false,
+            "semicolonRequired": false,
+            "softKeywords": false,
+            "trailingComma": "always"
         }
     }
 }

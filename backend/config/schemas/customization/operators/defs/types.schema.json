@@ -1,0 +1,29 @@
+{
+    "enum": [
+    "string",
+    "number",
+    "integer",
+    "float",
+    "function",
+    "numberString",
+    "intString",
+    "floatString",
+    "nonNumberString",
+    "nonIntString",
+    "nonFloatString",
+    "type"
+    ],
+    "enumDescriptions": [
+    "A string",
+    "A number, which could either be an integer or a float",
+    "An integer",
+    "A float",
+    "A function",
+    "A string that contains a number literal",
+    "A string that contains a integer literal",
+    "A string that contains a float literal",
+    "A string that does not contain a number literal",
+    "A string that does not contain a number literal",
+    "A string that does not contain a number literal"
+    ]
+}

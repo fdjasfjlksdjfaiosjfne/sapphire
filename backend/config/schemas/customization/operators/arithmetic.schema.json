@@ -12,11 +12,10 @@
             "type": "string",
             "enum": ["+"],
             "default": "+"
-        },
-        "allowStringConcanentation": {
-          "type": "boolean",
-          "default": false
         }
+      },
+      "patternProperties": {
+        "typeBehaviou?r": {"$ref": "defs/custom_type_behavior.schema.json"}
       },
       "additionalProperties": false
     },
@@ -33,6 +32,9 @@
             "default": "-"
         }
       },
+      "patternProperties": {
+        "typeBehaviou?r": {"$ref": "defs/custom_type_behavior.schema.json"}
+      },
       "additionalProperties": false
     },
     "multiplication": {
@@ -48,6 +50,9 @@
             "default": "*"
         }
       },
+      "patternProperties": {
+        "typeBehaviou?r": {"$ref": "defs/custom_type_behavior.schema.json"}
+      },
       "additionalProperties": false
     },
     "trueDivision": {
@@ -62,6 +67,9 @@
             "enum": ["/"],
             "default": "/"
         }
+      },
+      "patternProperties": {
+        "typeBehaviou?r": {"$ref": "defs/custom_type_behavior.schema.json"}
       },
       "additionalProperties": false
     },
@@ -79,6 +87,9 @@
           "default": "//"
         }
       },
+      "patternProperties": {
+        "typeBehaviou?r": {"$ref": "defs/custom_type_behavior.schema.json"}
+      },
       "additionalProperties": false
     },
     "modulus": {
@@ -94,7 +105,11 @@
           "enumDescriptions": ["Use by most languages", "Use by C"],
           "default": "%"
         }
-      }
+      },
+      "patternProperties": {
+        "typeBehaviou?r": {"$ref": "defs/custom_type_behavior.schema.json"}
+      },
+      "additionalProperties": false
     },
     "exponentiation": {
       "type": "object",
@@ -109,7 +124,11 @@
                    "exp", "pow"],
           "default": "**"
         }
-      }
+      },
+      "patternProperties": {
+        "typeBehaviou?r": {"$ref": "defs/custom_type_behavior.schema.json"}
+        },
+      "additionalProperties": false
     }
   }
 }
