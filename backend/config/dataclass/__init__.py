@@ -86,7 +86,8 @@ UnforcableTemplate: typing.TypeAlias = typing.Literal["disabled", "enabled"]
 FIELD_ALIASES = {
     "customization": ["customization", "customisation"],
     "mutable_value_assignment_behavior": ["mutable_value_assignment_behavior", "mutable_value_assignment_behaviour"],
-    "mutable_value_as_default_behavior": ["mutable_Value_as_default_behavior", "mutable_value_as_default_behaviour"]
+    "mutable_value_as_default_behavior": ["mutable_value_as_default_behavior", "mutable_value_as_default_behaviour"],
+    "typeBehavior": ["typeBehavior", "typeBehaviour"]
 }
 
 @dataclass(frozen=True, kw_only=True)
@@ -116,10 +117,6 @@ class TemplatesCls(CustomDataclass):
                     kwargs[k] = "forced"
                 case 0 | "disabled" | False:
                     kwargs[k] = "disabled"
-                case _:
-                    raise errors.InternalError(
-                        f"Invalid value in {k}: {v}"
-                    )
         super().__init__(**kwargs)
 
 
@@ -150,9 +147,9 @@ class RootConfigCls(CustomDataclass):
     filled (i.e. not `_UNFILLED`)
     - `is_default()`: The opposite of the aforementioned.
     """
-    customization: ConfigDescriptor[CustomizationConfigCls] = CustomizationConfigCls() # type: ignore
-    templates: ConfigDescriptor[TemplatesCls] = TemplatesCls() # type: ignore
-    config_version: ConfigDescriptor[ConfigVersionCls] = ConfigVersionCls() # type: ignore
+    customization: CustomizationConfigCls = CustomizationConfigCls()
+    templates: TemplatesCls = TemplatesCls()
+    config_version: ConfigVersionCls = ConfigVersionCls()
 
     @classmethod
     def from_dict(cls, config_dict: dict[str, typing.Any]) -> RootConfigCls:

@@ -19,10 +19,10 @@ class FnArgumentsConfigCls(CustomDataclass):
 @dataclass(frozen=True, kw_only=True)
 class FunctionsConfigCls(CustomDataclass):
     keyword: ConfigDescriptor[typing.Literal["fn", "fun", "func", "def", "function"]] = ConfigDescriptor(_UNFILLED, "fn")
-    arguments: ConfigDescriptor[FnArgumentsConfigCls] = ConfigDescriptor(_UNFILLED, FnArgumentsConfigCls())
+    arguments: FnArgumentsConfigCls = FnArgumentsConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class ObjectsConfigCls(CustomDataclass):
-    classes: ConfigDescriptor[ClassesConfigCls] = ConfigDescriptor(_UNFILLED, ClassesConfigCls())
-    enums: ConfigDescriptor[EnumsConfigCls] = ConfigDescriptor(_UNFILLED, EnumsConfigCls())
-    functions: ConfigDescriptor[FunctionsConfigCls] = ConfigDescriptor(_UNFILLED, FunctionsConfigCls())
+    classes: ClassesConfigCls = ClassesConfigCls()
+    enums: EnumsConfigCls = EnumsConfigCls()
+    functions: FunctionsConfigCls = FunctionsConfigCls()

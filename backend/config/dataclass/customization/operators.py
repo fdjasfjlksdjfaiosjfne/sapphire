@@ -41,13 +41,13 @@ class ExponentationOperatorConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class ArithmeticOperatorsConfigCls(CustomDataclass):
-    addition: ConfigDescriptor[AdditionOperatorConfigCls] = ConfigDescriptor(_UNFILLED, AdditionOperatorConfigCls())
-    subtraction: ConfigDescriptor[SubtractionOperatorConfigCls] = ConfigDescriptor(_UNFILLED, SubtractionOperatorConfigCls())
-    multiplication: ConfigDescriptor[MultiplicationOperatorConfigCls] = ConfigDescriptor(_UNFILLED, MultiplicationOperatorConfigCls())
-    true_division: ConfigDescriptor[TrueDivisionOperatorConfigCls] = ConfigDescriptor(_UNFILLED, TrueDivisionOperatorConfigCls())
-    floor_division: ConfigDescriptor[FloorDivisionOperatorConfigCls] = ConfigDescriptor(_UNFILLED, FloorDivisionOperatorConfigCls())
-    modulus: ConfigDescriptor[ModulusOperatorConfigCls] = ConfigDescriptor(_UNFILLED, ModulusOperatorConfigCls())
-    exponentiaion: ConfigDescriptor[ExponentationOperatorConfigCls] = ConfigDescriptor(_UNFILLED, ExponentationOperatorConfigCls())
+    addition: AdditionOperatorConfigCls = AdditionOperatorConfigCls()
+    subtraction: SubtractionOperatorConfigCls = SubtractionOperatorConfigCls()
+    multiplication: MultiplicationOperatorConfigCls = MultiplicationOperatorConfigCls()
+    true_division: TrueDivisionOperatorConfigCls = TrueDivisionOperatorConfigCls()
+    floor_division: FloorDivisionOperatorConfigCls = FloorDivisionOperatorConfigCls()
+    modulus: ModulusOperatorConfigCls = ModulusOperatorConfigCls()
+    exponentiaion: ExponentationOperatorConfigCls = ExponentationOperatorConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class BinaryExclusiveOrOperatorConfigCls(CustomDataclass):
@@ -66,9 +66,9 @@ class BinaryAndOperatorConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class BinaryOperatorsConfigCls(CustomDataclass):
-    exclusive_or: ConfigDescriptor[BinaryExclusiveOrOperatorConfigCls] = ConfigDescriptor(_UNFILLED, BinaryExclusiveOrOperatorConfigCls())
-    inclusive_or: ConfigDescriptor[BinaryInclusiveOrOperatorConfigCls] = ConfigDescriptor(_UNFILLED, BinaryInclusiveOrOperatorConfigCls())
-    and_: ConfigDescriptor[BinaryAndOperatorConfigCls] = ConfigDescriptor(_UNFILLED, BinaryAndOperatorConfigCls())
+    exclusive_or: BinaryExclusiveOrOperatorConfigCls = BinaryExclusiveOrOperatorConfigCls()
+    inclusive_or: BinaryInclusiveOrOperatorConfigCls = BinaryInclusiveOrOperatorConfigCls()
+    and_: BinaryAndOperatorConfigCls = BinaryAndOperatorConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class BooleanExclusiveOrOperatorConfigCls(CustomDataclass):
@@ -87,9 +87,9 @@ class BooleanAndOperatorConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class BooleanOperatorsConfigCls(CustomDataclass):
-    exclusive_or: ConfigDescriptor[BooleanExclusiveOrOperatorConfigCls] = ConfigDescriptor(_UNFILLED, BooleanExclusiveOrOperatorConfigCls())
-    inclusive_or: ConfigDescriptor[BooleanInclusiveOrOperatorConfigCls] = ConfigDescriptor(_UNFILLED, BooleanInclusiveOrOperatorConfigCls())
-    and_: ConfigDescriptor[BooleanAndOperatorConfigCls] = ConfigDescriptor(_UNFILLED, BooleanAndOperatorConfigCls())
+    exclusive_or: BooleanExclusiveOrOperatorConfigCls = BooleanExclusiveOrOperatorConfigCls()
+    inclusive_or: BooleanInclusiveOrOperatorConfigCls = BooleanInclusiveOrOperatorConfigCls()
+    and_: BooleanAndOperatorConfigCls = BooleanAndOperatorConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class LogicalExclusiveOrOperatorConfigCls(CustomDataclass):
@@ -108,9 +108,9 @@ class LogicalAndOperatorConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class LogicalOperatorsConfigCls(CustomDataclass):
-    exclusive_or: ConfigDescriptor[LogicalExclusiveOrOperatorConfigCls] = ConfigDescriptor(_UNFILLED, LogicalExclusiveOrOperatorConfigCls())
-    inclusive_or: ConfigDescriptor[LogicalInclusiveOrOperatorConfigCls] = ConfigDescriptor(_UNFILLED, LogicalInclusiveOrOperatorConfigCls())
-    and_: ConfigDescriptor[LogicalAndOperatorConfigCls] = ConfigDescriptor(_UNFILLED, LogicalAndOperatorConfigCls())
+    exclusive_or: LogicalExclusiveOrOperatorConfigCls = LogicalExclusiveOrOperatorConfigCls()
+    inclusive_or: LogicalInclusiveOrOperatorConfigCls = LogicalInclusiveOrOperatorConfigCls()
+    and_: LogicalAndOperatorConfigCls = LogicalAndOperatorConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class EqualityOperatorConfigCls(CustomDataclass):
@@ -135,10 +135,10 @@ class SpaceshipOperatorConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class ComparisonOperatorsConfigCls(CustomDataclass):
-    equality: ConfigDescriptor[EqualityOperatorConfigCls] = ConfigDescriptor(_UNFILLED, EqualityOperatorConfigCls())
-    inequality: ConfigDescriptor[InequalityOperatorConfigCls] = ConfigDescriptor(_UNFILLED, InequalityOperatorConfigCls())
-    loose_equality: ConfigDescriptor[LooseEqualityOperatorsConfigCls] = ConfigDescriptor(_UNFILLED, LooseEqualityOperatorsConfigCls())
-    spaceship_operator: ConfigDescriptor[SpaceshipOperatorConfigCls] = ConfigDescriptor(_UNFILLED, SpaceshipOperatorConfigCls())
+    equality: EqualityOperatorConfigCls = EqualityOperatorConfigCls()
+    inequality: InequalityOperatorConfigCls = InequalityOperatorConfigCls()
+    loose_equality: LooseEqualityOperatorsConfigCls = LooseEqualityOperatorsConfigCls()
+    spaceship_operator: SpaceshipOperatorConfigCls = SpaceshipOperatorConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class StringConcanentationConfigCls(CustomDataclass):
@@ -152,14 +152,14 @@ class MatrixMultiplicationConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class OtherOperatorsConfigCls(CustomDataclass):
-    string_concanentation: ConfigDescriptor[StringConcanentationConfigCls] = ConfigDescriptor(_UNFILLED, StringConcanentationConfigCls())
-    matrix_multiplication: ConfigDescriptor[MatrixMultiplicationConfigCls] = ConfigDescriptor(_UNFILLED, MatrixMultiplicationConfigCls())
+    string_concanentation: StringConcanentationConfigCls = StringConcanentationConfigCls()
+    matrix_multiplication: MatrixMultiplicationConfigCls = MatrixMultiplicationConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class OperatorsConfigCls(CustomDataclass):
-    arithmetic: ConfigDescriptor[ArithmeticOperatorsConfigCls] = ConfigDescriptor(_UNFILLED, ArithmeticOperatorsConfigCls())
-    binary: ConfigDescriptor[BinaryOperatorsConfigCls] = ConfigDescriptor(_UNFILLED, BinaryOperatorsConfigCls())
-    booleans: ConfigDescriptor[BooleanOperatorsConfigCls] = ConfigDescriptor(_UNFILLED, BooleanOperatorsConfigCls())
-    comparison: ConfigDescriptor[ComparisonOperatorsConfigCls] = ConfigDescriptor(_UNFILLED, ComparisonOperatorsConfigCls())
-    logical: ConfigDescriptor[LogicalOperatorsConfigCls] = ConfigDescriptor(_UNFILLED, LogicalOperatorsConfigCls())
-    other: ConfigDescriptor[OtherOperatorsConfigCls] = ConfigDescriptor(_UNFILLED, OtherOperatorsConfigCls())
+    arithmetic: ArithmeticOperatorsConfigCls = ArithmeticOperatorsConfigCls()
+    binary: BinaryOperatorsConfigCls = BinaryOperatorsConfigCls()
+    booleans: BooleanOperatorsConfigCls = BooleanOperatorsConfigCls()
+    comparison: ComparisonOperatorsConfigCls = ComparisonOperatorsConfigCls()
+    logical: LogicalOperatorsConfigCls = LogicalOperatorsConfigCls()
+    other: OtherOperatorsConfigCls = OtherOperatorsConfigCls()

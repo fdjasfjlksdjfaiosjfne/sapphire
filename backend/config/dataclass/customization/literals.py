@@ -25,8 +25,8 @@ class IntegerBaseLiteralsConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class NumberLiteralsConfigCls(CustomDataclass):
-    numeric_separator: ConfigDescriptor[NumericSeparatorConfigCls] = ConfigDescriptor(_UNFILLED, NumericSeparatorConfigCls())
-    integer_base_literals: ConfigDescriptor[IntegerBaseLiteralsConfigCls] = ConfigDescriptor(_UNFILLED, IntegerBaseLiteralsConfigCls())
+    numeric_separator: NumericSeparatorConfigCls = NumericSeparatorConfigCls()
+    integer_base_literals: IntegerBaseLiteralsConfigCls = IntegerBaseLiteralsConfigCls()
     scientific_notation: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
@@ -38,7 +38,7 @@ class BooleanSyntaxConfigCls(CustomDataclass):
 class BooleanLiteralsConfigCls(CustomDataclass):
     enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
     case_insensivity: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, False)
-    syntax: ConfigDescriptor[BooleanSyntaxConfigCls] = ConfigDescriptor(_UNFILLED, BooleanSyntaxConfigCls())
+    syntax: BooleanSyntaxConfigCls = BooleanSyntaxConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class NullLiteralConfigCls(CustomDataclass):
@@ -54,7 +54,7 @@ class StrInterpolationExpressionSyntaxConfigCls(CustomDataclass):
 @dataclass(frozen=True, kw_only=True)
 class StrInterpolationConfigCls(CustomDataclass):
     accessibility: ConfigDescriptor[Accessibility] = ConfigDescriptor(_UNFILLED, "enable_by_prefix")
-    expression_syntax: ConfigDescriptor[StrInterpolationExpressionSyntaxConfigCls] = ConfigDescriptor(_UNFILLED, StrInterpolationExpressionSyntaxConfigCls())
+    expression_syntax: StrInterpolationExpressionSyntaxConfigCls = StrInterpolationExpressionSyntaxConfigCls()
     allow_identifier_syntax: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, False)
     identifier_prefix_syntax: ConfigDescriptor[typing.Literal["$", "#", "\\", "%"]] = ConfigDescriptor(_UNFILLED, "$")
     force_escape_closing_bracket: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
@@ -68,9 +68,9 @@ class MultilineStrConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class StringLiteralsConfigCls(CustomDataclass):
-    delimeters: ConfigDescriptor[StringDelimeters] = ConfigDescriptor(_UNFILLED, ["\"", "'", "`"])
-    interpolation: ConfigDescriptor[StrInterpolationConfigCls] = ConfigDescriptor(_UNFILLED, StrInterpolationConfigCls())
-    multiline: ConfigDescriptor[MultilineStrConfigCls] = ConfigDescriptor(_UNFILLED, MultilineStrConfigCls())
+    delimeters: StringDelimeters = field(default_factory = lambda: ["'", "`", '"'])
+    interpolation: StrInterpolationConfigCls = StrInterpolationConfigCls()
+    multiline: MultilineStrConfigCls = MultilineStrConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class EllipsisLiteralConfigCls(CustomDataclass):
@@ -78,8 +78,8 @@ class EllipsisLiteralConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class LiteralsConfigCls(CustomDataclass):
-    numbers: ConfigDescriptor[NumberLiteralsConfigCls] = ConfigDescriptor(_UNFILLED, NumberLiteralsConfigCls())
-    booleans: ConfigDescriptor[BooleanLiteralsConfigCls] = ConfigDescriptor(_UNFILLED, BooleanLiteralsConfigCls())
-    null: ConfigDescriptor[NullLiteralConfigCls] = ConfigDescriptor(_UNFILLED, NullLiteralConfigCls())
-    strings: ConfigDescriptor[StringLiteralsConfigCls] = ConfigDescriptor(_UNFILLED, StringLiteralsConfigCls())
-    ellipsis: ConfigDescriptor[EllipsisLiteralConfigCls] = ConfigDescriptor(_UNFILLED, EllipsisLiteralConfigCls())
+    numbers: NumberLiteralsConfigCls = NumberLiteralsConfigCls()
+    booleans: BooleanLiteralsConfigCls = BooleanLiteralsConfigCls()
+    null: NullLiteralConfigCls = NullLiteralConfigCls()
+    strings: StringLiteralsConfigCls = StringLiteralsConfigCls()
+    ellipsis: EllipsisLiteralConfigCls = EllipsisLiteralConfigCls()

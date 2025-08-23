@@ -1,6 +1,8 @@
 import dataclasses
 import typing
 
+from sympy import continued_fraction
+
 from backend import errors
 
 class ConfigDescriptorProtocol[T](typing.Protocol):
@@ -27,11 +29,6 @@ class ConfigDescriptor[T](ConfigDescriptorProtocol[T]):
         if hasattr(self.__v, name):
             return getattr(self.__v, name)
         raise AttributeError(f"No attribute name: {name}")
-
-    def __get__(self, obj, owner = None):
-        if obj is None:
-            return self
-        return self.get_value()
     
     @typing.overload
     def get_value(self) -> T: ...
@@ -70,13 +67,18 @@ class CustomDataclass:
             if field.name not in kwargs:
                 default = field.default
                 if default is not dataclasses.MISSING:
+                    if dataclasses.is_dataclass(field.default):
+                        continue
                     if not isinstance(default, ConfigDescriptor):
                         default = ConfigDescriptor(_UNFILLED, default)
                     object.__setattr__(self, field.name, default)
                 
                 elif field.default_factory is not dataclasses.MISSING:
+                    val = field.default_factory()
+                    if dataclasses.is_dataclass(val):
+                        continue
                     if not isinstance(field.default, ConfigDescriptor):
-                        default = ConfigDescriptor(_UNFILLED, field.default_factory())
+                        default = ConfigDescriptor(_UNFILLED, val)
                     object.__setattr__(self, field.name, default)
                 
                 else:
