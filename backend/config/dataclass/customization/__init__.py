@@ -9,28 +9,28 @@ from backend.config.dataclass.customization.operators import *
 
 @dataclass(frozen=True, kw_only=True)
 class AnnotationsConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    enabled: C[bool] = C(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
 class OOPConfigCls(CustomDataclass):
-    oop_model: ConfigDescriptor[typing.Literal["class", "prototype", "hybrid"]] = ConfigDescriptor(_UNFILLED, "class")
-    forced_encapsulation: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    encapsulation_method: ConfigDescriptor[typing.Literal["disabled", "enforced", "hybrid"]] = ConfigDescriptor(_UNFILLED, "enforced")
+    oop_model: C[typing.Literal["class", "prototype", "hybrid"]] = C(_UNFILLED, "class")
+    forced_encapsulation: C[bool] = C(_UNFILLED, True)
+    encapsulation_method: C[typing.Literal["disabled", "enforced", "hybrid"]] = C(_UNFILLED, "enforced")
 
 @dataclass(frozen=True, kw_only=True)
 class InlineCommentCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["#", "//", ";", "--", "%", "::"]] = ConfigDescriptor(_UNFILLED, "#")
-    space_required: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["#", "//", ";", "--", "%", "::"]] = C(_UNFILLED, "#")
+    space_required: C[bool] = C(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
 class MultilineCommentSyntaxConfigCls(CustomDataclass):
-    start: ConfigDescriptor[typing.Literal["/*", "###", "#=", "#*", "(*", "<!--", "{#", "{{!--", "{{--", "--[[", "#|", "%{"]] = ConfigDescriptor(_UNFILLED, "/*")
-    end: ConfigDescriptor[typing.Literal["*/", "###", "=#", "*#", "--}}", "]]", "|#", "}%"]] = ConfigDescriptor(_UNFILLED, "*/")
+    start: C[typing.Literal["/*", "###", "#=", "#*", "(*", "<!--", "{#", "{{!--", "{{--", "--[[", "#|", "%{"]] = C(_UNFILLED, "/*")
+    end: C[typing.Literal["*/", "###", "=#", "*#", "--}}", "]]", "|#", "}%"]] = C(_UNFILLED, "*/")
 
 @dataclass(frozen=True, kw_only=True)
 class MultilineCommentConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    enabled: C[bool] = C(_UNFILLED, True)
     syntax: MultilineCommentSyntaxConfigCls = MultilineCommentSyntaxConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
@@ -40,20 +40,33 @@ class CommentConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class VariablesConfigCls(CustomDataclass):
-    implicit_globals: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, False)
-    function_hoisting: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    implicit_globals: C[bool] = C(_UNFILLED, False)
+    function_hoisting: C[bool] = C(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
 class UncategorizedConfigCls(CustomDataclass):
-    implicit_return: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, False)
-    trailing_comma: ConfigDescriptor[typing.Literal["always", "never", "single_tuple_only"]] = ConfigDescriptor(_UNFILLED, "always")
-    semicolon_required: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, False)
-    soft_keywords: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, False)
-    code_blocks: ConfigDescriptor[typing.Literal["indentation", "braces", "end"]] = ConfigDescriptor(_UNFILLED, "braces")
-    mutable_value_assignment_behavior: ConfigDescriptor[typing.Literal["copy", "reference"]] = ConfigDescriptor(_UNFILLED, "copy")
+    implicit_return: C[bool] = C(_UNFILLED, False)
+    trailing_comma: C[typing.Literal["always", "never", "single_tuple_only"]] = C(_UNFILLED, "always")
+    semicolon_required: C[bool] = C(_UNFILLED, False)
+    soft_keywords: C[bool] = C(_UNFILLED, False)
+    code_blocks: C[typing.Literal["indentation", "braces", "end"]] = C(_UNFILLED, "braces")
+    mutable_value_assignment_behavior: C[typing.Literal["copy", "reference"]] = C(_UNFILLED, "copy")
 
 @dataclass(frozen=True, kw_only=True)
 class CustomizationConfigCls(CustomDataclass):
+    """The configuration class, which contains most the options you might be looking for.
+
+    This has 9 subcategories:
+    - `annotations`: Controls type annotations.
+    - `literals`: Controls literal types, like strings, numbers, booleans, etc.
+    - `comments`: Controls comments.
+    - `control_flow`: Controls various control statements, like conditional statements.
+    - `variables`: Controls variables.
+    - `objects`: Controls non-literal types, like functions, classes, arrays, etc.
+    - `oop`: Controls the object-orientation aspect.
+    - `operators`: Controls operators.
+    - `uncategorized`: Contains various unrelated settings that don't fit in the other categories.
+    """
     annotations: AnnotationsConfigCls = AnnotationsConfigCls()
     literals: LiteralsConfigCls = LiteralsConfigCls()
     comments: CommentConfigCls = CommentConfigCls()

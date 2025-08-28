@@ -1,43 +1,43 @@
 import typing
 from dataclasses import dataclass
 
-from backend.config.baseclasses import CustomDataclass, ConfigDescriptor, _UNFILLED
+from backend.config.baseclasses import CustomDataclass, ConfigDescriptor as C, _UNFILLED
 
 @dataclass(frozen=True, kw_only=True)
 class AdditionOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["+"]] = ConfigDescriptor(_UNFILLED, "+")
-    allow_string_concanentation: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, False)
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["+"]] = C(_UNFILLED, "+")
+    allow_string_concanentation: C[bool] = C(_UNFILLED, False)
 
 @dataclass(frozen=True, kw_only=True)
 class SubtractionOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["-"]] = ConfigDescriptor(_UNFILLED, "-")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["-"]] = C(_UNFILLED, "-")
 
 @dataclass(frozen=True, kw_only=True)
 class MultiplicationOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["*"]] = ConfigDescriptor(_UNFILLED, "*")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["*"]] = C(_UNFILLED, "*")
 
 @dataclass(frozen=True, kw_only=True)
 class TrueDivisionOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["/"]] = ConfigDescriptor(_UNFILLED, "/")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["/"]] = C(_UNFILLED, "/")
 
 @dataclass(frozen=True, kw_only=True)
 class FloorDivisionOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["//", "div"]] = ConfigDescriptor(_UNFILLED, "//")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["//", "div"]] = C(_UNFILLED, "//")
 
 @dataclass(frozen=True, kw_only=True)
 class ModulusOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["%", "mod"]] = ConfigDescriptor(_UNFILLED, "%")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["%", "mod"]] = C(_UNFILLED, "%")
 
 @dataclass(frozen=True, kw_only=True)
 class ExponentationOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["**", "^", "exp", "pow"]] = ConfigDescriptor(_UNFILLED, "**")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["**", "^", "exp", "pow"]] = C(_UNFILLED, "**")
 
 @dataclass(frozen=True, kw_only=True)
 class ArithmeticOperatorsConfigCls(CustomDataclass):
@@ -51,18 +51,18 @@ class ArithmeticOperatorsConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class BinaryExclusiveOrOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["^^", "b^", "^", "xor"]] = ConfigDescriptor(_UNFILLED, "b^")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["^^", "b^", "^", "xor"]] = C(_UNFILLED, "b^")
 
 @dataclass(frozen=True, kw_only=True)
 class BinaryInclusiveOrOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["||", "b|", "|", "ior", "or"]] = ConfigDescriptor(_UNFILLED, "b|")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["||", "b|", "|", "ior", "or"]] = C(_UNFILLED, "b|")
 
 @dataclass(frozen=True, kw_only=True)
 class BinaryAndOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["&&", "b&", "&", "and"]] = ConfigDescriptor(_UNFILLED, "b&")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["&&", "b&", "&", "and"]] = C(_UNFILLED, "b&")
 
 @dataclass(frozen=True, kw_only=True)
 class BinaryOperatorsConfigCls(CustomDataclass):
@@ -72,18 +72,18 @@ class BinaryOperatorsConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class BooleanExclusiveOrOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["^^", "b^", "^", "xor"]] = ConfigDescriptor(_UNFILLED, "^")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["^^", "b^", "^", "xor"]] = C(_UNFILLED, "^")
 
 @dataclass(frozen=True, kw_only=True)
 class BooleanInclusiveOrOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["||", "b|", "|", "ior", "or"]] = ConfigDescriptor(_UNFILLED, "|")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["||", "b|", "|", "ior", "or"]] = C(_UNFILLED, "|")
 
 @dataclass(frozen=True, kw_only=True)
 class BooleanAndOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["&&", "b&", "&", "and"]] = ConfigDescriptor(_UNFILLED, "&")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["&&", "b&", "&", "and"]] = C(_UNFILLED, "&")
 
 @dataclass(frozen=True, kw_only=True)
 class BooleanOperatorsConfigCls(CustomDataclass):
@@ -93,18 +93,18 @@ class BooleanOperatorsConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class LogicalExclusiveOrOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["^^", "^", "xor"]] = ConfigDescriptor(_UNFILLED, "xor")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["^^", "^", "xor"]] = C(_UNFILLED, "xor")
 
 @dataclass(frozen=True, kw_only=True)
 class LogicalInclusiveOrOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["||", "|", "ior", "or"]] = ConfigDescriptor(_UNFILLED, "or")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["||", "|", "ior", "or"]] = C(_UNFILLED, "or")
 
 @dataclass(frozen=True, kw_only=True)
 class LogicalAndOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["&&", "&", "and"]] = ConfigDescriptor(_UNFILLED, "and")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["&&", "&", "and"]] = C(_UNFILLED, "and")
 
 @dataclass(frozen=True, kw_only=True)
 class LogicalOperatorsConfigCls(CustomDataclass):
@@ -114,24 +114,24 @@ class LogicalOperatorsConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class EqualityOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["===", "=="]] = ConfigDescriptor(_UNFILLED, "==")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["===", "=="]] = C(_UNFILLED, "==")
 
 @dataclass(frozen=True, kw_only=True)
 class InequalityOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["!==", "!=", "<>", "><"]] = ConfigDescriptor(_UNFILLED, "!=")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["!==", "!=", "<>", "><"]] = C(_UNFILLED, "!=")
 
 @dataclass(frozen=True, kw_only=True)
 class LooseEqualityOperatorsConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    equality_syntax: ConfigDescriptor[typing.Literal["==", "~="]] = ConfigDescriptor(_UNFILLED, "~=")
-    inequality_syntax: ConfigDescriptor[typing.Literal["~!=", "!~=", "!=", "~<>", "~><"]] = ConfigDescriptor(_UNFILLED, "!~=")
+    enabled: C[bool] = C(_UNFILLED, True)
+    equality_syntax: C[typing.Literal["==", "~="]] = C(_UNFILLED, "~=")
+    inequality_syntax: C[typing.Literal["~!=", "!~=", "!=", "~<>", "~><"]] = C(_UNFILLED, "!~=")
 
 @dataclass(frozen=True, kw_only=True)
 class SpaceshipOperatorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["<=>", ">=<"]] = ConfigDescriptor(_UNFILLED, "<=>")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["<=>", ">=<"]] = C(_UNFILLED, "<=>")
 
 @dataclass(frozen=True, kw_only=True)
 class ComparisonOperatorsConfigCls(CustomDataclass):
@@ -142,13 +142,13 @@ class ComparisonOperatorsConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class StringConcanentationConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["..", "||"]] = ConfigDescriptor(_UNFILLED, "..")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["..", "||"]] = C(_UNFILLED, "..")
 
 @dataclass(frozen=True, kw_only=True)
 class MatrixMultiplicationConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["@"]] = ConfigDescriptor(_UNFILLED, "@")
+    enabled: C[bool] = C(_UNFILLED, True)
+    syntax: C[typing.Literal["@"]] = C(_UNFILLED, "@")
 
 @dataclass(frozen=True, kw_only=True)
 class OtherOperatorsConfigCls(CustomDataclass):
@@ -163,3 +163,4 @@ class OperatorsConfigCls(CustomDataclass):
     comparison: ComparisonOperatorsConfigCls = ComparisonOperatorsConfigCls()
     logical: LogicalOperatorsConfigCls = LogicalOperatorsConfigCls()
     other: OtherOperatorsConfigCls = OtherOperatorsConfigCls()
+    binary_expression_notation: C[typing.Literal["infix", "prefix", "postfix"]] = C(default = "infix")

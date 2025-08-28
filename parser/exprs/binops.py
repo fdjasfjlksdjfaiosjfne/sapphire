@@ -40,6 +40,7 @@ for v in BINARY_NODE_DICT.values():
     else:
         BINARY_NODE_DICT["full"].extend(v)
 
+# TODO: Make a dynamic system that allows for custom operator ordering
 class InfixBinaryOperations(ParserNamespaceSkeleton):
     def _binary_parser_factory(self,
                                operator_tokens: TokenTypeSequence,
@@ -160,7 +161,7 @@ class PostfixBinaryOperations(ParserNamespaceSkeleton):
         raise errors.InProgress
 
 
-match CONFIG.customization.binary_expression_notation:
+match CONFIG.customization.operators.binary_expression_notation.get_value():
     case "infix":
         BinaryOperations = InfixBinaryOperations
     case "prefix":
@@ -168,7 +169,4 @@ match CONFIG.customization.binary_expression_notation:
     case "postfix":
         BinaryOperations = PostfixBinaryOperations
     case c:
-        raise errors.InternalError(
-            "'CONFIG.language_customization.binary_expression_notation' contains a faulty " \
-            f"value: '{c}'"
-        )
+        typing.assert_never(c)

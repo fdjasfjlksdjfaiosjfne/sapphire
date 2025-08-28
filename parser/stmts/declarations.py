@@ -117,7 +117,7 @@ class DeclarationStatements(ParserNamespaceSkeleton):
                                    *TokenType.Symbols.AugmentedAssignOpers.Righty.__members__]:
                 op = self._advance()
                 value = self._parse_expr(**context)
-                return Nodes.ModifierAssignmentNode(target[0], op, value)
+                return Nodes.ModifierAssignmentNode(target[0], op.value, value)
             
             raise errors._Backtrack
         
@@ -134,7 +134,7 @@ class DeclarationStatements(ParserNamespaceSkeleton):
             self._parse_assignment_pattern_element(elements, **context)
             while self._peek().type == TokenType.Symbols.AssignmentPatternSeparator:
                 self._advance(TokenType.Symbols.AssignmentPatternSeparator)
-                if self._peek().type in ending_tokens:
+                if self._peek().type in ending_tokens: # type: ignore
                     break
                 self._parse_assignment_pattern_element(elements, **context)
             return elements
@@ -152,7 +152,7 @@ class DeclarationStatements(ParserNamespaceSkeleton):
                     elements.append(
                             Nodes.UnaryNode(
                                 expr = Nodes.IdentifierNode(self._advance(TokenType.Identifier).value),
-                                attachment = a,
+                                attachment = a.type,
                                 position = "Prefix"
                             )
                     )

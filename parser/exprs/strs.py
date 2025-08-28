@@ -4,6 +4,7 @@ import typing
 from backend import errors
 import parser.nodes as Nodes
 
+# TODO: Revamp may be needed
 class Strings:
     def _process_string(self, value: str) -> Nodes.StrNode | Nodes.FormattedStrNode:
         types, content, multi_line = self._extract_str_content(value)

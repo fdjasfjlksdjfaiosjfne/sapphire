@@ -3,14 +3,14 @@ import typing
 
 from backend import errors
 from parser.lexer import Token, TokenType, Tokenizer, TokenTypeSequence, TokenTypeEnum
-from backend.config import ConfigCls, CONFIG
+from backend.config import RootConfigCls, CONFIG
 from parser import nodes
 
 
 class ParserNamespaceSkeleton(ABC):
     tokens: Tokenizer
-    conf: ConfigCls
-    if CONFIG.customization.semicolon_required:
+    conf: RootConfigCls
+    if CONFIG.customization.uncategorized.semicolon_required:
         _STATEMENT_SEPARATORS = [TokenType.Symbols.StatementSeparator]
     else:
         _STATEMENT_SEPARATORS = [TokenType.Symbols.StatementSeparator, TokenType.NewLine]

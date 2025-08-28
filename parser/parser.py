@@ -7,7 +7,7 @@ from parser.stmts.stmts import Stmts
 from parser.exprs.exprs import Exprs
 
 class Parser(Stmts, Exprs):
-    def __init__(self, source: str, conf: config.ConfigCls = config.ConfigCls()):
+    def __init__(self, source: str, conf: config.RootConfigCls = config.RootConfigCls()):
         self.source = source
         self.conf = conf
         self.tokens: Tokenizer = Tokenizer(self.source, conf)

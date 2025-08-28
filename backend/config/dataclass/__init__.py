@@ -131,10 +131,12 @@ class TemplatesCls(CustomDataclass):
 class RootConfigCls(CustomDataclass):
     """The very root of the configuration dataclass object.
 
-    This field itself contains three attributes:
+    This field itself contains five attributes:
     - `customization`: Has most of the options you're looking for.
     - `templates`: A list of optional, fixed modifications.
     - `config_version`: Self-explanatory.
+    - `advanced_mode`: Locks behind options that may not be beginner-friendly
+    - `masochistic_mode`: Locks behind options that would otherwise make DX miserable
 
     Note that every attribute (including subcategories btw) is 
     actually a descriptor. The static type checker may say 
@@ -157,6 +159,8 @@ class RootConfigCls(CustomDataclass):
     customization: CustomizationConfigCls = CustomizationConfigCls()
     templates: TemplatesCls = TemplatesCls()
     config_version: ConfigVersionCls = ConfigVersionCls()
+    advanced_mode: ConfigDescriptor[bool] = ConfigDescriptor(default = False)
+    masochistic_mode: ConfigDescriptor[bool] = ConfigDescriptor(default = False)
 
     @classmethod
     def from_dict(cls, config_dict: dict[str, typing.Any]) -> RootConfigCls:
