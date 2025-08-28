@@ -1,7 +1,15 @@
 from backend.config import CONFIG
-from parser.lexer.data.aliases_modifiers import base, inverted_comparisons
+import parser.lexer.data.modifiers.operators as operators
+import parser.lexer.data.modifiers.statements as stmts
+import parser.lexer.data.modifiers.base as base
 cust = CONFIG.customization
-redefine = cust.redefine
+objects = cust.objects
+operators_conf = cust.operators
+control_flow = cust.control_flow
+classic_conditional = cust.control_flow.conditional.classic
+match_conditional = cust.control_flow.conditional.match_case
+switch_conditional = cust.control_flow.conditional.switch_case
+exception_handling = control_flow.exception_handling
 templates = CONFIG.templates
 
 ALIASES: dict = {
@@ -87,19 +95,19 @@ ALIASES: dict = {
     },
     "Statements": {
         "ExceptionHandling": {
-            "ExceptionTest": ("Keywords", "Try"),
-            "HandleException": ("Keywords", redefine.handle_exception_phrase.title()),
-            "NoExceptions": ("Keywords", "Else"),
-            "FinalCleanup": ("Keywords", redefine.final_cleanup_of_exception_handling.title()),
-            "ThrowError": ("Keywords", redefine.throw_error.title()),
+            "ExceptionTest": stmts.try_(),
+            "HandleException": stmts.catch_expections(),
+            "NoExceptions": stmts.no_exceptions(),
+            "FinalCleanup": stmts.final_cleanup(),
+            "ThrowError": stmts.throw_error(),
             "SourceOfThrowingError": ("Keywords", "From")
         },
         "Declarations": {
             "MutableVariable": ("Keywords", "Let"),
             "ConstantVariable": ("Keywords", "Const"),
-            "Function": ("Keywords", redefine.function_def.title()),
-            "Class": ("Keywords", redefine.class_def.title()),
-            "Enum": ("Keywords", "Enum"),
+            "Function": stmts.function_decl(),
+            "Class": stmts.class_decl(),
+            "Enum": stmts.enum_decl(),
             "Struct": ("Keywords", "Struct")
         },
         "Loops": {
@@ -114,14 +122,23 @@ ALIASES: dict = {
             "SkipToNextIteration": ("Keywords", "Continue")
         },
         "Conditional": {
-            "Condition": ("Keywords", "If"),
-            "FallbackWithCondition": ("Keywords", redefine.else_if.title().replace(" ", "")),
-            "Fallback": ("Keywords", "Else")
+            "Condition": stmts.if_(),
+            "FallbackWithCondition": stmts.elif_(),
+            "Fallback": stmts.else_()
         },
         "MatchCase": {
-            "Match": ("Keywords", redefine.match_case_statement.title()),
+            "Match": stmts.match(),
             "Case": ("Keywords", "Case"),
-            "DefaultCase": base.default_case(),
+            "DefaultCase": stmts.match_default_case(),
+            "VariableBindingIntoPattern": ("Keywords", "As"),
+            "VariableBinding": ("Keywords", "Let"),
+            "ConditionGuard": ("Keywords", "If"),
+            "PatternSeparator": ("Symbols", "Comma")
+        },
+        "SwitchCase": {
+            "Switch": stmts.switch(),
+            "Case": ("Keywords", "Case"),
+            "DefaultCase": stmts.switch_default_case(),
             "VariableBindingIntoPattern": ("Keywords", "As"),
             "VariableBinding": ("Keywords", "Let"),
             "ConditionGuard": ("Keywords", "If"),
@@ -135,39 +152,39 @@ ALIASES: dict = {
     },
     "Operators": {
         "Binary": {
-            "Addition": ("Symbols", "Plus"),
-            "Subtraction": ("Symbols", "Dash"),
-            "Multiplication": ("Symbols", "Asterisk"),
-            "TrueDivision": ("Symbols", "ForwardSlash"),
-            "FloorDivision": base.floordiv(),
-            "Modulus": base.modulus(),
-            "LogicalOr": ("Keywords", "Or"),
-            "LogicalAnd": ("Keywords", "And"),
-            "LogicalXor": ("Keywords", "Xor"),
-            "HybridOr": ("Symbols", "VerticalBar"),
-            "HybridAnd": ("Symbols", "Andpersand"),
-            "HybridXor": ("Symbols", "Caret"),
-            "BinaryOr": ("Symbols", "BAndVerticalBar"),
-            "BinaryAnd": ("Symbols", "BAndAndpersand"),
-            "BinaryXor": ("Symbols", "BAndCaret"),
+            "Addition": operators.addition(),
+            "Subtraction": operators.subtraction(),
+            "Multiplication": operators.multiplication(),
+            "TrueDivision": operators.true_division(),
+            "FloorDivision": operators.floor_division(),
+            "Modulus": operators.modulus(),
+            "LogicalOr": operators.logical_or(),
+            "LogicalAnd": operators.logical_and(),
+            "LogicalXor": operators.logical_xor(),
+            "HybridOr": operators.booleans_or(),
+            "HybridAnd": operators.booleans_and(),
+            "HybridXor": operators.booleans_xor(),
+            "BinaryOr": operators.binary_or(),
+            "BinaryAnd": operators.binary_and(),
+            "BinaryXor": operators.binary_xor(),
             "Containing": ("Keywords", "In"),
             "NotContaining": ("Keywords", "NotIn"),
             "Identity": ("Keywords", "Is"),
             "NotIdentity": ("Keywords", "IsNot"),
-            "Concanentation": ("Symbols", "DoubleDot"),
-            "MatrixMultiplication": ("Symbols", "At"),
+            "Concanentation": operators.string_concanentation(),
+            "MatrixMultiplication": operators.matrix_multiplication(),
             "Exponentiation": ("Symbols", "DoubleAsterisk"),
-            "Equality": ("Symbols", "DoubleEqual"),
-            "LooseEquality": ("Symbols", "TildaAndEqual"),
-            "Inequality": base.ne(),
-            "LooseInequality": ("Symbols", "ExclamationAndTildaAndEqual"),
+            "Equality": operators.eq(),
+            "LooseEquality": operators.loose_eq(),
+            "Inequality": operators.ne(),
+            "LooseInequality": operators.loose_ne(),
             "LessThan": ("Symbols", "LessThan"),
             "GreaterThan": ("Symbols", "GreaterThan"),
             "LessThanOrEqualTo": ("Symbols", "LessThanAndEqual"),
             "GreaterThanOrEqualTo": ("Symbols", "GreaterThanAndEqual"),
             "LeftShift": ("Symbols", "DoubleLessThan"),
             "RightShift": ("Symbols", "DoubleGreaterThan"),
-            "Spaceship": base.sps()
+            "Spaceship": operators.sps()
         },
 
         "Ternary": {

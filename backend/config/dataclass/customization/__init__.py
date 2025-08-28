@@ -20,7 +20,7 @@ class OOPConfigCls(CustomDataclass):
 @dataclass(frozen=True, kw_only=True)
 class InlineCommentCls(CustomDataclass):
     enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["#", "//", ";", "--", "%"]] = ConfigDescriptor(_UNFILLED, "#")
+    syntax: ConfigDescriptor[typing.Literal["#", "//", ";", "--", "%", "::"]] = ConfigDescriptor(_UNFILLED, "#")
     space_required: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
@@ -31,12 +31,12 @@ class MultilineCommentSyntaxConfigCls(CustomDataclass):
 @dataclass(frozen=True, kw_only=True)
 class MultilineCommentConfigCls(CustomDataclass):
     enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[MultilineCommentSyntaxConfigCls] = ConfigDescriptor(_UNFILLED, MultilineCommentSyntaxConfigCls())
+    syntax: MultilineCommentSyntaxConfigCls = MultilineCommentSyntaxConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class CommentConfigCls(CustomDataclass):
-    inline_comment: ConfigDescriptor[InlineCommentCls] = ConfigDescriptor(_UNFILLED, InlineCommentCls())
-    multiline_comment: ConfigDescriptor[MultilineCommentConfigCls] = ConfigDescriptor(_UNFILLED, MultilineCommentConfigCls())
+    inline_comment: InlineCommentCls = InlineCommentCls()
+    multiline_comment: MultilineCommentConfigCls = MultilineCommentConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class VariablesConfigCls(CustomDataclass):

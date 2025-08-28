@@ -1,6 +1,5 @@
 import regex
 from parser.lexer.data.pattern_injection import (
-    TokenPattern,
     StringTokenPattern,
     RegExTokenPattern,
     inject_patterns
@@ -16,7 +15,7 @@ def _separate_patterns() -> tuple[list[StringTokenPattern], list[RegExTokenPatte
             regex_list.append(i)
     return plain_list, regex_list
 
-def get_token_patterns() -> list[TokenPattern]:
+def get_token_patterns() -> list[StringTokenPattern | RegExTokenPattern]:
     result = []
     processed = []
     plains, regexes = _separate_patterns()
@@ -42,7 +41,7 @@ def get_token_patterns() -> list[TokenPattern]:
                 processed.append(related)
     return result + regexes
 
-_default_token_patterns: list[TokenPattern] = [
+_default_token_patterns: list[StringTokenPattern | RegExTokenPattern] = [
     StringTokenPattern("(", ("Parentheses", "OpenParenthesis")),
     StringTokenPattern(")", ("Parentheses", "CloseParenthesis")),
     StringTokenPattern("[", ("Parentheses", "OpenSquareBracket")),
@@ -106,6 +105,10 @@ _default_token_patterns: list[TokenPattern] = [
     StringTokenPattern("scope", ("Keywords", "Scope")),
     StringTokenPattern("return", ("Keywords", "Return")),
     StringTokenPattern("goto", ("Keywords", "Goto")),
+    StringTokenPattern("perchance", ("Keywords", "Perchance")),
+    StringTokenPattern("assuming", ("Keywords", "Assuming")),
+    StringTokenPattern("but what about if", ("Keywords", "ButWhatAboutIf")),
+    StringTokenPattern("otherwise", ("Keywords", "Otherwise")),
     StringTokenPattern("%", ("Symbols", "Percent")),
     StringTokenPattern("+", ("Symbols", "Plus")),
     StringTokenPattern("++", ("Symbols", "DoublePlus")),

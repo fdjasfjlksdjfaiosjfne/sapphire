@@ -38,9 +38,14 @@
             "description": "A field where you can assign it with anything you want. The only requirement for this field is that it should be an object.\nThis is intended for external tools, like linters, to put their own configurations into a single configuration file, for both convenience and cleanliness. Of course, other uses (aside for malicious purposes) are also welcome.\nIt is recommended to make a schema to check for the fields inside of this file.",
             "additionalProperties": true
         },
+        "advancedMode": {
+            "type": "boolean",
+            "description": "If true, disable guardrails on complicated features that might not be beginner-friendly.\n\"With great power comes great responsibility.\"",
+            "default": false
+        },
         "masochisticMode": {
             "type": "boolean",
-            "description": "If true, disable most of the guardrails that would otherwise make the language experience, at least, tolorable.\nFor anyone who enable this: Good luck. And have fun.",
+            "description": "An advanced option.\nIf true, disable guardrails that would otherwise make the language experience, at least, tolorable.\nFor anyone who enable this: Good luck. And have fun.",
             "default": false
         }
     },
@@ -69,7 +74,7 @@
                         "conditional": {
                             "type": "object",
                             "properties": {
-                                "ifs": {"$ref": "customization/control/conditional/classic.schema.json"},
+                                "classic": {"$ref": "customization/control/conditional/classic.schema.json"},
                                 "matchCase": {"$ref": "customization/control/conditional/matchCase.schema.json"},
                                 "switchCase": {"$ref": "customization/control/conditional/switchCase.schema.json"}
                             }

@@ -38,7 +38,6 @@ class ConfigDescriptor[T](ConfigDescriptorProtocol[T]):
 
     @typing.overload
     def get_value(self, *, return_unfilled: typing.Literal[True]) -> T | object: ...
-    
 
     def get_value(self, *, return_unfilled: bool = False) -> T | object:
         """Return the pure value store in the descriptor.

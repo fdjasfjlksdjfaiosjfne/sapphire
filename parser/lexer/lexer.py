@@ -3,7 +3,6 @@ import ast
 import typing
 import regex
 from backend import errors
-from parser.lexer.data.pattern_injection import TokenPattern
 from parser.lexer.token_types import TokenTypeEnum
 from parser.lexer.internal_token_types import InternalTokenType, ITTTypeChecking
 from parser.lexer.data.patterns import (
@@ -54,9 +53,9 @@ class Token:
         return hash(self.type)
 
 class Tokenizer:
-    def __init__(self, source: str, conf: config.ConfigCls | None = None):
+    def __init__(self, source: str, conf: config.RootConfigCls | None = None):
         if conf is None:
-            conf = config.ConfigCls()
+            conf = config.RootConfigCls()
         self.conf = conf
         self.source = source
         self.src = source[:]
@@ -77,15 +76,16 @@ class Tokenizer:
             return Token(InternalTokenType.EoF)
         
         # ^ Multi-line comments
-        if self.conf.customization.redefine.multi_line_comment is not None:
-            if self.src.startswith(self.conf.customization.redefine.multi_line_comment.start):
+        multiline_comment = self.conf.customization.comments.multiline_comment
+        if multiline_comment.enabled.get_value():
+            if self.src.startswith(multiline_comment.syntax.start.get_value()):
                 self.src = self.src[2:]
                 nest = 1
                 while self.src and nest > 0:
-                    if self.src.startswith(self.conf.customization.redefine.multi_line_comment.start):
+                    if self.src.startswith(multiline_comment.syntax.start.get_value()):
                         nest += 1
                         self.src = self.src[2:]
-                    elif self.src.startswith(self.conf.customization.redefine.multi_line_comment.end):
+                    elif self.src.startswith(multiline_comment.syntax.end.get_value()):
                         nest -= 1
                         self.src = self.src[2:]
                     else:

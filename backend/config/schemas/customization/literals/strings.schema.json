@@ -20,7 +20,7 @@
             "additionalItems": false,
             "default": ["\"", "'", "`"]
         },
-        "acceessibility": {
+        "accessibility": {
             "type": "string",
             "enum": [
                 "never",
@@ -36,9 +36,8 @@
         "interpolation": {
             "type": "object",
             "properties": {
-                "acceessibility": {
-                    "$ref": "#/$defs/acceessibility",
-                
+                "accessibility": {
+                    "allOf": [{"$ref": "#/$defs/accessibility"}],
                     "description": "Determine whether how string interpolation will be accessed.",
                     "enumDescriptions": [
                         "Disable string interpolation entirely",
@@ -113,7 +112,7 @@
                     "default": true
                 },
                 "delimeterSyntax": {
-                    "description": "Determine the specific string delimeters use to either enable or disable interpolation.\nThis option is ignored if the 'acceessibility' field is not 'disable_by_delimeter' or 'enable_by_delimeter'",
+                    "description": "Determine the specific string delimeters use to either enable or disable interpolation.\nThis option is ignored if the 'acceessibility' field is not 'disable_by_delimeter' or 'enable_by_delimeter'.\nAll quotes in this option MUST also be included that are already in the root 'stringDelimeters' option.",
                     "$ref": "#/$defs/stringDelimeters"
                 },
                 "prefix": {
@@ -127,30 +126,30 @@
         "multiline": {
             "type": "object",
             "properties": {
-                "acceessibility": {
-                    "type": "string",
-                    "enum": [
-                        "disabled",
-                        "enabled",
-                        "default"
-                    ],
-                    "enumDescriptions": [
-                        "Multiline strings are not allowed",
-                        "Multiline strings require explicit syntax",
-                        "Strings are multiline by default"
-                    ]
+                "accessibility": {
+                    "allOf": [{"$ref": "#/$defs/accessibility"}]
                 },
                 "delimeterSyntax": {
                     "oneOf": [
                         {
                             "type": "string",
-                            "const": "triple"
+                            "enum": ["triple"]
                         },
                         {"$ref": "#/$defs/stringDelimeters"}
                     ]
+                },
+                "prefixSyntax": {
+                    "type": "string",
+                    "enum": ["m"]
                 }
             }
         },
-        "delimeters": {"$ref": "#/$defs/stringDelimeters"}
+        "delimeters": {"$ref": "#/$defs/stringDelimeters"},
+        "rawString": {
+            "type": "object",
+            "properties": {
+                "": {}
+            }
+        }
     }
 }

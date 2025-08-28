@@ -18,3 +18,5 @@ If specification is needed, it should be referred to as:
   - "Switch-style conditional statement"
   - "Jump table conditional statement" ()
   - "Switch statement"
+# CONCATENATE
+The word is 'concatenate'

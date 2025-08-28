@@ -49,6 +49,11 @@
                 "An informal way of saying 'false'"
             ],
             "default": "false"
+        },
+        "treatAs": {
+            "type": "string",
+            "enum": ["keyword", "mutableVariable", "constantVariable"],
+            "default": "keyword"
         }
     }
 }

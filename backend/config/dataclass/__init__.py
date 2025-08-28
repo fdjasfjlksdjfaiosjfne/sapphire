@@ -1,4 +1,5 @@
 from __future__ import annotations
+import keyword
 import typing
 import regex
 from dataclasses import dataclass, fields, is_dataclass
@@ -79,6 +80,12 @@ CAMEL_TO_SNAKE_PATTERN = regex.compile('((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))
 
 def camel_to_snake(string: str) -> str:
     return CAMEL_TO_SNAKE_PATTERN.sub(r"_\1", string).lower()
+
+def convert_name(name: str) -> str:
+    snake_case_name = camel_to_snake(name)
+    if keyword.iskeyword(name) or keyword.issoftkeyword(name):
+        snake_case_name += "_"
+    return snake_case_name
 
 ForcableTemplate: typing.TypeAlias = typing.Literal["disabled", "enabled", "forced"]
 UnforcableTemplate: typing.TypeAlias = typing.Literal["disabled", "enabled"]

@@ -9,7 +9,7 @@
         "enableInvertedIf": {
             "type": "boolean",
             "description": "Determines whether an inverted conditional statement can be used.",
-            "default": true
+            "default": false
         },
         "syntax": {
             "type": "object",

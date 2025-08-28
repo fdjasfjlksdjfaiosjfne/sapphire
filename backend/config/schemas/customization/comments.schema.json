@@ -11,14 +11,15 @@
                 },
                 "syntax": {
                     "type": "string",
-                    "enum": ["#", "//", "%", ";", "--"],
+                    "enum": ["#", "//", "%", ";", "--", "::", "rem"],
                     "enumDescriptions": [
                         "Use by Python, Powershell, Ruby, Bash, Perl, Julia, YAML, TOML, CoffeeScript and R, among others",
                         "Use by most C-styled languages. Note that, since this symbol matches the default floor division operator, you'd need to either redefine or disable it.",
                         "Use by MATLAB. Note that, since this symbol matches the default modulus operator, you'd need to either redefine or disable it.",
                         "Use by Assembly and AutoHotKey.",
-                        "Use by Haskell and Lua"
-                        
+                        "Use by Haskell and Lua",
+                        "Use by Batch",
+                        "Use by Batch"
                     ],
                     "default": "#"
                 },

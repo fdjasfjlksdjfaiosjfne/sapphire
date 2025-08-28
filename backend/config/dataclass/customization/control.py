@@ -6,12 +6,14 @@ from backend.config.baseclasses import CustomDataclass, ConfigDescriptor, _UNFIL
 @dataclass(frozen=True, kw_only=True)
 class ClassicConditionalSyntaxConfigCls(CustomDataclass):
     conditional: ConfigDescriptor[typing.Literal["if"]] = ConfigDescriptor(_UNFILLED, "if")
+    unless: ConfigDescriptor[typing.Literal["unless", "if not"]] = ConfigDescriptor(_UNFILLED, "unless")
     fallback_with_condition: ConfigDescriptor[typing.Literal["elseif", "else if", "elif", "elsif", "perchance", "assuming", "but what about if"]] = ConfigDescriptor(_UNFILLED, "elif")
     fallback: ConfigDescriptor[typing.Literal["else", "otherwise"]] = ConfigDescriptor(_UNFILLED, "else")
 
 @dataclass(frozen=True, kw_only=True)
 class ClassicConditionalConfigCls(CustomDataclass):
     enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    enable_inverted_if: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, False)
     syntax: ClassicConditionalSyntaxConfigCls = ClassicConditionalSyntaxConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
@@ -28,6 +30,22 @@ class MatchCaseConfigCls(CustomDataclass):
     enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
     pattern_matching: MatchCasePatternMatchingConfigCls = MatchCasePatternMatchingConfigCls()
     syntax: MatchCaseSyntaxConfigCls = MatchCaseSyntaxConfigCls()
+
+@dataclass(frozen=True, kw_only=True)
+class SwitchCasePatternMatchingConfigCls(CustomDataclass):
+    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+
+@dataclass(frozen=True, kw_only=True)
+class SwitchCaseConfigCls(CustomDataclass):
+    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    pattern_matching: MatchCasePatternMatchingConfigCls = MatchCasePatternMatchingConfigCls()
+    syntax: MatchCaseSyntaxConfigCls = MatchCaseSyntaxConfigCls()
+
+@dataclass(frozen=True, kw_only=True)
+class ConditionalConfigCls(CustomDataclass):
+    classic: ClassicConditionalConfigCls = ClassicConditionalConfigCls()
+    match_case: MatchCaseConfigCls = MatchCaseConfigCls()
+    switch_case: SwitchCaseConfigCls = SwitchCaseConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class TryStatementConfigCls(CustomDataclass):
@@ -73,7 +91,7 @@ class JumpingConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class ControlFlowConfigCls(CustomDataclass):
-    conditional: ClassicConditionalConfigCls = ClassicConditionalConfigCls()
+    conditional: ConditionalConfigCls = ConditionalConfigCls()
     match_case: MatchCaseConfigCls = MatchCaseConfigCls()
     exception_handling: ExceptionHandlingConfigCls = ExceptionHandlingConfigCls()
     jumping: JumpingConfigCls = JumpingConfigCls()

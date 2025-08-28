@@ -63,8 +63,9 @@ class StrInterpolationConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class MultilineStrConfigCls(CustomDataclass):
-    acceessibility: ConfigDescriptor[Accessibility] = ConfigDescriptor(_UNFILLED, "enable_by_delimeter")
+    accessibility: ConfigDescriptor[Accessibility] = ConfigDescriptor(_UNFILLED, "enable_by_delimeter")
     delimeter_syntax: ConfigDescriptor[StringDelimeters | typing.Literal["triple"]] = ConfigDescriptor(_UNFILLED, "triple")
+    prefix_syntax: ConfigDescriptor[typing.Literal["m"]] = ConfigDescriptor(_UNFILLED, "m")
 
 @dataclass(frozen=True, kw_only=True)
 class StringLiteralsConfigCls(CustomDataclass):
