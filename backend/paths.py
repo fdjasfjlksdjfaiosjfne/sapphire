@@ -4,6 +4,7 @@ from logging.handlers import RotatingFileHandler
 import pathlib
 
 from backend import errors
+from backend.config import CONFIG
 
 current_path = pathlib.Path(__file__)
 ROOT = current_path.parent.parent
@@ -20,8 +21,10 @@ CONFIG_FOLDER = BACKEND_FOLDER / "config"
 MAIN_CONFIG_FILE = CONFIG_FOLDER / "__init__.py"
 CHECKS_CONFIG_FILE = CONFIG_FOLDER / "checks"
 DATACLASSES_CONFIG_FILE = CONFIG_FOLDER / "dataclass"
+MAIN_CONFIG_SCHEMA = CONFIG_FOLDER / "sapconfig.schema.json"
 
-CONFIG_SCHEMAS = CONFIG_FOLDER / "schemas"
+CONFIG_SUBSCHEMAS = CONFIG_FOLDER / "subschemas"
+
 
 LOCALES_FOLDER = BACKEND_FOLDER / "locales"
 
