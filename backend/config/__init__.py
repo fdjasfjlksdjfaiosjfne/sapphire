@@ -46,24 +46,19 @@ def get_resolver():
     return resolver
 
 def get_config(current_path: pathlib.Path | None = None):
-    global CONFIG
-
     if current_path == None:
         raise errors.InternalError("get_config_dict() is called without a path, before it is intialized")
 
     config = {}
 
     # ^ Finding any config files that may qualify
-    config_files = []
     acceptable_names = {"sapconfig.json": 0, "sapconfig.yaml": 1}
 
-    for parent in reversed(current_path.parents):
-        # Find matching files and sort by priority
-        matches = sorted(
-            (f for f in parent.iterdir() if f.name in acceptable_names),
-            key = lambda p: acceptable_names[p.name]
-        )
-        config_files.extend(matches)
+    # Find matching files and sort by priority
+    config_files = sorted(
+        (f for f in current_path.parent.iterdir() if f.name in acceptable_names),
+        key = lambda p: acceptable_names[p.name]
+    )
     
     for file in config_files:
         schema_path = (pathlib.Path(__file__).parent / "schemas" / "main.schema.json").resolve()
@@ -90,4 +85,5 @@ def get_config(current_path: pathlib.Path | None = None):
                     
         config.update(c_)
 
+    global CONFIG
     return (CONFIG := RootConfigCls.from_dict(config))
