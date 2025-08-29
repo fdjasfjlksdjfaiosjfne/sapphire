@@ -1,7 +1,8 @@
 # Dynamically generated files
-parser/_lexer/internal_token_types.py
-parser/_lexer/token_types.py
-.env
+parser/lexer/internal_token_types.py
+parser/lexer/token_types.py
+/parser/lexer/internal_token_types.py
+/parser/lexer/token_types.py
 
 # Python
 *.pyc
@@ -11,8 +12,6 @@ parser/_lexer/token_types.py
 .idea/
 tempCodeRunnerFile.*
 *.code-workspace
-.mypy_cache/*
-
 
 *.ignore.*
 samples
