@@ -1,9 +1,5 @@
 import pathlib
 
-from parser.parser import Parser
-from interpreter.interpreter import evaluate
-from interpreter.env import Env
-from backend import errors
 from backend import config
 
 # ~ Type a path here...
@@ -11,6 +7,11 @@ from backend import config
 path = pathlib.Path(input("Path: "))
 
 config_ = config.find_config(path)
+
+from parser.parser import Parser
+from interpreter.interpreter import evaluate
+from interpreter.env import Env
+from backend import errors
 
 # ^ Reading the code
 try:

@@ -178,17 +178,20 @@ def _numbers(plains: S, regexes: R) -> tuple[S, R]:
     else:
         separator = ""
     scientific_regex = rf"(e[\d{separator}]+)?"
-    regexes.append(RegExTokenPattern(
-        regex.compile(
-            r"""(?x)
-            [\d{}]+ # The {} is replace by the separator
-            \.[\d{}]+ # The {} is replace by the separator
-            {} # This will be replace with scientific Notation
-            """.format(separator,
-                       separator,
-                       scientific_regex if nums_conf.scientific_notation else "")),
-        ("Primitives", "Float")
-    ))
+    s = scientific_regex if nums_conf.scientific_notation else ""
+    
+    regexes.append(
+        RegExTokenPattern(
+            regex.compile(
+                fr"""(?x)
+                [\d{separator}]+
+                \.[\d{separator}]+
+                {s}
+                """
+            ),
+            ("Primitives", "Float")
+        )
+    )
 
     # ^ Integers
     if nums_conf.integer_base_literals.binary:

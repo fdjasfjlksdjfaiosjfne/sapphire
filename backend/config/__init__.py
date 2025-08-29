@@ -10,55 +10,70 @@ from backend import errors
 from backend.paths import MAIN_CONFIG_SCHEMA, CONFIG_SUBSCHEMAS
 from backend.config.dataclass import ConfigVersionCls, RootConfigCls
 
+_SENTINEL = object()
 LASTEST_VERSION = ConfigVersionCls(major = 2, minor = 1, patch = 1, phase = "indev") # pyright: ignore[reportArgumentType]
-
 CONFIG = RootConfigCls.from_dict({})
 
-def _resolve_ref(schema: dict, defs: dict) -> typing.Any:
+def _find_subschema(ref, defs: dict):
+    if not isinstance(ref, str):
+        return _SENTINEL
+    # $ Definition Reference
+    if ref.startswith("#/$defs"):
+        return {"$ref": ref}
+    ref_path = CONFIG_SUBSCHEMAS / ref
+    if not ref_path.exists():
+        return _SENTINEL
+    with open(ref_path) as f:
+        ref_schema = _resolve(json.load(f), defs)
+        if isinstance(ref_schema, dict) and "$defs" in ref_schema:
+            defs.update(ref_schema["$defs"])
+        return ref_schema
+
+def _resolve(schema: dict, defs: dict) -> typing.Any:
+    if "$ref" in schema:
+        ref = _find_subschema(schema["$ref"], defs)
+        if ref is not _SENTINEL:
+            return ref
+    
     schema_ = schema.copy()
     schema_.pop("$comment", None)
+    
     for k, v in schema.items():
-        if k == "$ref":
-            if not isinstance(v, str):
-                # $ Let jsonschema throw the error for us
-                schema_[k] = v
-            if v.startswith("#/$defs"):
-                # $ Inline definitions, leave it alone
-                schema_[k] = v
-            
-            ref_path = CONFIG_SUBSCHEMAS / v
-            if ref_path.exists():
-                with open(ref_path) as f:
-                    ref_schema = _resolve_ref(json.load(f), defs)
-
-                    if not isinstance(ref_schema, dict):
-                        continue
-
-                    if "$defs" in ref_schema:
-                        defs.update(ref_schema.pop("$defs"))
-            else:
-                # $ Fall back to jsonschema's RefResolver
-                schema_[k] = v
         
-        elif isinstance(v, list):
-            array = []
-            for i in v:
-                if isinstance(v, dict):
-                    array.append(_resolve_ref(i, defs))
-                else:
-                    array.append(i)
-            schema_[k] = array
+            # if v.startswith("#/$defs"):
+            #     # $ Inline definitions, leave it alone
+            #     schema_[k] = v
+            #     continue
+            
+            # ref_path = CONFIG_SUBSCHEMAS / v
+            # print(ref_path)
+            # if not ref_path.exists():
+            #     schema_[k] = v
+            #     continue
+            # with open(ref_path) as f:
+            #     ref_schema = _resolve(json.load(f), defs)
+
+            #     if not isinstance(ref_schema, dict):
+            #         continue
+
+            #     if "$defs" in ref_schema:
+            #         defs.update(ref_schema.pop("$defs"))
+                
+            # schema_[k] = ref_schema
+
+        if isinstance(v, list):
+            schema_[k] = [( _resolve(i, defs) if isinstance(i, dict) else i ) for i in v]
         elif isinstance(v, dict):
-            schema_[k] = _resolve_ref(v, defs)
+            schema_[k] = _resolve(v, defs)
         else:
             schema_[k] = v
     return schema_
 
 def get_schema() -> dict:
-    if MAIN_CONFIG_SCHEMA.exists():
-        # $ If the main schema file already exists...
-        with open(MAIN_CONFIG_SCHEMA) as f:
-            return json.load(f)
+    # if MAIN_CONFIG_SCHEMA.exists():
+    #     # $ If the main schema file already exists...
+    #     with open(MAIN_CONFIG_SCHEMA) as f:
+    #         return json.load(f)
     schema_path = CONFIG_SUBSCHEMAS / "main.schema.json"
     if not schema_path.exists():
         raise errors.InternalError(
@@ -66,10 +81,10 @@ def get_schema() -> dict:
             f"({schema_path})"
         )
     
-    # $ Modify the schema for just a little bit...
+    # $ Get and modify the schema for just a little bit...
     with open(schema_path) as f:
         defs = {}
-        schema = _resolve_ref(json.load(f), defs)
+        schema = _resolve(json.load(f), defs)
         schema["$defs"] = defs
     
     # # Processing the schema file every time us
