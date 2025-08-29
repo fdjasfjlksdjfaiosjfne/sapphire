@@ -1,10 +1,6 @@
 """A module containing constant path variables, representing the files in the repository."""
 
-from logging.handlers import RotatingFileHandler
 import pathlib
-
-from backend import errors
-from backend.config import CONFIG
 
 current_path = pathlib.Path(__file__)
 ROOT = current_path.parent.parent
