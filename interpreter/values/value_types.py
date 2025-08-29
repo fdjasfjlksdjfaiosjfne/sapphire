@@ -7,7 +7,7 @@ import typing
 
 from backend import errors
 from parser import nodes
-from runtime import env
+from interpreter import env
 
 class RuntimeValue:
     """Base class for all runtime values"""
@@ -333,7 +333,7 @@ class CustomFunctionValue(FunctionValue):
         return bound_fn
     
     def call(self, parent_env: env.Env, args: list[RuntimeValue], kwargs: dict[str, RuntimeValue]) -> RuntimeValue:
-        from runtime.interpreter import evaluate
+        from interpreter.interpreter import evaluate
         call_env = env.Env(parent_env)
         if self.args.variadic_pos is not None:
             call_env.assign(self.args.variadic_pos.name, TupleValue())

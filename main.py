@@ -1,8 +1,8 @@
 import pathlib
 
 from parser.parser import Parser
-from runtime.interpreter import evaluate
-from runtime.env import Env
+from interpreter.interpreter import evaluate
+from interpreter.env import Env
 from backend import errors
 from backend import config
 
@@ -14,11 +14,12 @@ path = pathlib.Path(input("Path: "))
 config_ = config.get_config(path)
 
 # ^ Reading the code
-try: 
+try:
     global_env = Env()
     with open(path) as file:
         program_ast = Parser(file.read(), config_).parse_module()
         evaluate(program_ast, global_env)
+# TODO: Came up with a better solution for break/continue/return
 except errors.BreakLoop:
     raise errors.SyntaxError("'break' run outside of a loop")
 except errors.ContinueLoop:

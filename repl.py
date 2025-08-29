@@ -1,7 +1,7 @@
 # Credit to: https://www.youtube.com/playlist?list=PL_2VhOvlMk4UHGqYCLWc6GO8FaPl8fQTh
 from parser.parser import Parser
-from runtime.interpreter import evaluate
-from runtime.env import setup_global_scope
+from interpreter.interpreter import evaluate
+from interpreter.env import setup_global_scope
 global_env = setup_global_scope()
 
 while True:
@@ -48,7 +48,7 @@ while True:
 # > Initially for desicions in the process of making code
 # Teal: Alias for >, usually use only for the color rather than the tag's original purpose
 
-# * (Sky): Solutions to a problem that is express in a comment chain
+# * (Sky): Solution to a problem
 # * Initially for simple affirmations
 # * This tag is initially assigned as a green darker than $, but has been changed for theme consistency.
 # Sky: Alias for *, usually use only for the color rather than the tag's original purpose

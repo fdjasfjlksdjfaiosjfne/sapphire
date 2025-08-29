@@ -3,7 +3,7 @@ This modules consists of functions that process unary and binary operations, mai
 """
 import typing
 
-from runtime import env, values
+from interpreter import env, values
 
 # Github Copilot write this
 def _eval_binary_operation(
@@ -224,7 +224,7 @@ def eval_ne(lhs: values.RuntimeValue, rhs: values.RuntimeValue, env: env.Env) ->
 #     - Run expr.__incre__()
 #     - Run expr.__iadd__(1), which, by itself, will call __add__, __ladd__ and __radd__ as fallback
 #     """
-#     from runtime.eval.inplaceops import eval_iadd
+#     from interpreter.eval.inplaceops import eval_iadd
 #     incre_fn: typing.Callable[[], values.RuntimeValue] | None = expr.__sap_props__.get("__incre__")
 #     if callable(incre_fn):
 #         val = incre_fn()
@@ -239,7 +239,7 @@ def eval_ne(lhs: values.RuntimeValue, rhs: values.RuntimeValue, env: env.Env) ->
 #     - Run expr.__decre__()
 #     - Run expr.__isub__(1), which, by itself, will call __sub__, __lsub__ and __rsub__ as fallback
 #     """
-#     from runtime.eval.inplaceops import eval_isub
+#     from interpreter.eval.inplaceops import eval_isub
 #     decre_fn: typing.Callable[[], values.RuntimeValue] | None = expr.__sap_props__.get("__decre__")
 #     if callable(decre_fn):
 #         val = decre_fn()

@@ -9,7 +9,7 @@ if not (ROOT_PATH := os.getenv("ROOT_PATH")):
 sys.path.insert(0, ROOT_PATH)
 
 from backend import errors
-from runtime.values import Type
+from interpreter.values import Type
 
 def test_single_inheritance():
     """Test simple single inheritance chain"""

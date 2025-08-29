@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from runtime.values.value_attributes import (
+from interpreter.values.value_attributes import (
     RUNTIME_VAL_METHODS, NUMBER_METHODS, 
     INT_METHODS, STR_METHODS, BOOL_METHODS, 
     NULL_METHODS, LIST_METHODS, TUPLE_METHODS, 
     SET_METHODS, DICT_METHODS, FUNCTION_METHODS
 )
 
-from runtime.values.value_types import (
+from interpreter.values.value_types import (
     TRUE, FALSE, NULL, NOT_IMPLEMENTED,
     RuntimeValue, Type, NumberValue,
     IntValue, FloatValue, BoolValue,

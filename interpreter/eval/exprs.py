@@ -3,8 +3,8 @@ import itertools
 
 from backend import errors
 import parser.nodes as Nodes
-from runtime import values
-from runtime.env import Env
+from interpreter import values
+from interpreter.env import Env
 from parser.lexer import (
     TokenType,
     BinaryOperators,
@@ -12,7 +12,7 @@ from parser.lexer import (
     InvertedComparisons
 )
 import runtime.eval.opers as opers
-from runtime.interpreter import evaluate
+from interpreter.interpreter import evaluate
 from backend.config import CONFIG
 
 

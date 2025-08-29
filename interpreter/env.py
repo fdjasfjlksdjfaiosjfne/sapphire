@@ -65,7 +65,7 @@ class Env:
         return env
 
 def setup_global_scope():
-    from runtime import native_fns
+    from interpreter import native_fns
     env = Env()
     # env.assign("print", values.NativeFn(caller = native_fns.print,
     #     args_layout = [

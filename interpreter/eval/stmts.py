@@ -1,10 +1,10 @@
 import parser.nodes as Nodes
-from runtime.interpreter import evaluate
-from runtime.env import Env
-from runtime.eval.exprs import eval_code_block
-from runtime import values
+from interpreter.interpreter import evaluate
+from interpreter.env import Env
+from interpreter.eval.exprs import eval_code_block
+from interpreter import values
 from backend import errors
-from runtime import native_fns
+from interpreter import native_fns
 
 def eval_module(program: Nodes.ModuleNode, env: Env, /) -> None:
     eval_code_block(program.body, env)

@@ -1,19 +1,19 @@
 import typing
-from runtime import values
+from interpreter import values
 import parser.nodes as Nodes
-from runtime.env import Env
+from interpreter.env import Env
 from backend import errors
 
 class ExprEvalHandler(typing.NamedTuple):
     function_name: str
     def __call__(self, node, env):
-        from runtime.eval import exprs
+        from interpreter.eval import exprs
         return getattr(exprs, self.function_name)(node, env)
 
 class StmtEvalHandler(typing.NamedTuple):
     function_name: str
     def __call__(self, node, env):
-        from runtime.eval import stmts
+        from interpreter.eval import stmts
         return getattr(stmts, self.function_name)(node, env)
 
 class ValueEvalHandler(typing.NamedTuple):
