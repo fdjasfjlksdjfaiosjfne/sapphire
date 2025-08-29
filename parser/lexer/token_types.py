@@ -124,6 +124,15 @@ class TokenType(TokenTypeEnum):
             VariableBinding = InternalTokenType.Keywords.Let
             ConditionGuard = InternalTokenType.Keywords.If
             PatternSeparator = InternalTokenType.Symbols.Comma
+
+        class SwitchCase(TokenTypeEnum):
+            Switch = InternalTokenType.Keywords.Match
+            Case = InternalTokenType.Keywords.Case
+            DefaultCase = InternalTokenType.Symbols.Underscore
+            VariableBindingIntoPattern = InternalTokenType.Keywords.As
+            VariableBinding = InternalTokenType.Keywords.Let
+            ConditionGuard = InternalTokenType.Keywords.If
+            PatternSeparator = InternalTokenType.Symbols.Comma
         NewScope = InternalTokenType.Keywords.Scope
         DirectImport = InternalTokenType.Keywords.Import
         ImportFrom = InternalTokenType.Keywords.From
@@ -145,9 +154,9 @@ class TokenType(TokenTypeEnum):
             HybridOr = InternalTokenType.Symbols.VerticalBar
             HybridAnd = InternalTokenType.Symbols.Andpersand
             HybridXor = InternalTokenType.Symbols.Caret
-            BinaryOr = InternalTokenType.Symbols.BAndVerticalBar
-            BinaryAnd = InternalTokenType.Symbols.BAndAndpersand
-            BinaryXor = InternalTokenType.Symbols.BAndCaret
+            BinaryOr = InternalTokenType.Symbols.VerticalBar
+            BinaryAnd = InternalTokenType.Symbols.Andpersand
+            BinaryXor = InternalTokenType.Symbols.Caret
             Containing = InternalTokenType.Keywords.In
             NotContaining = InternalTokenType.Keywords.NotIn
             Identity = InternalTokenType.Keywords.Is
@@ -192,15 +201,6 @@ class TokenType(TokenTypeEnum):
         Null = InternalTokenType.Primitives.Null
         Ellipsis = InternalTokenType.Symbols.TripleDot
 
-    class Templates(TokenTypeEnum):
-
-        class InvertedComparisons(TokenTypeEnum):
-            Equality = InternalTokenType._SkipPattern
-            LessThan = InternalTokenType._SkipPattern
-            GreaterThan = InternalTokenType._SkipPattern
-            LessThanOrEqualTo = InternalTokenType._SkipPattern
-            GreaterThanOrEqualTo = InternalTokenType._SkipPattern
-
 Parentheses = TokenType.Parentheses
 Symbols = TokenType.Symbols
 AugmentedAssignOpers = Symbols.AugmentedAssignOpers
@@ -212,33 +212,31 @@ Declarations = Statements.Declarations
 Loops = Statements.Loops
 Conditional = Statements.Conditional
 MatchCase = Statements.MatchCase
+SwitchCase = Statements.SwitchCase
 Operators = TokenType.Operators
 BinaryOperators = Operators.Binary
 TernaryOperators = Operators.Ternary
 UnaryOperators = Operators.Unary
 Primitives = TokenType.Primitives
-Templates = TokenType.Templates
-InvertedComparisons = Templates.InvertedComparisons
 
 __all__ = [
     "TokenType",
     "TokenTypeEnum",
-    "Templates",
-    "Conditional",
-    "Statements",
     "Symbols",
-    "TernaryOperators",
-    "RightyAugmentedAssignOpers",
+    "Statements",
     "UnaryOperators",
     "AugmentedAssignOpers",
-    "MatchCase",
-    "LeftyAugmentedAssignOpers",
-    "Declarations",
-    "InvertedComparisons",
-    "Parentheses",
     "Loops",
+    "Parentheses",
+    "MatchCase",
+    "Conditional",
     "Primitives",
     "BinaryOperators",
-    "ExceptionHandling",
     "Operators",
+    "LeftyAugmentedAssignOpers",
+    "TernaryOperators",
+    "ExceptionHandling",
+    "SwitchCase",
+    "Declarations",
+    "RightyAugmentedAssignOpers",
 ]

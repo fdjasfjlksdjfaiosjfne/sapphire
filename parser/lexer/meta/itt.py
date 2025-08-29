@@ -18,7 +18,7 @@ sys.path.insert(0, ROOT_PATH)
 from backend import errors
 from parser.lexer.data.aliases import get_all_itt_used
 
-GENERATED_FILE_PATH = (pathlib.Path(ROOT_PATH) / "parser" / "_lexer" / "internal_token_types.py").resolve()
+GENERATED_FILE_PATH = (pathlib.Path(ROOT_PATH) / "parser" / "lexer" / "internal_token_types.py").resolve()
 
 async def write_subclass(name: str, ls: typing.Iterable[dict | str], indent = 4) -> list[str]:
     if not ls:

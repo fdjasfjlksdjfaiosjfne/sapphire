@@ -12,11 +12,15 @@
                     "type": "string",
                     "enum": [
                         "==",
-                        "==="
+                        "===",
+                        "!><",
+                        "!<>",
+                        "-eq"
                     ],
                     "enumDescriptions": [
                         "The standard notation, used in most languages",
-                        "JS's symbol for strict equality"
+                        "JS's symbol for strict equality",
+                        "", "", "Use by PowerShell"
                     ],
                     "default": "=="
                 }

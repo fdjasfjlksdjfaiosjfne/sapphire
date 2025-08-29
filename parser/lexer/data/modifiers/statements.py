@@ -177,7 +177,7 @@ def function_decl():
     return _factory(
         # There isn't a enable config for this, use a placebo
         ConfigDescriptor(True, True),
-        objs.functions.keyword,
+        objs.functions.syntax.keyword,
         {
             "fn": ("Keywords", "Fn"),
             "fun": ("Keywords", "Fun"),
@@ -202,7 +202,7 @@ def enum_decl():
     return _factory(
         # There isn't a enable config for this, use a placebo
         ConfigDescriptor(True, True),
-        objs.functions.keyword,
+        objs.enums.syntax,
         {
             "enum": ("Keywords", "Enum")
         }

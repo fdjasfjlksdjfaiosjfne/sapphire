@@ -212,15 +212,6 @@ ALIASES: dict = {
         "Boolean": base.boolean(),
         "Null": base.null(),
         "Ellipsis": ("Symbols", "TripleDot")
-    },
-    "Templates": {
-        "InvertedComparisons": {
-            "Equality": inverted_comparisons.eq(),
-            "LessThan": inverted_comparisons.lt(),
-            "GreaterThan": inverted_comparisons.gt(),
-            "LessThanOrEqualTo": inverted_comparisons.le(),
-            "GreaterThanOrEqualTo": inverted_comparisons.ge()
-        }
     }
 }
 
