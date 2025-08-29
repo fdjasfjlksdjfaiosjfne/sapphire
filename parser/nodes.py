@@ -3,7 +3,6 @@ import dataclasses
 import enum
 import typing
 
-
 from parser.lexer.internal_token_types import ITTTypeChecking, InternalTokenType
 from parser.lexer import TokenTypeEnum
 

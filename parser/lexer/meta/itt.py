@@ -1,24 +1,11 @@
 """Meta-programming go brrrrrrrrrrrrrrrrrrrrr"""
 
 import asyncio
-import itertools
-import pathlib
-import sys
 import typing
-import os
-import dotenv_vault
-
-
-
-dotenv_vault.load_dotenv()
-if not (ROOT_PATH := os.getenv("ROOT_PATH")):
-    raise ValueError("ROOT_PATH does not exist in .env")
-sys.path.insert(0, ROOT_PATH)
 
 from backend import errors
+from backend.paths import INTERNAL_TOKEN_TYPES
 from parser.lexer.data.aliases import get_all_itt_used
-
-GENERATED_FILE_PATH = (pathlib.Path(ROOT_PATH) / "parser" / "lexer" / "internal_token_types.py").resolve()
 
 async def write_subclass(name: str, ls: typing.Iterable[dict | str], indent = 4) -> list[str]:
     if not ls:
@@ -126,7 +113,7 @@ def write_file():
         "        return next(_global_counter)"
     ]
 
-    with open(GENERATED_FILE_PATH, "w", encoding = "utf-8") as f:
+    with open(INTERNAL_TOKEN_TYPES, "w", encoding = "utf-8") as f:
         lines += asyncio.run(write_class())
         f.write("\n".join(lines))
 

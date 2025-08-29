@@ -1,6 +1,5 @@
 from __future__ import annotations
 import dataclasses
-import dotenv_vault
 import os
 import jsonschema.exceptions
 import jsonschema.validators
@@ -10,11 +9,8 @@ import sys
 import yaml
 import regex
 
-dotenv_vault.load_dotenv()
-ROOT_PATH = pathlib.Path(os.getenv("ROOT_PATH") or "")
-sys.path.insert(0, str(ROOT_PATH))
-
 from backend import errors
+from backend.paths import ROOT
 from backend.config.dataclass import ConfigVersionCls, RootConfigCls
 from backend.config.checks import asserting_config_dict
 
@@ -24,7 +20,7 @@ LASTEST_VERSION = ConfigVersionCls(major = 2, minor = 1, patch = 1, phase = "ind
 CONFIG = RootConfigCls.from_dict({})
 
 def get_resolver():
-    main_schema_dir = (ROOT_PATH / "backend" / "config" / "schemas").resolve()
+    main_schema_dir = (ROOT / "backend" / "config" / "schemas").resolve()
     if not main_schema_dir.exists():
         raise errors.InternalError(
             "The directory that is used to store schemas for the configuration files "

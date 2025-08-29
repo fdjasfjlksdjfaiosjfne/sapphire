@@ -1,20 +1,10 @@
 """Meta-programming go brrrrrrrrrrrrrrrrrrrrr"""
 
 import itertools
-import pathlib
-import sys
-import dotenv_vault
-import os
 
-
+from backend.paths import TOKEN_TYPES
 
 CLASS_NAME = "TokenType"
-
-dotenv_vault.load_dotenv()
-if not (ROOT_PATH := os.getenv("ROOT_PATH")):
-    raise ValueError("ROOT_PATH does not exist in .env")
-sys.path.insert(0, ROOT_PATH)
-GENERATED_FILE_PATH = (pathlib.Path(ROOT_PATH) / "parser" / "lexer" / "token_types.py").resolve()
 
 from backend import errors
 from parser.lexer.data.aliases import ALIASES
@@ -83,7 +73,7 @@ def write_file():
     lines.append("")
     lines += write_all_array(variables)
 
-    with open(GENERATED_FILE_PATH, "w", encoding="utf-8") as f:
+    with open(TOKEN_TYPES, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
 if __name__ == "__main__":

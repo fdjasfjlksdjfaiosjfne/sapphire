@@ -6,7 +6,6 @@ from parser.lexer import Token, TokenType, Tokenizer, TokenTypeSequence, TokenTy
 from backend.config import RootConfigCls, CONFIG
 from parser import nodes
 
-
 class ParserNamespaceSkeleton(ABC):
     tokens: Tokenizer
     conf: RootConfigCls
