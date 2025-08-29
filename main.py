@@ -6,7 +6,6 @@ from interpreter.env import Env
 from backend import errors
 from backend import config
 
-
 # ~ Type a path here...
 # & I'm too lazy to setup args
 path = pathlib.Path(input("Path: "))
