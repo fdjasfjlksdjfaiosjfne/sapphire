@@ -40,15 +40,3 @@ TOKEN_TYPES = LEXER_FOLDER / "token_types.py"
 
 PARSE_STMTS_FOLDER = PARSER_FOLDER / "stmts"
 PARSER = PARSER_FOLDER / "parser.py"
-
-# ^ Extra coverage
-for v in globals().values():
-    if not isinstance(v, pathlib.Path):
-        continue
-
-    # ! If the path does not exist...
-    if not v.exists():
-        raise errors.InternalError(
-            f"It seems that {v!s} does not exist. Did you forgot to modify the paths database "
-            "after changing the folder structure again?"
-        )
