@@ -1,8 +1,5 @@
 # Dynamically generated files
-parser/lexer/internal_token_types.py
-parser/lexer/token_types.py
-/parser/lexer/internal_token_types.py
-/parser/lexer/token_types.py
+parser/lexer/*token_types.py
 
 # Python
 *.pyc
@@ -18,7 +15,6 @@ samples
 .mypy_cache
 .pytest_cache
 
-# 🫠
 __*__/*
 */__*__/*
 */*/__*__/*
