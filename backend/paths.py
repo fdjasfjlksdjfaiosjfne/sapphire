@@ -1,5 +1,6 @@
 """A module containing constant path variables, representing the files in the repository."""
 
+from logging.handlers import RotatingFileHandler
 import pathlib
 
 from backend import errors
@@ -8,13 +9,13 @@ current_path = pathlib.Path(__file__)
 ROOT = current_path.parent.parent
 
 # ^ Root folders
-INTERPRETER_FOLDER = current_path / "interpreter"
-TESTS_FOLDER = current_path / "tests"
-MAIN_FILE = current_path / "main.py"
-REPL_FILE = current_path / "repl.py"
+INTERPRETER_FOLDER = ROOT / "interpreter"
+TESTS_FOLDER = ROOT / "tests"
+MAIN_FILE = ROOT / "main.py"
+REPL_FILE = ROOT / "repl.py"
 
 # ^ Backend and subfolders
-BACKEND_FOLDER = current_path / "backend"
+BACKEND_FOLDER = ROOT / "backend"
 CONFIG_FOLDER = BACKEND_FOLDER / "config"
 MAIN_CONFIG_FILE = CONFIG_FOLDER / "__init__.py"
 CHECKS_CONFIG_FILE = CONFIG_FOLDER / "checks"
@@ -31,7 +32,7 @@ ERRORS = BACKEND_FOLDER / "errors.py"
 PATHS = BACKEND_FOLDER / "paths.py"
 
 # ^ Parser and subfolders
-PARSER_FOLDER = current_path / "parser"
+PARSER_FOLDER = ROOT / "parser"
 PARSE_EXPRS_FOLDER = PARSER_FOLDER / "exprs"
 
 LEXER_FOLDER = PARSER_FOLDER / "lexer"
