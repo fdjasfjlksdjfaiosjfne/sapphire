@@ -10,7 +10,7 @@ from backend import config
 # & I'm too lazy to setup args
 path = pathlib.Path(input("Path: "))
 
-config_ = config.get_config(path)
+config_ = config.find_config(path)
 
 # ^ Reading the code
 try:

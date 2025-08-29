@@ -1,19 +1,13 @@
 from __future__ import annotations
-import dataclasses
-import os
 import jsonschema.exceptions
 import jsonschema.validators
 import typing
 import pathlib
-import sys
 import yaml
-import regex
 
 from backend import errors
 from backend.paths import ROOT
 from backend.config.dataclass import ConfigVersionCls, RootConfigCls
-from backend.config.checks import asserting_config_dict
-
 
 LASTEST_VERSION = ConfigVersionCls(major = 2, minor = 1, patch = 1, phase = "indev") # pyright: ignore[reportArgumentType]
 
@@ -45,7 +39,7 @@ def get_resolver():
 
     return resolver
 
-def get_config(current_path: pathlib.Path | None = None):
+def find_config(current_path: pathlib.Path | None = None):
     if current_path == None:
         raise errors.InternalError("get_config_dict() is called without a path, before it is intialized")
 
