@@ -1,5 +1,5 @@
 # Dynamically generated files
-parser/lexer/*token_types.py
+parser/lexer/*.py
 
 # Python
 *.pyc
@@ -9,6 +9,7 @@ parser/lexer/*token_types.py
 .idea/
 tempCodeRunnerFile.*
 *.code-workspace
+test.txt
 
 *.ignore.*
 samples
