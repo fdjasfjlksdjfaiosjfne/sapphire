@@ -45,7 +45,7 @@ class Token:
     def __eq__(self, other) -> bool:
         if isinstance(other, (TokenTypeEnum, ITTTypeChecking)):
             return self.type == other
-        if isinstance(other, Token): 
+        if isinstance(other, Token):
             return self.type == other.type and self.value == other.value
         return NotImplemented
 
