@@ -26,7 +26,7 @@ from backend.config.dataclass.customization import (
     EllipsisLiteralConfigCls,
     StringLiteralsConfigCls,
     StrInterpolationConfigCls,
-    StrInterpolationExpressionSyntaxConfigCls,
+    StringInterpolationExpressionSyntaxConfigDataClass,
     MultilineStrConfigCls,
     ControlFlowConfigCls,
     ClassicConditionalConfigCls,

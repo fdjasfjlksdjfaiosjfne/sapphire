@@ -21,7 +21,7 @@ class ConfigDescriptorProtocol[T](typing.Protocol):
 
 _UNFILLED = object()
 class ConfigDescriptor[T](ConfigDescriptorProtocol[T]):
-    def __init__(self, value: T | object = _UNFILLED, default: T = _UNFILLED): 
+    def __init__(self, value: T | object = _UNFILLED, default: T | object = _UNFILLED): 
         self.__v = value
         self.__def = default
     
