@@ -1,10 +1,10 @@
 import dataclasses
-from os import access
 from backend import errors
 import typing
 import regex
+
 from backend.config import CONFIG
-import itertools
+from parser.lexer import utils
 
 cus = CONFIG.customization
 
@@ -56,56 +56,10 @@ def _null(plains: S, regexes: R) -> tuple[S, R]:
             plains.append(StringTokenPattern(null, ("Primitives", "Null")))
     return plains, regexes
 
-def permutations(
-    possible_strs: list[str] | None = None,
-    forbidden_matches: list[list[str]] | None = None,
-    forced_strs: list[str] | None = None
-) -> list[str]:
-    """Return all permutations of a given characters.
-
-    The optional `forbidden_matches` argument accept a list of lists, each containing
-     strings. This'll allow you to get rid of permutations that have all characters
-     contain in each list containing in it.
-
-    For example: 
-    - With [["f", "t"]], the permutation "ptl" and "fap" are allowed, but not "wtf".
-    - With [["f", "t"], ["d", "r"]], the permutation "rt", "df" are allowed, but not 
-    "ft", not "dr".
-
-    The optional `forbidden_matches` argument accept a list of strings. This'll allow
-     you to get rid of permutatons that does not have all of the forced strings.
-    """
-    possible_strs = possible_strs or []
-    forbidden_matches = forbidden_matches or []
-    forced_strs = forced_strs or []
-    res = []
-    # Generate all non-empty permutations
-    for n in range(1 + min(len(f) for f in forced_strs),
-                   len(possible_strs) + 1):
-        # & itertools saves the day again
-        for perm in itertools.permutations(possible_strs, n):
-            skip = False
-            # ? Check if this permutation contains any elements of any forced match
-            if not all(f in perm for f in forced_strs):
-                skip = True
-            # ? Check if this permutation contains all elements of any forbidden match
-            for forbidden in forbidden_matches:
-                if all(f in perm for f in forbidden):
-                    skip = True
-                    break
-            
-            if not skip:
-                prefix = ''.join(perm)
-                if prefix not in res:
-                    res.append(prefix)
-    return res
-
-def _str_regex(possible_formats: list[str] | None = None,
-               forbidden_matches: list[list[str]] | None = None,
-               forced_strs: list[str] | None = None,
+def _str_regex(str_prefixes: str,
                quotes: str = "\"'`",
                multiline: bool = False) -> regex.Pattern:
-    str_prefixes = "|".join(permutations(possible_formats, forbidden_matches, forced_strs))
+    
     return regex.compile(
         fr"""
         (?:{str_prefixes})
@@ -130,10 +84,11 @@ def _str(plains: S, regexes: R) -> tuple[S, R]:
     possible_formats = ["r", "b"]
     forbidden_matches = []
 
-    def append_regex(formats, forbidden, forced=None, quotes="", multiline=False):
+    def append_regex(formats, forbidden, quotes="", multiline=False):
+        str_prefixes = "|".join(utils.permutations(formats, forbidden))
         regexes.append(
             RegExTokenPattern(
-                _str_regex(formats, forbidden, forced, quotes, multiline),
+                _str_regex(str_prefixes, quotes, multiline),
                 ("Primitives", "String")
             )
         )
@@ -150,7 +105,14 @@ def _str(plains: S, regexes: R) -> tuple[S, R]:
         prefix = str_conf.multiline.prefix_syntax.get_value()
         pf = [fmt for fmt in possible_formats if fmt != prefix]
         append_regex(pf, forbidden_matches, quotes=delimeters, multiline=True)
-        append_regex(possible_formats, forbidden_matches, [prefix], quotes=delimeters, multiline=False)
+        str_prefixes = (i for i in utils.permutations(possible_formats, forbidden_matches) if prefix in i)
+        regexes.append(
+            RegExTokenPattern(
+                _str_regex(str_prefixes = "|".join(str_prefixes)),
+                ("Primitives", "String")
+            )
+        )
+        append_regex(possible_formats, forbidden_matches, quotes=delimeters, multiline=False)
     elif accessibility == "enable_by_prefix":
         append_regex(possible_formats, forbidden_matches, quotes=delimeters, multiline=False)
     elif accessibility.endswith("delimeter"):

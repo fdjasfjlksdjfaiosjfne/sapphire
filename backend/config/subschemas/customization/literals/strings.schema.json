@@ -148,7 +148,13 @@
         "rawString": {
             "type": "object",
             "properties": {
-                "": {}
+                "acceessibility": {"$ref": "#/$defs/acceessibility"},
+                "delimeterSyntax": {"$ref": "#/$defs/stringDelimeters"},
+                "prefixSyntax": {
+                    "type": "string",
+                    "enum": ["r", "l"],
+                    "default": "r"
+                }
             }
         }
     }

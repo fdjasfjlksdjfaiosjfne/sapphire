@@ -3,6 +3,7 @@ import ast
 import typing
 import regex
 from backend import errors
+from parser.lexer import utils
 from parser.lexer.token_types import TokenTypeEnum
 from parser.lexer.internal_token_types import InternalTokenType, ITTTypeChecking
 from parser.lexer.data.patterns import (
@@ -117,9 +118,14 @@ class Tokenizer:
         else:
             raise errors.SyntaxError(f"Invalid character found: U+{ord(self.src):x}")
 
-    @staticmethod
-    def _get_start_of_format_strings() -> tuple[str]:
+    def _get_start_of_format_strings(self) -> tuple[str, ...]:
+        strs = self.conf.customization.literals.strings
         ...
+        match strs.interpolation.accessibility.get_value():
+            case "never":
+                return ()
+            case "always":
+                return 
 
     @staticmethod
     def resolve_itt_tuple(tple: tuple[str, ...]) -> InternalTokenType:

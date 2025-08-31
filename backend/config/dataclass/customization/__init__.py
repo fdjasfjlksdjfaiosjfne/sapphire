@@ -24,9 +24,24 @@ class InlineCommentCls(CustomDataclass):
     space_required: C[bool] = C(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
-class MultilineCommentSyntaxConfigCls(CustomDataclass):
-    start: C[typing.Literal["/*", "###", "#=", "#*", "(*", "<!--", "{#", "{{!--", "{{--", "--[[", "#|", "%{"]] = C(_UNFILLED, "/*")
-    end: C[typing.Literal["*/", "###", "=#", "*#", "--}}", "]]", "|#", "}%"]] = C(_UNFILLED, "*/")
+class MultilineCommentSyntaxConfigCls[Start: str, End: str](CustomDataclass):
+    start: C[Start] = C(default = "/*")
+    end: C[End] = C(default = "*/")
+
+MultiLineCommentSyntax: typing.TypeAlias = (
+      MultilineCommentSyntaxConfigCls[typing.Literal["/*"], typing.Literal["*/"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["###"], typing.Literal["###"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["#="], typing.Literal["=#"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["#*"], typing.Literal["*#"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["(*)"], typing.Literal["*)"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["<!--"], typing.Literal["-->"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["{#"], typing.Literal["#}"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["{{--"], typing.Literal["--}}"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["{{!--"], typing.Literal["--}}"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["--[["], typing.Literal["]]"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["#|"], typing.Literal["|#"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["%{"], typing.Literal["}%"]]
+)
 
 @dataclass(frozen=True, kw_only=True)
 class MultilineCommentConfigCls(CustomDataclass):
