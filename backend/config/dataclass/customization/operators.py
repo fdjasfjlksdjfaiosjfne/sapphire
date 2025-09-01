@@ -1,7 +1,7 @@
 import typing
 from dataclasses import dataclass
 
-from backend.config.baseclasses import CustomDataclass, ConfigDescriptor as C, _UNFILLED
+from backend.config.baseclasses import CustomDataclass, ConfOptWrapper as C, _UNFILLED
 
 @dataclass(frozen=True, kw_only=True)
 class AdditionOperatorConfigCls(CustomDataclass):

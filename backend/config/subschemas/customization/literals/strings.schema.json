@@ -115,7 +115,7 @@
                     "description": "Determine the specific string delimeters use to either enable or disable interpolation.\nThis option is ignored if the 'acceessibility' field is not 'disable_by_delimeter' or 'enable_by_delimeter'.\nAll quotes in this option MUST also be included that are already in the root 'stringDelimeters' option.",
                     "$ref": "#/$defs/stringDelimeters"
                 },
-                "prefix": {
+                "prefixSyntax": {
                     "description": "Determine the prefix use to either enable or disable interpolation.\nThis option is ignored if the 'acceessibility' field is not 'disable_by_format' or 'enable_by_delimeter'",
                     "enum": ["f", "i"],
                     "default": "f"
@@ -154,6 +154,18 @@
                     "type": "string",
                     "enum": ["r", "l"],
                     "default": "r"
+                }
+            }
+        },
+        "byteString": {
+            "type": "object",
+            "properties": {
+                "acceessibility": {"$ref": "#/$defs/acceessibility"},
+                "delimeterSyntax": {"$ref": "#/$defs/stringDelimeters"},
+                "prefixSyntax": {
+                    "type": "string",
+                    "enum": ["b"],
+                    "default": "b"
                 }
             }
         }

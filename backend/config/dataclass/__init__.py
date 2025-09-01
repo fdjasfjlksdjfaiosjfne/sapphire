@@ -7,7 +7,7 @@ from dataclasses import dataclass, fields, is_dataclass
 
 from backend import errors
 from backend.config.checks import asserting_config_dict
-from backend.config.baseclasses import CustomDataclass, ConfigDescriptor, _UNFILLED
+from backend.config.baseclasses import CustomDataclass, ConfOptWrapper, _UNFILLED
 
 from backend.config.dataclass.customization import (
     CustomizationConfigCls,
@@ -99,10 +99,10 @@ FIELD_ALIASES = {
 
 @dataclass(frozen=True, kw_only=True)
 class ConfigVersionCls(CustomDataclass):
-    major: ConfigDescriptor[int] = ConfigDescriptor(_UNFILLED, 2)
-    minor: ConfigDescriptor[int] = ConfigDescriptor(_UNFILLED, 1)
-    patch: ConfigDescriptor[int] = ConfigDescriptor(_UNFILLED, 1)
-    phase: ConfigDescriptor[
+    major: ConfOptWrapper[int] = ConfOptWrapper(_UNFILLED, 2)
+    minor: ConfOptWrapper[int] = ConfOptWrapper(_UNFILLED, 1)
+    patch: ConfOptWrapper[int] = ConfOptWrapper(_UNFILLED, 1)
+    phase: ConfOptWrapper[
            typing.Literal["indev", "alpha",
                           "beta", "release"]] = "indev" # type: ignore
     def __repr__(self) -> str:
@@ -113,8 +113,8 @@ class ConfigVersionCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class TemplatesCls(CustomDataclass):
-    inverted_comparisons: ConfigDescriptor[ForcableTemplate] = "disabled" # type: ignore
-    methify: ConfigDescriptor[ForcableTemplate] = "disabled" # type: ignore
+    inverted_comparisons: ConfOptWrapper[ForcableTemplate] = "disabled" # type: ignore
+    methify: ConfOptWrapper[ForcableTemplate] = "disabled" # type: ignore
     def __init__(self, **kwargs):
         for k, v in list(kwargs.items()):
             match v:
@@ -159,8 +159,8 @@ class RootConfigCls(CustomDataclass):
     customization: CustomizationConfigCls = CustomizationConfigCls()
     templates: TemplatesCls = TemplatesCls()
     config_version: ConfigVersionCls = ConfigVersionCls()
-    advanced_mode: ConfigDescriptor[bool] = ConfigDescriptor(default = False)
-    masochistic_mode: ConfigDescriptor[bool] = ConfigDescriptor(default = False)
+    advanced_mode: ConfOptWrapper[bool] = ConfOptWrapper(default = False)
+    masochistic_mode: ConfOptWrapper[bool] = ConfOptWrapper(default = False)
 
     @classmethod
     def from_dict(cls, config_dict: dict[str, typing.Any]) -> RootConfigCls:

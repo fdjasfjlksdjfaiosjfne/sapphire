@@ -3,6 +3,7 @@ import ast
 import typing
 import regex
 from backend import errors
+from parser import nodes
 from parser.lexer import utils
 from parser.lexer.token_types import TokenTypeEnum
 from parser.lexer.internal_token_types import InternalTokenType, ITTTypeChecking
@@ -53,6 +54,13 @@ class Token:
     def __hash__(self) -> int:
         return hash(self.type)
 
+class InterpolatedStrToken(Token):
+    def __init__(self, prefixes: str, ls: list[str | nodes.ExprNode]):
+        self.type = InternalTokenType.Primitives.String
+        self.prefixes = prefixes
+        self.ls = ls
+        self.value = ""
+
 class Tokenizer:
     def __init__(self, source: str, conf: config.RootConfigCls | None = None):
         if conf is None:
@@ -72,28 +80,37 @@ class Tokenizer:
     def __iter__(self):
         return self
 
-    def _lex_token(self) -> Token:
-        if not self.src:
-            return Token(InternalTokenType.EoF)
-        
-        # ^ Multi-line comments
+    def _multiline_comment(self):
         multiline_comment = self.conf.customization.comments.multiline_comment
-        if multiline_comment.enabled.get_value():
-            if self.src.startswith(multiline_comment.syntax.start.get_value()):
+        if multiline_comment.enabled.get():
+            if self.src.startswith(multiline_comment.syntax.start.get()):
                 self.src = self.src[2:]
                 nest = 1
                 while self.src and nest > 0:
-                    if self.src.startswith(multiline_comment.syntax.start.get_value()):
+                    if self.src.startswith(multiline_comment.syntax.start.get()):
                         nest += 1
                         self.src = self.src[2:]
-                    elif self.src.startswith(multiline_comment.syntax.end.get_value()):
+                    elif self.src.startswith(multiline_comment.syntax.end.get()):
                         nest -= 1
                         self.src = self.src[2:]
                     else:
                         self.src = self.src[1:]
+
+    def _format_str(self) -> Token | None:
+        start = self._get_interpolated_str_start()
+        if self.src.startswith(start):
+            
+            while self.src.startswith():
+
+    def _lex_token(self) -> Token:
+        if not self.src:
+            return Token(InternalTokenType.EoF)
         
-        if self.src.startswith(self._get_start_of_format_strings()):
-            pass
+        self._multiline_comment()
+        
+        f = self._format_str()
+        if f is not None:
+            return f
 
         # ^ Everything else
         for token_pattern in self.token_patterns:
@@ -118,14 +135,16 @@ class Tokenizer:
         else:
             raise errors.SyntaxError(f"Invalid character found: U+{ord(self.src):x}")
 
-    def _get_start_of_format_strings(self) -> tuple[str, ...]:
+    def _get_interpolated_str_start(self) -> tuple[str, ...]:
         strs = self.conf.customization.literals.strings
-        ...
-        match strs.interpolation.accessibility.get_value():
+        str_formats = utils.find_all_common_str_formats()
+        delimeters = strs.delimeters
+        match strs.interpolation.accessibility.get():
             case "never":
                 return ()
-            case "always":
-                return 
+            case "disable_by_prefix":
+                str_formats.remove(strs.interpolation.prefix_syntax.get())
+        return tuple(possible_starts)
 
     @staticmethod
     def resolve_itt_tuple(tple: tuple[str, ...]) -> InternalTokenType:

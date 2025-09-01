@@ -1,43 +1,43 @@
 from dataclasses import dataclass
 import typing
 
-from backend.config.baseclasses import CustomDataclass, ConfigDescriptor, _UNFILLED
+from backend.config.baseclasses import CustomDataclass, ConfOptWrapper, _UNFILLED
 
 @dataclass(frozen=True, kw_only=True)
 class ClassicConditionalSyntaxConfigCls(CustomDataclass):
-    conditional: ConfigDescriptor[typing.Literal["if"]] = ConfigDescriptor(_UNFILLED, "if")
-    unless: ConfigDescriptor[typing.Literal["unless", "if not"]] = ConfigDescriptor(_UNFILLED, "unless")
-    fallback_with_condition: ConfigDescriptor[typing.Literal["elseif", "else if", "elif", "elsif", "perchance", "assuming", "but what about if"]] = ConfigDescriptor(_UNFILLED, "elif")
-    fallback: ConfigDescriptor[typing.Literal["else", "otherwise"]] = ConfigDescriptor(_UNFILLED, "else")
+    conditional: ConfOptWrapper[typing.Literal["if"]] = ConfOptWrapper(_UNFILLED, "if")
+    unless: ConfOptWrapper[typing.Literal["unless", "if not"]] = ConfOptWrapper(_UNFILLED, "unless")
+    fallback_with_condition: ConfOptWrapper[typing.Literal["elseif", "else if", "elif", "elsif", "perchance", "assuming", "but what about if"]] = ConfOptWrapper(_UNFILLED, "elif")
+    fallback: ConfOptWrapper[typing.Literal["else", "otherwise"]] = ConfOptWrapper(_UNFILLED, "else")
 
 @dataclass(frozen=True, kw_only=True)
 class ClassicConditionalConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    enable_inverted_if: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, False)
+    enabled: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, True)
+    enable_inverted_if: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, False)
     syntax: ClassicConditionalSyntaxConfigCls = ClassicConditionalSyntaxConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class MatchCaseSyntaxConfigCls(CustomDataclass):
-    default_case_notation: ConfigDescriptor[typing.Literal["default", "_", "*"]] = ConfigDescriptor(_UNFILLED, "_")
-    statement: ConfigDescriptor[typing.Literal["switch", "match", "compare"]] = ConfigDescriptor(_UNFILLED, "match")
+    default_case_notation: ConfOptWrapper[typing.Literal["default", "_", "*"]] = ConfOptWrapper(_UNFILLED, "_")
+    statement: ConfOptWrapper[typing.Literal["switch", "match", "compare"]] = ConfOptWrapper(_UNFILLED, "match")
 
 @dataclass(frozen=True, kw_only=True)
 class MatchCasePatternMatchingConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    enabled: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
 class MatchCaseConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    enabled: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, True)
     pattern_matching: MatchCasePatternMatchingConfigCls = MatchCasePatternMatchingConfigCls()
     syntax: MatchCaseSyntaxConfigCls = MatchCaseSyntaxConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
 class SwitchCasePatternMatchingConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    enabled: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
 class SwitchCaseConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    enabled: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, True)
     pattern_matching: MatchCasePatternMatchingConfigCls = MatchCasePatternMatchingConfigCls()
     syntax: MatchCaseSyntaxConfigCls = MatchCaseSyntaxConfigCls()
 
@@ -49,36 +49,36 @@ class ConditionalConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class TryStatementConfigCls(CustomDataclass):
-    syntax: ConfigDescriptor[typing.Literal["try"]] = ConfigDescriptor(_UNFILLED, "try")
+    syntax: ConfOptWrapper[typing.Literal["try"]] = ConfOptWrapper(_UNFILLED, "try")
 
 @dataclass(frozen=True, kw_only=True)
 class ExceptionHandlingClauseConfigCls(CustomDataclass):
-    syntax: ConfigDescriptor[typing.Literal["catch", "except", "rescue"]] = ConfigDescriptor(_UNFILLED, "catch")
-    optional_error_binding: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    syntax: ConfOptWrapper[typing.Literal["catch", "except", "rescue"]] = ConfOptWrapper(_UNFILLED, "catch")
+    optional_error_binding: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
 class NoExceptionClauseSyntaxConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["else", "otherwise"]] = ConfigDescriptor(_UNFILLED, "else")
+    enabled: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, True)
+    syntax: ConfOptWrapper[typing.Literal["else", "otherwise"]] = ConfOptWrapper(_UNFILLED, "else")
 
 @dataclass(frozen=True, kw_only=True)
 class NoExceptionClauseConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["else", "otherwise"]] = ConfigDescriptor(_UNFILLED, "else")
+    enabled: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, True)
+    syntax: ConfOptWrapper[typing.Literal["else", "otherwise"]] = ConfOptWrapper(_UNFILLED, "else")
 
 @dataclass(frozen=True, kw_only=True)
 class FinalCleanupClauseConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["finally", "ensure"]] = ConfigDescriptor(_UNFILLED, "finally")
+    enabled: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, True)
+    syntax: ConfOptWrapper[typing.Literal["finally", "ensure"]] = ConfOptWrapper(_UNFILLED, "finally")
 
 @dataclass(frozen=True, kw_only=True)
 class ThrowErrorConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
-    syntax: ConfigDescriptor[typing.Literal["die", "throw", "raise", "panic"]] = ConfigDescriptor(_UNFILLED, "throw")
+    enabled: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, True)
+    syntax: ConfOptWrapper[typing.Literal["die", "throw", "raise", "panic"]] = ConfOptWrapper(_UNFILLED, "throw")
 
 @dataclass(frozen=True, kw_only=True)
 class ExceptionHandlingConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    enabled: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, True)
     try_statement: TryStatementConfigCls = TryStatementConfigCls()
     exception_handling: ExceptionHandlingClauseConfigCls = ExceptionHandlingClauseConfigCls()
     no_exceptions: NoExceptionClauseConfigCls = NoExceptionClauseConfigCls()
@@ -87,7 +87,7 @@ class ExceptionHandlingConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class JumpingConfigCls(CustomDataclass):
-    enabled: ConfigDescriptor[bool] = ConfigDescriptor(_UNFILLED, True)
+    enabled: ConfOptWrapper[bool] = ConfOptWrapper(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
 class ControlFlowConfigCls(CustomDataclass):

@@ -1,7 +1,7 @@
 import typing
 from backend import errors
 from backend.config import CONFIG
-from backend.config.baseclasses import ConfigDescriptor
+from backend.config.baseclasses import ConfOptWrapper
 
 cust = CONFIG.customization
 objects = cust.objects
@@ -12,13 +12,13 @@ switch_conditional = cust.control_flow.conditional.switch_case
 templates = CONFIG.templates
 
 def _factory[ITTTuple: tuple[str, ...], Value: str](
-                enable_flag: ConfigDescriptor[bool],
-                syntax_flag: ConfigDescriptor[Value],
+                enable_flag: ConfOptWrapper[bool],
+                syntax_flag: ConfOptWrapper[Value],
                 dct: dict[Value, ITTTuple]) -> ITTTuple | tuple[typing.Literal["_SkipPattern"]]:
-    if not enable_flag.get_value():
+    if not enable_flag.get():
         return ("_SkipPattern",)
     try:
-        return dct[syntax_flag.get_value()]
+        return dct[syntax_flag.get()]
     except IndexError:
         raise errors.InternalError("Fill this later")
 

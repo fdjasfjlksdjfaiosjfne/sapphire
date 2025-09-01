@@ -1,6 +1,6 @@
 from backend import errors
 from backend.config import CONFIG
-from backend.config.baseclasses import ConfigDescriptor
+from backend.config.baseclasses import ConfOptWrapper
 from backend.config.dataclass.customization import control
 from parser.lexer.data.modifiers.base import _factory
 
@@ -138,7 +138,7 @@ def catch_expections():
 def no_exceptions():
     return _factory(
         # & The False here is just a placebo
-        ConfigDescriptor(eh.enabled and eh.no_exceptions.enabled, False),
+        ConfOptWrapper(eh.enabled and eh.no_exceptions.enabled, False),
         eh.no_exceptions.syntax,
         {
             "else": ("Keywords", "Else")
@@ -148,7 +148,7 @@ def no_exceptions():
 def final_cleanup():
     return _factory(
         # & The False here is just a placebo
-        ConfigDescriptor(eh.enabled.get_value() and eh.final_cleanup.enabled.get_value(), False),
+        ConfOptWrapper(eh.enabled.get() and eh.final_cleanup.enabled.get(), False),
         eh.final_cleanup.syntax,
         {
             "finally": ("Keywords", "Finally"),
@@ -159,7 +159,7 @@ def final_cleanup():
 def throw_error():
     return _factory(
         # & The False here is just a placebo
-        ConfigDescriptor(eh.enabled.get_value() and eh.throw_error.enabled.get_value(), False),
+        ConfOptWrapper(eh.enabled.get() and eh.throw_error.enabled.get(), False),
         eh.throw_error.syntax,
         {
             "throw": ("Keywords", "Throw"),
@@ -176,7 +176,7 @@ objs = cust.objects
 def function_decl():
     return _factory(
         # There isn't a enable config for this, use a placebo
-        ConfigDescriptor(True, True),
+        ConfOptWrapper(True, True),
         objs.functions.syntax.keyword,
         {
             "fn": ("Keywords", "Fn"),
@@ -190,7 +190,7 @@ def function_decl():
 def class_decl():
     return _factory(
         # There isn't a enable config for this, use a placebo
-        ConfigDescriptor(True, True),
+        ConfOptWrapper(True, True),
         objs.classes.syntax,
         {
             "class": ("Keywords", "Class"),
@@ -201,7 +201,7 @@ def class_decl():
 def enum_decl():
     return _factory(
         # There isn't a enable config for this, use a placebo
-        ConfigDescriptor(True, True),
+        ConfOptWrapper(True, True),
         objs.enums.syntax,
         {
             "enum": ("Keywords", "Enum")

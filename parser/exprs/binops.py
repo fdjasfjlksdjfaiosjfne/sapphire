@@ -158,7 +158,7 @@ class PostfixBinaryOperations(ParserNamespaceSkeleton):
         raise errors.InProgress
 
 
-match CONFIG.customization.operators.binary_expression_notation.get_value():
+match CONFIG.customization.operators.binary_expression_notation.get():
     case "infix":
         BinaryOperations = InfixBinaryOperations
     case "prefix":

@@ -33,7 +33,7 @@ def permutations(
                 if all(f in perm for f in forbidden):
                     skip = True
                     break
-            
+                    
             if not skip:
                 prefix = ''.join(perm)
                 if prefix not in res:
@@ -43,8 +43,5 @@ def permutations(
 def find_all_common_str_formats() -> list[str]:
     ls: list[str] = []
     str_config = CONFIG.customization.literals.strings
-    for category in (str_config.interpolation,
-                     str_config.multiline,
-                     str_config.raw_string):
-        pass
+    
     return ls

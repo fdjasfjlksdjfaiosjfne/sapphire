@@ -30,10 +30,10 @@ R = typing.TypeVar("R", bound = list[RegExTokenPattern])
 def _booleans(plains: S, regexes: R) -> tuple[S, R]:
     bool_conf = cus.literals.booleans
     # ^ Booleans
-    if bool_conf.enabled.get_value():
-        true = bool_conf.syntax.true.get_value()
-        false = bool_conf.syntax.false.get_value()
-        if bool_conf.case_insensivity.get_value():
+    if bool_conf.enabled.get():
+        true = bool_conf.syntax.true.get()
+        false = bool_conf.syntax.false.get()
+        if bool_conf.case_insensivity.get():
             regexes.append(RegExTokenPattern(
                 regex.compile(f"({true}|{false})", regex.IGNORECASE),
                 ("Primitives", "Boolean")
@@ -45,8 +45,8 @@ def _booleans(plains: S, regexes: R) -> tuple[S, R]:
 
 def _null(plains: S, regexes: R) -> tuple[S, R]:
     null_conf = cus.literals.null
-    if null_conf.enabled.get_value():
-        null = null_conf.syntax.get_value()
+    if null_conf.enabled.get():
+        null = null_conf.syntax.get()
         if null_conf.case_insensivity:
             regexes.append(RegExTokenPattern(
                 regex.compile(null, regex.IGNORECASE),
@@ -93,7 +93,7 @@ def _str(plains: S, regexes: R) -> tuple[S, R]:
             )
         )
 
-    accessibility = str_conf.multiline.accessibility.get_value()
+    accessibility = str_conf.multiline.accessibility.get()
 
     if accessibility == "never":
         # Only append the non-multistring version
@@ -102,7 +102,7 @@ def _str(plains: S, regexes: R) -> tuple[S, R]:
         # Only append the multistring version
         append_regex(possible_formats, forbidden_matches, quotes=delimeters, multiline=True)
     elif accessibility.endswith("prefix"):
-        prefix = str_conf.multiline.prefix_syntax.get_value()
+        prefix = str_conf.multiline.prefix_syntax.get()
         pf = [fmt for fmt in possible_formats if fmt != prefix]
         append_regex(pf, forbidden_matches, quotes=delimeters, multiline=True)
         str_prefixes = (i for i in utils.permutations(possible_formats, forbidden_matches) if prefix in i)
@@ -116,7 +116,7 @@ def _str(plains: S, regexes: R) -> tuple[S, R]:
     elif accessibility == "enable_by_prefix":
         append_regex(possible_formats, forbidden_matches, quotes=delimeters, multiline=False)
     elif accessibility.endswith("delimeter"):
-        special_delims = str_conf.multiline.delimeter_syntax.get_value()
+        special_delims = str_conf.multiline.delimeter_syntax.get()
         if special_delims == "triple":
             multi_delims = [d * 3 for d in delimeters_list]
             single_delims = delimeters
