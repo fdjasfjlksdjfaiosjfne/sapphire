@@ -109,18 +109,8 @@ class ConfigVersionCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class TemplatesCls(CustomDataclass):
-    inverted_comparisons: ConfOptWrapper[ForcableTemplate] = "disabled" # type: ignore
-    methify: ConfOptWrapper[ForcableTemplate] = "disabled" # type: ignore
-    def __init__(self, **kwargs):
-        for k, v in list(kwargs.items()):
-            match v:
-                case 1 | "enabled" | True:
-                    kwargs[k] = "enabled"
-                case 2 | "forced":
-                    kwargs[k] = "forced"
-                case 0 | "disabled" | False:
-                    kwargs[k] = "disabled"
-        super().__init__(**kwargs)
+    inverted_comparisons: ConfOptWrapper[bool] = ConfOptWrapper(default = False)
+    methify: ConfOptWrapper[bool] = ConfOptWrapper(default = False)
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -157,6 +147,13 @@ class RootConfigCls(CustomDataclass):
     config_version: ConfigVersionCls = ConfigVersionCls()
     advanced_mode: ConfOptWrapper[bool] = ConfOptWrapper(default = False)
     masochistic_mode: ConfOptWrapper[bool] = ConfOptWrapper(default = False)
+    def validate_config(self) -> None:
+        if not self.advanced_mode.get():
+            if not self.masochistic_mode.get():
+                raise errors.ConfigError(
+                    "Please. Do not. I warn you."
+                )
+        return super().validate_config()
 
     @classmethod
     def from_dict(cls, config_dict: dict[str, typing.Any]) -> RootConfigCls:

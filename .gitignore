@@ -1,6 +1,7 @@
 # Dynamically generated files
 parser/lexer/internal_token_types.py
 parser/lexer/token_types.py
+backend/config/sapconfig.schema.json
 
 # Python
 *.pyc

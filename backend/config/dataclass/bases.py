@@ -26,11 +26,6 @@ class ConfOptWrapper[T](ConfigDescriptorProtocol[T]):
         self.__v = value
         self.__def = default
     
-    def __getattr__(self, name: str):
-        if hasattr(self.__v, name):
-            return getattr(self.__v, name)
-        raise AttributeError(f"No attribute name: {name}")
-    
     @typing.overload
     def get(self) -> T: ...
 
