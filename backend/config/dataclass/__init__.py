@@ -6,7 +6,6 @@ from dataclasses import dataclass, fields, is_dataclass
 
 
 from backend import errors
-from backend.config.checks import asserting_config_dict
 from backend.config.dataclass.bases import CustomDataclass, ConfOptWrapper, _UNFILLED
 
 from backend.config.dataclass.customization import (
@@ -168,11 +167,12 @@ class RootConfigCls(CustomDataclass):
         Factory method that handles pre-processing of config dictionaries.
         """
         normalized_dict = cls._normalize_dict(config_dict)
-        asserting_config_dict(config_dict)
-        return typing.cast(
+        root_datacls = typing.cast(
             RootConfigCls,
-            RootConfigCls._solidify_config_dict(RootConfigCls, config_dict)
+            RootConfigCls._solidify_config_dict(RootConfigCls, normalized_dict)
         )
+        root_datacls.validate_config()
+        return root_datacls
     
     @staticmethod
     def _normalize_dict(data: dict[str, typing.Any]) -> dict[str, typing.Any]:

@@ -64,6 +64,8 @@ class ConfOptWrapper[T](ConfigDescriptorProtocol[T]):
 class CustomDataclass:
     @abc.abstractmethod
     def validate_config(self) -> None:
+        """Checks for any configuration errors that cannot be catched by the schema.
+        """
         assert dataclasses.is_dataclass(self)
         for field in dataclasses.astuple(self):
             if isinstance(field, CustomDataclass):
