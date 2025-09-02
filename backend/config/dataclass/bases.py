@@ -4,10 +4,7 @@ import abc
 import dataclasses
 import typing
 
-from sympy import continued_fraction
-
 from backend import errors
-from backend.config.dataclass import RootConfigCls
 
 class ConfigDescriptorProtocol[T](typing.Protocol):
     @typing.overload
@@ -25,7 +22,7 @@ class ConfigDescriptorProtocol[T](typing.Protocol):
 
 _UNFILLED = object()
 class ConfOptWrapper[T](ConfigDescriptorProtocol[T]):
-    def __init__(self, value: T | object = _UNFILLED, default: T | object = _UNFILLED): 
+    def __init__(self, value: T | object = _UNFILLED, default: T | object = _UNFILLED):
         self.__v = value
         self.__def = default
     
@@ -60,7 +57,6 @@ class ConfOptWrapper[T](ConfigDescriptorProtocol[T]):
     def is_explicit(self):
         return self.__v is not _UNFILLED
 
-
 class CustomDataclass:
     @abc.abstractmethod
     def validate_config(self) -> None:
@@ -72,12 +68,12 @@ class CustomDataclass:
                 field.validate_config()
     _parent: CustomDataclass | None = None
 
-    def get_root_config_cls(self) -> RootConfigCls:
+    def get_root_config_cls(self):
+        from backend.config.dataclass import RootConfigCls
         c = self
         while getattr(c, "parent") is not None:
             c = self._parent
-        assert isinstance(c, RootConfigCls)
-        return c
+        return typing.cast(RootConfigCls, c)
 
     def __init__(self, **kwargs) -> None:
         if not dataclasses.is_dataclass(self):

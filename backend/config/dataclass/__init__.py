@@ -86,14 +86,11 @@ def convert_name(name: str) -> str:
         snake_case_name += "_"
     return snake_case_name
 
-ForcableTemplate: typing.TypeAlias = typing.Literal["disabled", "enabled", "forced"]
-UnforcableTemplate: typing.TypeAlias = typing.Literal["disabled", "enabled"]
-
 FIELD_ALIASES = {
     "customization": ["customization", "customisation"],
     "mutable_value_assignment_behavior": ["mutable_value_assignment_behavior", "mutable_value_assignment_behaviour"],
     "mutable_value_as_default_behavior": ["mutable_value_as_default_behavior", "mutable_value_as_default_behaviour"],
-    "typeBehavior": ["typeBehavior", "typeBehaviour"]
+    "type_behavior":["type_behavior", "type_behaviour"]
 }
 
 @dataclass(frozen=True, kw_only=True)
