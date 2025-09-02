@@ -7,7 +7,7 @@ from dataclasses import dataclass, fields, is_dataclass
 
 from backend import errors
 from backend.config.checks import asserting_config_dict
-from backend.config.baseclasses import CustomDataclass, ConfOptWrapper, _UNFILLED
+from backend.config.dataclass.bases import CustomDataclass, ConfOptWrapper, _UNFILLED
 
 from backend.config.dataclass.customization import (
     CustomizationConfigCls,

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import typing
 
-from backend.config.baseclasses import CustomDataclass, ConfOptWrapper, _UNFILLED
+from backend.config.dataclass.bases import CustomDataclass, ConfOptWrapper, _UNFILLED
 
 @dataclass(frozen=True, kw_only=True)
 class ClassesConfigCls(CustomDataclass):

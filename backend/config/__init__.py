@@ -26,7 +26,7 @@ def _find_subschema(ref, defs: dict):
     with open(ref_path) as f:
         ref_schema = _resolve(json.load(f), defs)
         if isinstance(ref_schema, dict) and "$defs" in ref_schema:
-            defs.update(ref_schema["$defs"])
+            defs.update(ref_schema.pop("$defs"))
         return ref_schema
 
 def _resolve(schema: dict, defs: dict) -> typing.Any:
@@ -39,28 +39,6 @@ def _resolve(schema: dict, defs: dict) -> typing.Any:
     schema_.pop("$comment", None)
     
     for k, v in schema.items():
-        
-            # if v.startswith("#/$defs"):
-            #     # $ Inline definitions, leave it alone
-            #     schema_[k] = v
-            #     continue
-            
-            # ref_path = CONFIG_SUBSCHEMAS / v
-            # print(ref_path)
-            # if not ref_path.exists():
-            #     schema_[k] = v
-            #     continue
-            # with open(ref_path) as f:
-            #     ref_schema = _resolve(json.load(f), defs)
-
-            #     if not isinstance(ref_schema, dict):
-            #         continue
-
-            #     if "$defs" in ref_schema:
-            #         defs.update(ref_schema.pop("$defs"))
-                
-            # schema_[k] = ref_schema
-
         if isinstance(v, list):
             schema_[k] = [( _resolve(i, defs) if isinstance(i, dict) else i ) for i in v]
         elif isinstance(v, dict):
@@ -70,10 +48,6 @@ def _resolve(schema: dict, defs: dict) -> typing.Any:
     return schema_
 
 def get_schema() -> dict:
-    # if MAIN_CONFIG_SCHEMA.exists():
-    #     # $ If the main schema file already exists...
-    #     with open(MAIN_CONFIG_SCHEMA) as f:
-    #         return json.load(f)
     schema_path = CONFIG_SUBSCHEMAS / "main.schema.json"
     if not schema_path.exists():
         raise errors.InternalError(

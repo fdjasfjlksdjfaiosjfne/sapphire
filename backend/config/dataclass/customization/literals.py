@@ -2,7 +2,7 @@ import itertools
 import typing
 from dataclasses import dataclass, field
 
-from backend.config.baseclasses import CustomDataclass, ConfOptWrapper as C, _UNFILLED
+from backend.config.dataclass.bases import CustomDataclass, ConfOptWrapper as C, _UNFILLED
 from backend import errors
 
 Accessibility: typing.TypeAlias = typing.Literal["never", "always",

@@ -1,7 +1,7 @@
 import typing
 from backend import errors
 from backend.config import CONFIG
-from backend.config.baseclasses import ConfOptWrapper
+from backend.config.dataclass.bases import ConfOptWrapper
 
 cust = CONFIG.customization
 objects = cust.objects

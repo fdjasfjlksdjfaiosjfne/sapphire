@@ -1,7 +1,7 @@
 import typing
 from dataclasses import dataclass
 
-from backend.config.baseclasses import CustomDataclass, ConfOptWrapper, _UNFILLED
+from backend.config.dataclass.bases import CustomDataclass, ConfOptWrapper, _UNFILLED
 from backend.config.dataclass.customization.literals import *
 from backend.config.dataclass.customization.control import *
 from backend.config.dataclass.customization.objects import *
