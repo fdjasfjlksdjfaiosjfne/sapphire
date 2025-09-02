@@ -149,7 +149,7 @@ class RootConfigCls(CustomDataclass):
     masochistic_mode: ConfOptWrapper[bool] = ConfOptWrapper(default = False)
     def validate_config(self) -> None:
         if not self.advanced_mode.get():
-            if not self.masochistic_mode.get():
+            if self.masochistic_mode.get():
                 raise errors.ConfigError(
                     "Please. Do not. I warn you."
                 )
