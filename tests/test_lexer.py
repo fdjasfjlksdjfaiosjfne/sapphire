@@ -1,7 +1,7 @@
 import pytest
 
 from backend import errors
-from parser.lexer import Tokenizer, Token, TokenType
+from lexer import Tokenizer, Token, TokenType
 
 @pytest.mark.parametrize("src,expected", [
     ("1 + 2", [

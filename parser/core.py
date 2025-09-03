@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import typing
 
 from backend import errors
-from parser.lexer import Token, TokenType, Tokenizer, TokenTypeSequence, TokenTypeEnum
+from lexer import Token, TokenType, Tokenizer, TokenTypeSequence, TokenTypeEnum
 from backend.config import RootConfigCls, CONFIG
 from parser import nodes
 

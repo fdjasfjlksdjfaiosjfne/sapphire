@@ -1,7 +1,7 @@
 import typing
 
 from backend import errors
-from parser.lexer import TokenType, Declarations, Parentheses, TokenTypeSequence
+from lexer import TokenType, Declarations, Parentheses, TokenTypeSequence
 import parser.nodes as Nodes
 from parser.core import ParserNamespaceSkeleton
 

@@ -4,7 +4,7 @@ import typing
 import regex
 
 from backend.config import CONFIG
-from parser.lexer import utils
+from lexer import utils
 
 cus = CONFIG.customization
 
@@ -79,7 +79,7 @@ def _str_regex(str_prefixes: str,
 def _str(plains: S, regexes: R) -> tuple[S, R]:
     # ^ Strings
     str_conf = cus.literals.strings
-    delimeters_list = str_conf.delimeters
+    delimeters_list = str_conf.delimeters.get()
     delimeters = "".join(delimeters_list)
     possible_formats = ["r", "b"]
     forbidden_matches = []

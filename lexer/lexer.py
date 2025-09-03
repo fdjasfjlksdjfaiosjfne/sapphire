@@ -3,11 +3,10 @@ import ast
 import typing
 import regex
 from backend import errors
-from parser import nodes
-from parser.lexer import utils
-from parser.lexer.token_types import TokenTypeEnum
-from parser.lexer.internal_token_types import InternalTokenType, ITTTypeChecking
-from parser.lexer.data.patterns import (
+from lexer.token_types import TokenTypeEnum
+from lexer.internal_token_types import InternalTokenType, ITTTypeChecking
+from lexer.strings import Token, StringSubLexer
+from lexer.data.patterns import (
     get_token_patterns,
     StringTokenPattern,
     RegExTokenPattern,
@@ -23,45 +22,7 @@ TokenTypeSequence: typing.TypeAlias = (
     | typing.MutableSet[TokenTypeEnum]
     | TokenTypeEnum | ITTTypeChecking
 )
-
-class Token:
-    def __init__(self, 
-                 type: TokenTypeEnum | ITTTypeChecking, 
-                 value: str = "" # This won't always be an string, it's just the most common occurence by FAR
-                 ):
-        self.type = type
-        self.value = value
-
-    def __str__(self) -> str: return repr(self)
-
-    def __repr__(self) -> str:
-        return f"Token(type={self.type.name}{f", value={self.value!r}" if self.value else ""})" # pyright: ignore[reportAttributeAccessIssue]
-    
-    def __ne__(self, other) -> bool:
-        if isinstance(other, (TokenTypeEnum, ITTTypeChecking)):
-            return self.type != other
-        if isinstance(other, Token):
-            return self.type != other.type or self.value != other.value
-        return NotImplemented
-    
-    def __eq__(self, other) -> bool:
-        if isinstance(other, (TokenTypeEnum, ITTTypeChecking)):
-            return self.type == other
-        if isinstance(other, Token):
-            return self.type == other.type and self.value == other.value
-        return NotImplemented
-
-    def __hash__(self) -> int:
-        return hash(self.type)
-
-class InterpolatedStrToken(Token):
-    def __init__(self, prefixes: str, ls: list[str | nodes.ExprNode]):
-        self.type = InternalTokenType.Primitives.String
-        self.prefixes = prefixes
-        self.ls = ls
-        self.value = ""
-
-class Tokenizer:
+class Tokenizer(StringSubLexer):
     def __init__(self, source: str, conf: config.RootConfigCls | None = None):
         if conf is None:
             conf = config.RootConfigCls()
@@ -76,9 +37,6 @@ class Tokenizer:
         self.src = self.src.lstrip(match)
         tok = Token(token_type, match if include_match else "")
         return tok
-
-    def __iter__(self):
-        return self
 
     def _multiline_comment(self):
         multiline_comment = self.conf.customization.comments.multiline_comment
@@ -95,12 +53,6 @@ class Tokenizer:
                         self.src = self.src[2:]
                     else:
                         self.src = self.src[1:]
-
-    def _format_str(self) -> Token | None:
-        start = self._get_interpolated_str_start()
-        if self.src.startswith(start):
-            
-            while self.src.startswith():
 
     def _lex_token(self) -> Token:
         if not self.src:
@@ -135,16 +87,6 @@ class Tokenizer:
         else:
             raise errors.SyntaxError(f"Invalid character found: U+{ord(self.src):x}")
 
-    def _get_interpolated_str_start(self) -> tuple[str, ...]:
-        strs = self.conf.customization.literals.strings
-        str_formats = utils.find_all_common_str_formats()
-        delimeters = strs.delimeters
-        match strs.interpolation.accessibility.get():
-            case "never":
-                return ()
-            case "disable_by_prefix":
-                str_formats.remove(strs.interpolation.prefix_syntax.get())
-        return tuple(possible_starts)
 
     @staticmethod
     def resolve_itt_tuple(tple: tuple[str, ...]) -> InternalTokenType:

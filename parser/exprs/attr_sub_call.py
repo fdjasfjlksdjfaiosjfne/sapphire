@@ -1,7 +1,7 @@
 import typing
 from backend import errors
 from parser.core import ParserNamespaceSkeleton
-from parser.lexer import TokenType, Parentheses
+from lexer import TokenType, Parentheses
 import parser.nodes as Nodes
 
 class AttributeSubcriptionCall(ParserNamespaceSkeleton):

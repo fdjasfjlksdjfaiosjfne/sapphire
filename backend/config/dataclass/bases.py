@@ -51,6 +51,9 @@ class ConfOptWrapper[T](ConfigDescriptorProtocol[T]):
     
     def is_explicit(self):
         return self.__v is not _UNFILLED
+    
+    def __bool__(self):
+        return bool(self.get())
 
 class CustomDataclass:
     @abc.abstractmethod

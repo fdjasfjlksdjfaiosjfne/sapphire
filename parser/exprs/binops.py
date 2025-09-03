@@ -4,7 +4,7 @@ import jsonschema
 
 from backend import errors
 from backend.config import CONFIG
-from parser.lexer import BinaryOperators, TokenTypeEnum, TokenTypeSequence
+from lexer import BinaryOperators, TokenTypeEnum, TokenTypeSequence
 from parser.core import ParserNamespaceSkeleton
 import parser.nodes as Nodes
 

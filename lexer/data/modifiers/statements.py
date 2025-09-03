@@ -2,7 +2,7 @@ from backend import errors
 from backend.config import CONFIG
 from backend.config.dataclass.bases import ConfOptWrapper
 from backend.config.dataclass.customization import control
-from parser.lexer.data.modifiers.base import _factory
+from lexer.data.modifiers.base import _factory
 
 cust = CONFIG.customization
 

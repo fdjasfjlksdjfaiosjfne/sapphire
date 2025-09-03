@@ -5,7 +5,7 @@ import typing
 
 from backend import errors
 from backend.paths import INTERNAL_TOKEN_TYPES
-from parser.lexer.data.aliases import get_all_itt_used
+from lexer.data.aliases import get_all_itt_used
 
 async def write_subclass(name: str, ls: typing.Iterable[dict | str], indent = 4) -> list[str]:
     if not ls:

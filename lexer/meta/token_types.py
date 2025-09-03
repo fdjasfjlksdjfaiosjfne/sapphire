@@ -7,7 +7,7 @@ from backend.paths import TOKEN_TYPES
 CLASS_NAME = "TokenType"
 
 from backend import errors
-from parser.lexer.data.aliases import ALIASES
+from lexer.data.aliases import ALIASES
 
 def resolve_enum(node):
     return f"InternalTokenType.{".".join(node)}"
@@ -59,7 +59,7 @@ def write_file():
     lines = [
         "# Auto-generated token_types.py for IntelliSense",
         "# Beep bop",
-        "from parser.lexer.internal_token_types import InternalTokenType",
+        "from lexer.internal_token_types import InternalTokenType",
         "import enum", 
         "",
         "class TokenTypeEnum(enum.Enum):",

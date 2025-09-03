@@ -1,10 +1,11 @@
 import regex
-from parser.lexer.data.pattern_injection import (
+from lexer.data.pattern_injection import (
     StringTokenPattern,
     RegExTokenPattern,
     inject_patterns
 )
 
+IDENTIFIER_REGEX = regex.compile(r"[\p{L}_][\p{L}_\d]*")
 
 def _separate_patterns() -> tuple[list[StringTokenPattern], list[RegExTokenPattern]]:
     plain_list, regex_list = [], []
@@ -196,5 +197,5 @@ _default_token_patterns: list[StringTokenPattern | RegExTokenPattern] = [
     RegExTokenPattern(regex.compile(r"#.*"), ("_IgnoreByTokenizer",)),
     RegExTokenPattern(regex.compile(r"[\r\n]+"), ("NewLine",)),
     RegExTokenPattern(regex.compile(r"(\s|\\\n)+"), ("_IgnoreByTokenizer",)),
-    RegExTokenPattern(regex.compile(r"[\p{L}_][\p{L}_\d]*"), ("Identifier",)),
+    RegExTokenPattern(IDENTIFIER_REGEX, ("Identifier",)),
 ]

@@ -1,7 +1,7 @@
 import typing
 from backend import errors
 import parser.nodes as Nodes
-from parser.lexer import TokenType, MatchCase, Parentheses
+from lexer import TokenType, MatchCase, Parentheses
 from parser.core import ParserNamespaceSkeleton
 
 class MatchCaseStatement(ParserNamespaceSkeleton):

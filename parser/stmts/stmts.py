@@ -1,7 +1,7 @@
 import typing
 
 from backend import errors
-from parser.lexer import TokenType
+from lexer import TokenType
 import parser.nodes as Nodes
 from parser.stmts.declarations import DeclarationStatements
 from parser.stmts.match_case import MatchCaseStatement

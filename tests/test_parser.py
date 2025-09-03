@@ -2,7 +2,7 @@ import pytest
 
 from parser.parser import Parser
 from backend import errors
-from parser.lexer import TokenType, Token, BinaryOperators
+from lexer import TokenType, Token, BinaryOperators
 from parser import nodes as Nodes
 
 

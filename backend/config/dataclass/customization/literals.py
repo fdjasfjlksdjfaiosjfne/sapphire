@@ -61,8 +61,8 @@ class StringInterpolationExpressionSyntaxConfigDataClass[Start: str, End: str](C
     start: C[Start] = C(default = "{")
     end: C[End] = C(default = "}")
 
-# & 67 characters long identifier
-StringInterpolationExpressionSyntaxConfigDataClassMatchingTypeAlias: typing.TypeAlias = (
+# & 70 characters long identifier
+StringInterpolationExpressionSyntaxConfigDataClassCombinationTypeAlias: typing.TypeAlias = (
       StringInterpolationExpressionSyntaxConfigDataClass[typing.Literal[ "{" ], typing.Literal["}"]]
     | StringInterpolationExpressionSyntaxConfigDataClass[typing.Literal["${" ], typing.Literal["}"]]
     | StringInterpolationExpressionSyntaxConfigDataClass[typing.Literal["#{" ], typing.Literal["}"]]
@@ -81,14 +81,20 @@ StringInterpolationExpressionSyntaxConfigDataClassMatchingTypeAlias: typing.Type
 )
 
 @dataclass(frozen=True, kw_only=True)
+class StrInterpolationBracketEscapeMethodConfigCls(CustomDataclass):
+    opening: C[typing.Literal["backslash", "double"]] = C(default = "double")
+    closing: C[typing.Literal["backslash", "double"]] = C(default = "double")
+
+@dataclass(frozen=True, kw_only=True)
 class StrInterpolationConfigCls(CustomDataclass):
     accessibility: C[Accessibility] = C(default = "enable_by_prefix")
-    expression_syntax: StringInterpolationExpressionSyntaxConfigDataClassMatchingTypeAlias = StringInterpolationExpressionSyntaxConfigDataClass()
+    expression_syntax: StringInterpolationExpressionSyntaxConfigDataClassCombinationTypeAlias = StringInterpolationExpressionSyntaxConfigDataClass()
     allow_identifier_syntax: C[bool] = C(default = False)
     identifier_prefix_syntax: C[typing.Literal["$", "#", "\\", "%"]] = C(default = "$")
+    bracket_escape_method: StrInterpolationBracketEscapeMethodConfigCls = StrInterpolationBracketEscapeMethodConfigCls()
     force_escape_closing_bracket: C[bool] = C(default = True)
     delimeter_syntax: C[StringDelimeters] = C(default = ["'", "\"", "`"])
-    prefix_syntax: C[typing.Literal["f", "i"]] = C(default = "f")
+    prefix_syntax: C[typing.Literal["f", "i", "$"]] = C(default = "f")
 
 @dataclass(frozen=True, kw_only=True)
 class MultilineStrConfigCls(CustomDataclass):
@@ -110,7 +116,7 @@ class ByteStrConfigCls(CustomDataclass):
 
 @dataclass(frozen=True, kw_only=True)
 class StringLiteralsConfigCls(CustomDataclass):
-    delimeters: StringDelimeters = field(default_factory = lambda: ["'", "`", '"'])
+    delimeters: C[StringDelimeters] = C(default = ["'", "`", '"'])
     interpolation: StrInterpolationConfigCls = StrInterpolationConfigCls()
     multiline: MultilineStrConfigCls = MultilineStrConfigCls()
     raw_string: RawStrConfigCls = RawStrConfigCls()
@@ -120,7 +126,7 @@ class StringLiteralsConfigCls(CustomDataclass):
         for category, name in self._():
             if category.accessibility.get().endswith(""):
                 for quote in category.delimeter_syntax.get():
-                    if quote not in self.delimeters:
+                    if quote not in self.delimeters.get():
                         raise errors.ConfigError(
                             "Any delimeters in the string's subcategories must be "
                             "present in the root delimeters config option as well.\n"
@@ -139,12 +145,16 @@ class StringLiteralsConfigCls(CustomDataclass):
         ls = []
         prefixes = []
         for category, _ in self._():
-            if category.accessibility.endswith("prefix"):
+            if category.accessibility.get().endswith("prefix"):
                 prefixes.append(category.prefix_syntax.get())
+        delis = typing.cast(list[str], self.delimeters.get()[:]) # Pyright smoke some weed today
+        if self.multiline.delimeter_syntax.get() == "triple":
+            if self.multiline.accessibility.get().endswith("delimeter"):
+                delis.extend(dl*3 for dl in self.delimeters.get())
         for n in range(len(prefixes) + 1):
             for perm in itertools.permutations(prefixes, n):
                 ls.extend(
-                    "".join(perm)+quote for quote in self.delimeters
+                    "".join(perm)+quote for quote in delis
                 )
         return ls
 

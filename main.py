@@ -4,7 +4,8 @@ from backend import config
 
 # ~ Type a path here...
 # & I'm too lazy to setup args
-path = pathlib.Path(input("Path: "))
+# path = pathlib.Path(input("Path: "))
+path = pathlib.Path(r"C:\Users\Tien Dung\Dropbox\Script\sapphireFamily\Sapphire\samples\conditional.sap")
 
 config_ = config.find_config(path)
 

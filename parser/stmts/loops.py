@@ -2,7 +2,7 @@ import itertools
 import typing
 
 from backend import errors
-from parser.lexer import TokenType, Loops, Parentheses
+from lexer import TokenType, Loops, Parentheses
 import parser.nodes as Nodes
 from parser.core import ParserNamespaceSkeleton
 

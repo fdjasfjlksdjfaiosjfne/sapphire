@@ -1,7 +1,7 @@
 import typing
 from backend import errors
 from parser.core import ParserNamespaceSkeleton
-from parser.lexer import TokenType, TokenTypeSequence, Parentheses
+from lexer import TokenType, TokenTypeSequence, Parentheses
 import parser.nodes as Nodes
 class Collections(ParserNamespaceSkeleton):
     def _parse_collections_expr(

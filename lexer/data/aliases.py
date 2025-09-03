@@ -1,7 +1,7 @@
 from backend.config import CONFIG
-import parser.lexer.data.modifiers.operators as operators
-import parser.lexer.data.modifiers.statements as stmts
-import parser.lexer.data.modifiers.base as base
+import lexer.data.modifiers.operators as operators
+import lexer.data.modifiers.statements as stmts
+import lexer.data.modifiers.base as base
 cust = CONFIG.customization
 objects = cust.objects
 operators_conf = cust.operators

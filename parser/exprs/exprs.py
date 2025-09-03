@@ -17,7 +17,7 @@ import typing
 #     __package__ = "parser.parsing.exprs"
 
 from backend import errors
-from parser.lexer import TokenType, UnaryOperators, TernaryOperators
+from lexer import TokenType, UnaryOperators, TernaryOperators
 import parser.nodes as Nodes
 from backend.config import CONFIG
 from parser.exprs.sap_collections import Collections

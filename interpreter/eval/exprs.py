@@ -5,7 +5,7 @@ from backend import errors
 import parser.nodes as Nodes
 from interpreter import values
 from interpreter.env import Env
-from parser.lexer import (
+from lexer import (
     TokenType,
     BinaryOperators,
     UnaryOperators,

@@ -1,7 +1,7 @@
 import typing
 from backend import errors
 from backend.config import CONFIG
-from parser.lexer.data.modifiers.base import _factory as _base_factory
+from lexer.data.modifiers.base import _factory as _base_factory
 
 cust = CONFIG.customization
 operators = cust.operators
