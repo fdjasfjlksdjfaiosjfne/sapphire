@@ -23,8 +23,8 @@ class ConfigDescriptorProtocol[T](typing.Protocol):
 _UNFILLED = object()
 class ConfOptWrapper[T](ConfigDescriptorProtocol[T]):
     def __init__(self, value: T | object = _UNFILLED, default: T | object = _UNFILLED):
-        self.__v = value
-        self.__def = default
+        self._v = value
+        self._def = default
     
     @typing.overload
     def get(self) -> T: ...
@@ -42,16 +42,16 @@ class ConfOptWrapper[T](ConfigDescriptorProtocol[T]):
         the method will return the default value if the value is the 
         `_UNFILLED` sentinel object.
         """
-        if self.__v is _UNFILLED and not return_unfilled:
-            return self.__def
-        return self.__v
+        if self._v is _UNFILLED and not return_unfilled:
+            return self._def
+        return self._v
     
     def is_default(self):
-        return self.__v is _UNFILLED
+        return self._v is _UNFILLED
     
     def is_explicit(self):
-        return self.__v is not _UNFILLED
-    
+        return self._v is not _UNFILLED
+
     def __bool__(self):
         return bool(self.get())
 
@@ -66,12 +66,21 @@ class CustomDataclass:
                 field.validate_config()
     _parent: CustomDataclass | None = None
 
+    _root_cache = None
+    
     def get_root_config_cls(self):
         from backend.config.dataclass import RootConfigCls
-        c = self
-        while getattr(c, "parent") is not None:
-            c = self._parent
-        return typing.cast(RootConfigCls, c)
+        if self._parent is None:
+            return typing.cast(RootConfigCls, self)
+        if self._root_cache is None:
+            c = self
+            while c._parent is not None:
+                if c._root_cache is not None:
+                    c = c._root_cache
+                    break
+                c = c._parent
+            self._root_cache = typing.cast(RootConfigCls, c)
+        return self._root_cache
 
     def __init__(self, **kwargs) -> None:
         if not dataclasses.is_dataclass(self):

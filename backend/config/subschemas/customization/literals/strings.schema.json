@@ -1,18 +1,6 @@
 {
     "type": "object",
     "$defs": {
-        "escapeSymbol": {
-            "type": "string",
-            "enum": [
-                "backslash",
-                "double"
-            ],
-            "enumDescriptions": [
-                "Use a backslash prefix (e.g. \\$)",
-                "Use a caret prefix (e.g. ^$)",
-                "Type the symbol twice (e.g. }})"
-            ]
-        },
         "stringDelimeters": {
             "type": "array",
             "items": {"enum": ["\"", "'", "`"]},
@@ -94,19 +82,6 @@
                         "Use by Bash, Dart, Groovy, Julia, Kotlin, Perl, PHP and Scala", "", "", ""
                     ]
                 },
-                "bracketEscapeMethod": {
-                    "oneOf": [
-                        {"$ref": "#/$defs/bracketEscapeSymbol"},
-                        {
-                            "type": "object",
-                            "properties": {
-                                "opening": {"$ref": "#/$defs/bracketEscapeSymbol"},
-                                "closing": {"$ref": "#/$defs/bracketEscapeSymbol"}
-                            },
-                            "additionalProperties": false
-                        }
-                    ]
-                },
                 "forceEscapeClosingBracket": {
                     "type": "boolean",
                     "description": "Determines whether the matching closing bracket in a formatted string must be escaped",
@@ -149,7 +124,7 @@
         "rawString": {
             "type": "object",
             "properties": {
-                "acceessibility": {"$ref": "#/$defs/acceessibility"},
+                "acceessibility": {"$ref": "#/$defs/accessibility"},
                 "delimeterSyntax": {"$ref": "#/$defs/stringDelimeters"},
                 "prefixSyntax": {
                     "type": "string",
@@ -174,16 +149,6 @@
             "type": "object",
             "description": "Determine what symbol will be used as a replacement to some special character. \nNote: \n1. You can set any of the option to null to disable it.\n2. Certain symbols will only be taken into effect if they have a special purpose given to it.",
             "properties": {
-                "*": {
-                    "description": "This will be used for every character that is not already explicitly filled",
-                    "enum": [
-                        "backslash",
-                        "caret",
-                        "backtick",
-                        null
-                    ],
-                    "default": "backslash"
-                },
                 "null": {
                     "enum": ["\\0", "`0", "^0",
                             "\\@", "`@", "^@",
@@ -209,7 +174,7 @@
                             null],
                     "default": "\\t"
                 },
-                "newLine": {
+                "lineFeed": {
                     "enum": ["\\n", "`n", "^n",
                              "\\J", "`J", "^J",
                              null],
@@ -254,7 +219,7 @@
                     "default": "\\\""
                 },
                 "singleQuote": {
-                    "enum": ["\\'", "`'", null],
+                    "enum": ["\\'", "`'", "^'", null],
                     "default": "\\'"
                 },
                 "backslash": {

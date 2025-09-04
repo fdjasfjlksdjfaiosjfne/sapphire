@@ -27,6 +27,7 @@ class Tokenizer(StringSubLexer):
         if conf is None:
             conf = config.RootConfigCls()
         self.conf = conf
+        self._strs_conf = conf.customization.literals.strings
         self.source = source
         self.src = source[:]
         self.tokens = []
@@ -60,7 +61,7 @@ class Tokenizer(StringSubLexer):
         
         self._multiline_comment()
         
-        f = self._format_str()
+        f = self._parse_str()
         if f is not None:
             return f
 

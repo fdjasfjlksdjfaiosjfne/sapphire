@@ -1,6 +1,6 @@
 import itertools
 import typing
-from dataclasses import dataclass, field
+from dataclasses import asdict, astuple, dataclass, field
 
 from backend.config.dataclass.bases import CustomDataclass, ConfOptWrapper as C, _UNFILLED
 from backend import errors
@@ -81,17 +81,11 @@ StringInterpolationExpressionSyntaxConfigDataClassCombinationTypeAlias: typing.T
 )
 
 @dataclass(frozen=True, kw_only=True)
-class StrInterpolationBracketEscapeMethodConfigCls(CustomDataclass):
-    opening: C[typing.Literal["backslash", "double"]] = C(default = "double")
-    closing: C[typing.Literal["backslash", "double"]] = C(default = "double")
-
-@dataclass(frozen=True, kw_only=True)
 class StrInterpolationConfigCls(CustomDataclass):
     accessibility: C[Accessibility] = C(default = "enable_by_prefix")
     expression_syntax: StringInterpolationExpressionSyntaxConfigDataClassCombinationTypeAlias = StringInterpolationExpressionSyntaxConfigDataClass()
     allow_identifier_syntax: C[bool] = C(default = False)
     identifier_prefix_syntax: C[typing.Literal["$", "#", "\\", "%"]] = C(default = "$")
-    bracket_escape_method: StrInterpolationBracketEscapeMethodConfigCls = StrInterpolationBracketEscapeMethodConfigCls()
     force_escape_closing_bracket: C[bool] = C(default = True)
     delimeter_syntax: C[StringDelimeters] = C(default = ["'", "\"", "`"])
     prefix_syntax: C[typing.Literal["f", "i", "$"]] = C(default = "f")
@@ -115,13 +109,61 @@ class ByteStrConfigCls(CustomDataclass):
     prefix_syntax: C[typing.Literal["b"]] = C(default = "b")
 
 @dataclass(frozen=True, kw_only=True)
+class StrEscapePatternConfigCls(CustomDataclass):
+    null: C[typing.Literal["\\0", "`0", "^0",
+                           "\\@", "`@", "^@",
+                           None]] = C(default = "\\0")
+    bell: C[typing.Literal["\\a", "`a", "^a",
+                           "\\G", "`G", "^G",
+                           "\\🔔", "`🔔", "^🔔",
+                           None]] = C(default = "\\a")
+    backscape: C[typing.Literal["\\b", "`b", "^b",
+                                "\\H", "`H", "^H",
+                                None]] = C(default = "\\b")
+    horizontal_tabulation: C[typing.Literal["\\t", "`t", "^t",
+                                            "\\I", "`I", "^I",
+                                            None]] = C(default = "\\t")
+    line_feed: C[typing.Literal["\\n", "`n", "^n",
+                                "\\J", "`J", "^J",
+                                None]] = C(default = "\\n")
+    vertical_tabulation: C[typing.Literal["\\v", "`v", "^v",
+                                          "\\K", "`K", "^K",
+                                          None]] = C(default = "\\v")
+    form_feed: C[typing.Literal["\\f", "`f", "^f",
+                                "\\L", "`L", "^L",
+                                None]] = C(default = "\\f")
+    carriage_return: C[typing.Literal["\\r", "`r", "^r",
+                                      "\\M", "`M", "^M",
+                                      None]] = C(default = "\\r")
+    escape: C[typing.Literal["\\e", "`e", "^e",
+                             "\\[", "`[", "^[",
+                             None]] = C(default = "\\e")
+    backtick: C[typing.Literal["\\`", "``", "^`", None]] = C(default = "\\`")
+    double_quote: C[typing.Literal["\\\"", "`\"", "^\"", None]] = C(default = "\\\"")
+    single_quote: C[typing.Literal["\\'", "`'", "^'", None]] = C(default = "\\'")
+    backslash: C[typing.Literal["\\\\", "^\\", "`\\", None]] = C(default = "\\\\")
+    caret: C[typing.Literal["^^", "`^", "\\^", None]] = C(default = "\\^")
+    dollar: C[typing.Literal["$$", "\\$", "`$", "^$", None]] = C(default = "\\$")
+    hash: C[typing.Literal["##", "\\#", "`#", "^#", None]] = C(default = "\\#") # & cleanse
+    percent: C[typing.Literal["%%", "\\%", "`%", "^%", None]] = C(default = "\\%")
+    open_parenthesis: C[typing.Literal["((", "\\(", "`(", "^(", None]] = C(default = "((")
+    close_parenthesis: C[typing.Literal["))", "\\)", "`)", "^)", None]] = C(default = "))")
+    open_square_bracket: C[typing.Literal["[[", "\\[", "`[", "^[", None]] = C(default = "[[")
+    close_square_bracket: C[typing.Literal["]]", "\\]", "`]", "^]", None]] = C(default = "]]")
+    open_curly_brace: C[typing.Literal["{{", "\\{", "`{", "^{", None]] = C(default = "{{")
+    close_curly_brace: C[typing.Literal["}}", "\\}", "`}", "^}", None]] = C(default = "}}")
+    def get_escape_dict(self) -> dict[str, str]:
+        return {k: v.get() for k, v in asdict(self) if v.get() is not None} # pyright: ignore[reportAttributeAccessIssue]
+
+
+@dataclass(frozen=True, kw_only=True)
 class StringLiteralsConfigCls(CustomDataclass):
     delimeters: C[StringDelimeters] = C(default = ["'", "`", '"'])
     interpolation: StrInterpolationConfigCls = StrInterpolationConfigCls()
     multiline: MultilineStrConfigCls = MultilineStrConfigCls()
     raw_string: RawStrConfigCls = RawStrConfigCls()
     byte_string: ByteStrConfigCls = ByteStrConfigCls()
-
+    escape_pattern: StrEscapePatternConfigCls = StrEscapePatternConfigCls()
     def validate_config(self):
         for category, name in self._():
             if category.accessibility.get().endswith(""):
@@ -147,7 +189,7 @@ class StringLiteralsConfigCls(CustomDataclass):
         for category, _ in self._():
             if category.accessibility.get().endswith("prefix"):
                 prefixes.append(category.prefix_syntax.get())
-        delis = typing.cast(list[str], self.delimeters.get()[:]) # Pyright smoke some weed today
+        delis = typing.cast(list[str], self.delimeters.get()[:]) # Pyright just smoke some weed today
         if self.multiline.delimeter_syntax.get() == "triple":
             if self.multiline.accessibility.get().endswith("delimeter"):
                 delis.extend(dl*3 for dl in self.delimeters.get())
