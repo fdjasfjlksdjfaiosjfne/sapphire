@@ -90,7 +90,8 @@ FIELD_ALIASES = {
     "customization": ["customization", "customisation"],
     "mutable_value_assignment_behavior": ["mutable_value_assignment_behavior", "mutable_value_assignment_behaviour"],
     "mutable_value_as_default_behavior": ["mutable_value_as_default_behavior", "mutable_value_as_default_behaviour"],
-    "type_behavior":["type_behavior", "type_behaviour"]
+    "type_behavior": ["type_behavior", "type_behaviour"],
+    "unused_patterns_behavior": ["unused_patterns_behavior", "unused_patterns_behaviour"]
 }
 
 @dataclass(frozen=True, kw_only=True)

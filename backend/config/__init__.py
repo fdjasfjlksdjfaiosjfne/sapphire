@@ -8,7 +8,7 @@ import yaml
 
 from backend import errors
 from backend.paths import MAIN_CONFIG_SCHEMA, CONFIG_SUBSCHEMAS
-from backend.config.dataclass import ConfigVersionCls, RootConfigCls
+from backend.config.dataclass import *
 
 _SENTINEL = object()
 LASTEST_VERSION = ConfigVersionCls(major = 2, minor = 1, patch = 1, phase = "indev") # pyright: ignore[reportArgumentType]

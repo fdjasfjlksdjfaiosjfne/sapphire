@@ -144,7 +144,7 @@ class StrEscapePatternConfigCls(CustomDataclass):
     backslash: C[typing.Literal["\\\\", "^\\", "`\\", None]] = C(default = "\\\\")
     caret: C[typing.Literal["^^", "`^", "\\^", None]] = C(default = "\\^")
     dollar: C[typing.Literal["$$", "\\$", "`$", "^$", None]] = C(default = "\\$")
-    hash: C[typing.Literal["##", "\\#", "`#", "^#", None]] = C(default = "\\#") # & cleanse
+    hash: C[typing.Literal["##", "\\#", "`#", "^#", None]] = C(default = "\\#")
     percent: C[typing.Literal["%%", "\\%", "`%", "^%", None]] = C(default = "\\%")
     open_parenthesis: C[typing.Literal["((", "\\(", "`(", "^(", None]] = C(default = "((")
     close_parenthesis: C[typing.Literal["))", "\\)", "`)", "^)", None]] = C(default = "))")
@@ -152,9 +152,15 @@ class StrEscapePatternConfigCls(CustomDataclass):
     close_square_bracket: C[typing.Literal["]]", "\\]", "`]", "^]", None]] = C(default = "]]")
     open_curly_brace: C[typing.Literal["{{", "\\{", "`{", "^{", None]] = C(default = "{{")
     close_curly_brace: C[typing.Literal["}}", "\\}", "`}", "^}", None]] = C(default = "}}")
-    def get_escape_dict(self) -> dict[str, str]:
-        return {k: v.get() for k, v in asdict(self) if v.get() is not None} # pyright: ignore[reportAttributeAccessIssue]
+    def get_escape_dict(self, format_str: bool = False, raw_string: bool = False) -> dict[str, str]:
+        dict_: dict[str, str] = {}
+        
+        return dict_
 
+@dataclass(frozen=True, kw_only=True)
+class StrEscapeCharsConfigCls(CustomDataclass):
+    patterns: StrEscapePatternConfigCls = StrEscapePatternConfigCls()
+    unused_patterns_behavior: C[typing.Literal["enforced", "ignore", "unenforced"]] = C(default = "ignore")
 
 @dataclass(frozen=True, kw_only=True)
 class StringLiteralsConfigCls(CustomDataclass):
@@ -163,7 +169,8 @@ class StringLiteralsConfigCls(CustomDataclass):
     multiline: MultilineStrConfigCls = MultilineStrConfigCls()
     raw_string: RawStrConfigCls = RawStrConfigCls()
     byte_string: ByteStrConfigCls = ByteStrConfigCls()
-    escape_pattern: StrEscapePatternConfigCls = StrEscapePatternConfigCls()
+    escape_pattern: StrEscapeCharsConfigCls = StrEscapeCharsConfigCls()
+
     def validate_config(self):
         for category, name in self._():
             if category.accessibility.get().endswith(""):

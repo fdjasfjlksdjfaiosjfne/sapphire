@@ -1,7 +1,6 @@
 from __future__ import annotations
 from backend import errors
-from backend.config.dataclass import RootConfigCls
-from backend.config.dataclass.customization.literals import StringLiteralsConfigCls
+from backend.config import RootConfigCls, StringLiteralsConfigCls
 from lexer.token_types import TokenTypeEnum
 from lexer.internal_token_types import InternalTokenType, ITTTypeChecking
 from lexer.data.patterns import IDENTIFIER_REGEX

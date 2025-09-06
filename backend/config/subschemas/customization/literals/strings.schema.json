@@ -145,129 +145,146 @@
                 }
             }
         },
-        "escapePattern": {
-            "type": "object",
-            "description": "Determine what symbol will be used as a replacement to some special character. \nNote: \n1. You can set any of the option to null to disable it.\n2. Certain symbols will only be taken into effect if they have a special purpose given to it.",
+        "escapeCharacters": {
             "properties": {
-                "null": {
-                    "enum": ["\\0", "`0", "^0",
-                            "\\@", "`@", "^@",
-                            null],
-                    "default": "\\0"
-                },
-                "bell": {
-                    "enum": ["\\a", "`a", "^a",
-                             "\\G", "`G", "^G",
-                             "\\🔔", "`🔔", "^🔔",
-                             null],
-                    "default": "\\a"
-                },
-                "backspace": {
-                    "enum": ["\\b", "`b", "^b",
-                             "\\H", "`H", "^H",
-                             null],
-                    "default": "\\b"
-                },
-                "horizontalTabulation": {
-                    "enum": ["\\t", "`t", "^t",
-                            "\\I", "`I", "^I",
-                            null],
-                    "default": "\\t"
-                },
-                "lineFeed": {
-                    "enum": ["\\n", "`n", "^n",
-                             "\\J", "`J", "^J",
-                             null],
-                    "default": "\\n"
-                },
-                "verticalTabulation": {
-                    "enum": ["\\v", "`v", "^v",
-                             "\\K", "`K", "^K",
-                             null],
-                    "default": "\\v"
-                },
-                "formFeed": {
-                    "enum": ["\\f", "`f", "^f",
-                             "\\L", "`L", "^L",
-                             null],
-                    "default": "\\f"
-                },
-                "carriageReturn": {
-                    "enum": ["\\r", "`r", "^r",
-                             "\\M", "`M", "^M",
-                             null],
-                    "enumDescriptions": [
-                        "C escape sequence",
-                        "Alternate escape sequence",
-                        "Caret notation",
-                        "Disabled"
-                    ],
-                    "default": "\\r"
-                },
-                "escape": {
-                    "enum": ["\\e", "`e", "^e",
-                             "\\[", "`[", "^[",
-                             null],
-                    "default": "\\e"
-                },
-                "backtick": {
-                    "enum": ["\\`", "``", "^`", null],
-                    "default": "\\`"
-                },
-                "doubleQuote": {
-                    "enum": ["\\\"", "`\"", "^\"", null],
-                    "default": "\\\""
-                },
-                "singleQuote": {
-                    "enum": ["\\'", "`'", "^'", null],
-                    "default": "\\'"
-                },
-                "backslash": {
-                    "enum": ["\\\\", "^\\", "`\\", null],
-                    "default": "\\\\"
-                },
-                "caret": {
-                    "enum": ["^^", "`^", "\\^", null],
-                    "default": "^^"
-                },
-                "dollar": {
-                    "enum": ["$$", "\\$", "`$", "^$", null],
-                    "default": "\\$"
-                },
-                "hash": {
-                    "enum": ["##", "\\#", "`#", "^#", null],
-                    "default": "\\#"
-                },
-                "percent": {
-                    "enum": ["%%", "\\%", "`%", "^%", null],
-                    "default": "\\%"
-                },
-                "openParenthesis": {
-                    "enum": ["((", "\\(", "`(", "^(", null],
-                    "default": "(("
-                },
-                "closeParenthesis": {
-                    "enum": ["((", "\\(", "`(", "^(", null],
-                    "default": "(("
-                },
-                "openSquareBracket": {
-                    "enum": ["[[", "\\[", "`[", "^[", null],
-                    "default": "[["
-                },
-                "closeSquareBracket": {
-                    "enum": ["]]", "\\]", "`]", "^]", null],
-                    "default": "]]"
-                },
-                "openCurlyBrace": {
-                    "enum": ["{{", "\\{", "`{", "^{", null],
-                    "default": "{{"
-                },
-                "closeCurlyBrace": {
-                    "enum": ["}}", "\\}", "`}", "^}", null],
-                    "default": "}}"
+                "patterns": {
+                    "type": "object",
+                    "description": "Determine what symbol will be used as a replacement to some special character. \nNote: \n1. You can set any of the option to null to disable it.\n2. Certain symbols will only be taken into effect if they have a special purpose given to it.",
+                    "properties": {
+                        "null": {
+                            "enum": ["\\0", "`0", "^0",
+                                    "\\@", "`@", "^@",
+                                    null],
+                            "default": "\\0"
+                        },
+                        "bell": {
+                            "enum": ["\\a", "`a", "^a",
+                                    "\\G", "`G", "^G",
+                                    "\\🔔", "`🔔", "^🔔",
+                                    null],
+                            "default": "\\a"
+                        },
+                        "backspace": {
+                            "enum": ["\\b", "`b", "^b",
+                                    "\\H", "`H", "^H",
+                                    null],
+                            "default": "\\b"
+                        },
+                        "horizontalTabulation": {
+                            "enum": ["\\t", "`t", "^t",
+                                    "\\I", "`I", "^I",
+                                    null],
+                            "default": "\\t"
+                        },
+                        "lineFeed": {
+                            "enum": ["\\n", "`n", "^n",
+                                    "\\J", "`J", "^J",
+                                    null],
+                            "default": "\\n"
+                        },
+                        "verticalTabulation": {
+                            "enum": ["\\v", "`v", "^v",
+                                    "\\K", "`K", "^K",
+                                    null],
+                            "default": "\\v"
+                        },
+                        "formFeed": {
+                            "enum": ["\\f", "`f", "^f",
+                                    "\\L", "`L", "^L",
+                                    null],
+                            "default": "\\f"
+                        },
+                        "carriageReturn": {
+                            "enum": ["\\r", "`r", "^r",
+                                    "\\M", "`M", "^M",
+                                    null],
+                            "enumDescriptions": [
+                                "C escape sequence",
+                                "Alternate escape sequence",
+                                "Caret notation",
+                                "Disabled"
+                            ],
+                            "default": "\\r"
+                        },
+                        "escape": {
+                            "enum": ["\\e", "`e", "^e",
+                                    "\\[", "`[", "^[",
+                                    null],
+                            "default": "\\e"
+                        },
+                        "backtick": {
+                            "enum": ["\\`", "``", "^`", null],
+                            "default": "\\`"
+                        },
+                        "doubleQuote": {
+                            "enum": ["\\\"", "`\"", "^\"", null],
+                            "default": "\\\""
+                        },
+                        "singleQuote": {
+                            "enum": ["\\'", "`'", "^'", null],
+                            "default": "\\'"
+                        },
+                        "backslash": {
+                            "enum": ["\\\\", "^\\", "`\\", null],
+                            "default": "\\\\"
+                        },
+                        "caret": {
+                            "enum": ["^^", "`^", "\\^", null],
+                            "default": "^^"
+                        },
+                        "dollar": {
+                            "enum": ["$$", "\\$", "`$", "^$", null],
+                            "default": "\\$"
+                        },
+                        "hash": {
+                            "enum": ["##", "\\#", "`#", "^#", null],
+                            "default": "\\#"
+                        },
+                        "percent": {
+                            "enum": ["%%", "\\%", "`%", "^%", null],
+                            "default": "\\%"
+                        },
+                        "openParenthesis": {
+                            "enum": ["((", "\\(", "`(", "^(", null],
+                            "default": "(("
+                        },
+                        "closeParenthesis": {
+                            "enum": ["((", "\\(", "`(", "^(", null],
+                            "default": "(("
+                        },
+                        "openSquareBracket": {
+                            "enum": ["[[", "\\[", "`[", "^[", null],
+                            "default": "[["
+                        },
+                        "closeSquareBracket": {
+                            "enum": ["]]", "\\]", "`]", "^]", null],
+                            "default": "]]"
+                        },
+                        "openCurlyBrace": {
+                            "enum": ["{{", "\\{", "`{", "^{", null],
+                            "default": "{{"
+                        },
+                        "closeCurlyBrace": {
+                            "enum": ["}}", "\\}", "`}", "^}", null],
+                            "default": "}}"
+                        }
+                    },
+                    "additionalProperties": false
+
                 }
             },
-            "additionalProperties": false
+            "patternProperties": {
+                "unusedPatternsBehaviou?r": {
+                    "type": "string",
+                    "enum": ["enforced", "ignore", "unenforced"],
+                    "enumDescriptions": [
+                        "The escape pattern is the only way to type the special character, regardless if the symbol is actually used anywhere or not.",
+                        "Do not use the escape pattern.",
+                        ""
+                    ],
+                    "default": "ignore"
+                }
+            }
         }
     }
 }
