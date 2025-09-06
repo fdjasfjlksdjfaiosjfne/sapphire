@@ -144,7 +144,7 @@ class StrEscapePatternConfigCls(CustomDataclass):
     backslash: C[typing.Literal["\\\\", "^\\", "`\\", None]] = C(default = "\\\\")
     caret: C[typing.Literal["^^", "`^", "\\^", None]] = C(default = "\\^")
     dollar: C[typing.Literal["$$", "\\$", "`$", "^$", None]] = C(default = "\\$")
-    hash: C[typing.Literal["##", "\\#", "`#", "^#", None]] = C(default = "\\#")
+    hash: C[typing.Literal["#" "#", "\\#", "`#", "^#", None]] = C(default = "\\#")
     percent: C[typing.Literal["%%", "\\%", "`%", "^%", None]] = C(default = "\\%")
     open_parenthesis: C[typing.Literal["((", "\\(", "`(", "^(", None]] = C(default = "((")
     close_parenthesis: C[typing.Literal["))", "\\)", "`)", "^)", None]] = C(default = "))")

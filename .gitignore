@@ -13,6 +13,7 @@ tempCodeRunnerFile.*
 *.code-workspace
 test.txt
 
+**/.obsidian
 *.ignore.*
 samples
 .mypy_cache

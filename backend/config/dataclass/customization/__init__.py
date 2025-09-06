@@ -30,9 +30,10 @@ class MultilineCommentSyntaxConfigCls[Start: str, End: str](CustomDataclass):
 
 MultiLineCommentSyntax: typing.TypeAlias = (
       MultilineCommentSyntaxConfigCls[typing.Literal["/*"], typing.Literal["*/"]]
-    | MultilineCommentSyntaxConfigCls[typing.Literal["###"], typing.Literal["###"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["#" "#" "#"], typing.Literal["#" "#" "#"]]
     | MultilineCommentSyntaxConfigCls[typing.Literal["#="], typing.Literal["=#"]]
-    | MultilineCommentSyntaxConfigCls[typing.Literal["#*"], typing.Literal["*#"]]
+    | MultilineCommentSyntaxConfigCls[typing.Literal["#" "*" # > See docs/conventions.md#Technical_Limitations
+                                                            ], typing.Literal["*#"]]
     | MultilineCommentSyntaxConfigCls[typing.Literal["(*)"], typing.Literal["*)"]]
     | MultilineCommentSyntaxConfigCls[typing.Literal["<!--"], typing.Literal["-->"]]
     | MultilineCommentSyntaxConfigCls[typing.Literal["{#"], typing.Literal["#}"]]
