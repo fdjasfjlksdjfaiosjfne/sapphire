@@ -4,11 +4,8 @@ import typing
 import regex
 
 from backend.config import CONFIG
-from lexer import utils
 
 cus = CONFIG.customization
-
-
 
 @dataclasses.dataclass
 class StringTokenPattern:
@@ -54,83 +51,6 @@ def _null(plains: S, regexes: R) -> tuple[S, R]:
             ))
         else:
             plains.append(StringTokenPattern(null, ("Primitives", "Null")))
-    return plains, regexes
-
-def _str_regex(str_prefixes: str,
-               quotes: str = "\"'`",
-               multiline: bool = False) -> regex.Pattern:
-    
-    return regex.compile(
-        fr"""
-        (?:{str_prefixes})
-        ([{quotes}])
-        (?:
-            (?:
-            [^\\]
-            | \\.
-            {"|\r|\n" if multiline else ""}
-            )
-        )
-        \1
-        """,
-        regex.VERBOSE | regex.DOTALL
-    )
-
-def _str(plains: S, regexes: R) -> tuple[S, R]:
-    # ^ Strings
-    str_conf = cus.literals.strings
-    delimeters_list = str_conf.delimeters.get()
-    delimeters = "".join(delimeters_list)
-    possible_formats = ["r", "b"]
-    forbidden_matches = []
-
-    def append_regex(formats, forbidden, quotes="", multiline=False):
-        str_prefixes = "|".join(utils.permutations(formats, forbidden))
-        regexes.append(
-            RegExTokenPattern(
-                _str_regex(str_prefixes, quotes, multiline),
-                ("Primitives", "String")
-            )
-        )
-
-    accessibility = str_conf.multiline.accessibility.get()
-
-    if accessibility == "never":
-        # Only append the non-multistring version
-        append_regex(possible_formats, forbidden_matches, quotes=delimeters, multiline=False)
-    elif accessibility == "always":
-        # Only append the multistring version
-        append_regex(possible_formats, forbidden_matches, quotes=delimeters, multiline=True)
-    elif accessibility.endswith("prefix"):
-        prefix = str_conf.multiline.prefix_syntax.get()
-        pf = [fmt for fmt in possible_formats if fmt != prefix]
-        append_regex(pf, forbidden_matches, quotes=delimeters, multiline=True)
-        str_prefixes = (i for i in utils.permutations(possible_formats, forbidden_matches) if prefix in i)
-        regexes.append(
-            RegExTokenPattern(
-                _str_regex(str_prefixes = "|".join(str_prefixes)),
-                ("Primitives", "String")
-            )
-        )
-        append_regex(possible_formats, forbidden_matches, quotes=delimeters, multiline=False)
-    elif accessibility == "enable_by_prefix":
-        append_regex(possible_formats, forbidden_matches, quotes=delimeters, multiline=False)
-    elif accessibility.endswith("delimeter"):
-        special_delims = str_conf.multiline.delimeter_syntax.get()
-        if special_delims == "triple":
-            multi_delims = [d * 3 for d in delimeters_list]
-            single_delims = delimeters
-        elif all(d in delimeters for d in special_delims):
-            multi_delims = special_delims
-            single_delims = "".join([d for d in delimeters_list if d not in multi_delims])
-        else:
-            raise errors.InternalError
-
-        multi_delims_str = "".join(multi_delims)
-        single_delims_str = "".join(single_delims)
-        append_regex(possible_formats, forbidden_matches, quotes=multi_delims_str, multiline=accessibility.startswith("disable"))
-        append_regex(possible_formats, forbidden_matches, quotes=single_delims_str, multiline=accessibility.startswith("enable"))
-
     return plains, regexes
 
 def _numbers(plains: S, regexes: R) -> tuple[S, R]:
@@ -210,7 +130,6 @@ def _single_line_comments(plains: S, regexes: R) -> tuple[S, R]:
 
 def inject_patterns(p: S, r: R) -> tuple[S, R]:
     _numbers(p, r)
-    _str(p, r)
     _null(p, r)
     _booleans(p, r)
     _templates(p, r)

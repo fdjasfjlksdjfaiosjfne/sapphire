@@ -51,7 +51,7 @@ def _resolve(schema: dict, defs: dict) -> typing.Any:
     return schema_
 
 def get_schema() -> dict:
-    if not MAIN_CONFIG_SCHEMA.exists():
+    if MAIN_CONFIG_SCHEMA.exists():
         with open(MAIN_CONFIG_SCHEMA) as f:
             return json.load(f)
     schema_path = CONFIG_SUBSCHEMAS / "main.schema.json"

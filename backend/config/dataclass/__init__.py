@@ -158,6 +158,7 @@ class RootConfigCls(CustomConfDatacls):
 
     @classmethod
     def from_dict(cls, config_dict: dict[str, typing.Any]) -> RootConfigCls:
+        from backend.config import RootConfigCls
         """
         Factory method that handles pre-processing of config dictionaries.
         """

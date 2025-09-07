@@ -66,7 +66,7 @@ class CustomConfDatacls:
     
     """
     _parent: typing.ClassVar = dataclasses.field(default = None, init = False)
-    _root_cache: None | RootConfigCls = dataclasses.field(default = None, init = False)
+    _root_cache = dataclasses.field(default = None, init = False)
 
     @abc.abstractmethod
     def validate_config(self) -> None:
@@ -92,9 +92,10 @@ class CustomConfDatacls:
         return self._root_cache
 
     def __post_init__(self) -> None:
-        mutable_args: list[str] = getattr(self, "r4cr0q9Vmqd1d8Eb9Emh5pESG2Ts^*")
+        mutable_args: list[str] = getattr(self, "r4cr0q9Vmqd1d8Eb9Emh5pESG2Ts^*", [])
         # & Nothing ever happened...
-        delattr(self, "r4cr0q9Vmqd1d8Eb9Emh5pESG2Ts^*")
+        if hasattr(self, "r4cr0q9Vmqd1d8Eb9Emh5pESG2Ts^*"):
+            object.__delattr__(self, "r4cr0q9Vmqd1d8Eb9Emh5pESG2Ts^*")
 
         for arg_name in mutable_args:
             arg = getattr(self, arg_name)
