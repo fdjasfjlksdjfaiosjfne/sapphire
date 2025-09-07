@@ -1,20 +1,27 @@
 from __future__ import annotations
 
+import enum
 import typing
 from backend import errors
 
-_not_assigned = object()
+if typing.TYPE_CHECKING:
+    from interpreter.values import RuntimeValue
+
+# $ Effectively a sentinel
+# $ This is made since with sentinel objects, you can't block other objects other than yours
+class _Sentinel(enum.Enum):
+    _ = object()
 
 class Env:
-    def __init__(self, parent: typing.Optional[Env] = None):
+    def __init__(self, parent: Env | None = None):
         self.parent = parent
-        self.variables: dict[str, RuntimeValue | None] = {} # pyright: ignore[reportUndefinedVariable]
+        self.variables: dict[str, RuntimeValue | _Sentinel] = {}
         self.constants: list[str] = []
 
-    def declare(self, name: str, value: RuntimeValue | object = _not_assigned, const: bool = False) -> None: # pyright: ignore[reportUndefinedVariable]
+    def declare(self, name: str, value: RuntimeValue | _Sentinel = _Sentinel._, const: bool = False) -> None:
         if name in self.variables:
             raise errors.VariableError(f"Variable '{name}' is already declared")
-        if const and value is _not_assigned:
+        if const and value is _Sentinel._:
             raise errors.SyntaxError("A constant declaration must include a value")
         self.variables.setdefault(name, value)
         if const:
@@ -23,20 +30,20 @@ class Env:
     def is_constant(self, name: str):
         return name in self.constants
     
-    def assign(self, name: str, value: RuntimeValue) -> None: # pyright: ignore[reportUndefinedVariable]
+    def assign(self, name: str, value: RuntimeValue) -> None:
         if name in self.variables:
             if self.is_constant(name):
                 raise errors.VariableError("Cannot change a constant value")
         self.variables[name] = value
     
-    def get(self, name: str, ignore_parent: bool = False) -> RuntimeValue: # pyright: ignore[reportUndefinedVariable]
+    def get(self, name: str, ignore_parent: bool = False) -> RuntimeValue:
         if ignore_parent:
             var = self.variables.get(name)
         else:
             var = self.resolve(name).variables.get(name)
         if var is None:
             raise errors.VariableError(f"Variable '{name}' has not been assigned")
-        if var is _not_assigned:
+        if var is _Sentinel._:
             raise errors.VariableError(f"Although declared, variable '{name}' has not been assigned")
         return var
 
@@ -47,10 +54,10 @@ class Env:
             raise errors.VariableError(f"Variable '{name}' is not assigned")
         return self.parent.resolve(name)
     
-    def __getitem__(self, key: str) -> RuntimeValue | None: # pyright: ignore[reportUndefinedVariable]
+    def __getitem__(self, key: str) -> RuntimeValue | _Sentinel:
         return self.variables[key]
     
-    def __setitem__(self, key: str, value: RuntimeValue) -> None: # pyright: ignore[reportUndefinedVariable]
+    def __setitem__(self, key: str, value: RuntimeValue) -> None:
         if self.is_constant(key):
             raise errors.VariableError("Cannot change a constant value")
         self.variables.setdefault(key, value)

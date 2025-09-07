@@ -11,7 +11,10 @@ from backend.paths import MAIN_CONFIG_SCHEMA, CONFIG_SUBSCHEMAS
 from backend.config.dataclass import *
 
 _SENTINEL = object()
-LASTEST_VERSION = ConfigVersionCls(major = 2, minor = 1, patch = 1, phase = "indev") # pyright: ignore[reportArgumentType]
+LASTEST_VERSION = ConfigVersionCls(major = ConfOptWrapper(2),
+                                   minor = ConfOptWrapper(5),
+                                   patch = ConfOptWrapper(0),
+                                   phase = ConfOptWrapper("indev"))
 CONFIG = RootConfigCls.from_dict({})
 
 def _find_subschema(ref, defs: dict):
@@ -48,6 +51,9 @@ def _resolve(schema: dict, defs: dict) -> typing.Any:
     return schema_
 
 def get_schema() -> dict:
+    if not MAIN_CONFIG_SCHEMA.exists():
+        with open(MAIN_CONFIG_SCHEMA) as f:
+            return json.load(f)
     schema_path = CONFIG_SUBSCHEMAS / "main.schema.json"
     if not schema_path.exists():
         raise errors.InternalError(

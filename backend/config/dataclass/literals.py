@@ -1,17 +1,21 @@
+from __future__ import annotations
+
 import itertools
 import typing
 from dataclasses import dataclass
 
-
-from backend.config.dataclass.bases import CustomConfDatacls, ConfOptWrapper as C, _UNFILLED
+from backend.config.dataclass.bases import CustomConfDatacls, ConfOptWrapper as C
 from backend import errors
+
+if typing.TYPE_CHECKING:
+    from backend.config.dataclass import CustomizationConfigCls
 
 Accessibility: typing.TypeAlias = typing.Literal["never", "always",
                                                   "enable_by_prefix",
                                                   "enable_by_delimeter",
                                                   "disable_by_prefix",
                                                   "disable_by_delimeter"]
-StringDelimeters: typing.TypeAlias = list[typing.Literal["'", '"', "`"]]
+StringDelimeters: typing.TypeAlias = tuple[typing.Literal["'", '"', "`"]]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -79,6 +83,11 @@ StringInterpolationExpressionSyntaxConfigDataClassCombinationTypeAlias: typing.T
     | StringInterpolationExpressionSyntaxConfigDataClass[typing.Literal["#(" ], typing.Literal[")"]]
     | StringInterpolationExpressionSyntaxConfigDataClass[typing.Literal["%(" ], typing.Literal[")"]]
     | StringInterpolationExpressionSyntaxConfigDataClass[typing.Literal["\\("], typing.Literal[")"]]
+    | StringInterpolationExpressionSyntaxConfigDataClass[typing.Literal[ "<" ], typing.Literal[">"]]
+    | StringInterpolationExpressionSyntaxConfigDataClass[typing.Literal["$<" ], typing.Literal[">"]]
+    | StringInterpolationExpressionSyntaxConfigDataClass[typing.Literal["#<" ], typing.Literal[">"]]
+    | StringInterpolationExpressionSyntaxConfigDataClass[typing.Literal["%<" ], typing.Literal[">"]]
+    | StringInterpolationExpressionSyntaxConfigDataClass[typing.Literal["\\<"], typing.Literal[">"]]
 )
 
 @dataclass(frozen=True, kw_only=True)
@@ -105,12 +114,14 @@ class RawStrConfigCls(CustomConfDatacls):
 
 @dataclass(frozen=True, kw_only=True)
 class ByteStrConfigCls(CustomConfDatacls):
+    _parent: typing.ClassVar[LiteralsConfigCls]
     accessibility: C[Accessibility] = C(default = "enable_by_delimeter")
     delimeter_syntax: C[StringDelimeters] = C(default = "triple")
     prefix_syntax: C[typing.Literal["b"]] = C(default = "b")
 
 @dataclass(frozen=True, kw_only=True)
 class StrEscapePatternConfigCls(CustomConfDatacls):
+    _parent: typing.ClassVar[StrEscapeCharsConfigCls]
     null: C[typing.Literal["\\0", "`0", "^0",
                            "\\@", "`@", "^@",
                            None]] = C(default = "\\0")
@@ -147,26 +158,69 @@ class StrEscapePatternConfigCls(CustomConfDatacls):
     dollar: C[typing.Literal["$$", "\\$", "`$", "^$", None]] = C(default = "\\$")
     hash: C[typing.Literal["#" "#", "\\#", "`#", "^#", None]] = C(default = "\\#")
     percent: C[typing.Literal["%%", "\\%", "`%", "^%", None]] = C(default = "\\%")
+
     open_parenthesis: C[typing.Literal["((", "\\(", "`(", "^(", None]] = C(default = "((")
     close_parenthesis: C[typing.Literal["))", "\\)", "`)", "^)", None]] = C(default = "))")
     open_square_bracket: C[typing.Literal["[[", "\\[", "`[", "^[", None]] = C(default = "[[")
     close_square_bracket: C[typing.Literal["]]", "\\]", "`]", "^]", None]] = C(default = "]]")
     open_curly_brace: C[typing.Literal["{{", "\\{", "`{", "^{", None]] = C(default = "{{")
     close_curly_brace: C[typing.Literal["}}", "\\}", "`}", "^}", None]] = C(default = "}}")
+    open_angle_bracket: C[typing.Literal["<<", "\\<", "`<", "^<"]] = C(default = "<<")
+    close_angle_bracket: C[typing.Literal[">>", "\\>", "`>", "^>"]] = C(default = "<<")
 
     def get_escape_dict(self, format_str: bool = False, raw_string: bool = False) -> dict[str, str]:
         dict_: dict[str, str] = {}
-        
+        s =  self._parent._parent
+        delimeters = s.delimeters.get()
+        name_lookup = {
+            "\"": "double_quote",
+            "'": "single_quote",
+            "`": "backtick",
+            "#": "hash",
+            "$": "dollar",
+            "%": "percent",
+            "^": "caret",
+            "(": "open_parenthesis",
+            ")": "close_parenthesis",
+            "[": "open_square_bracket",
+            "]": "close_square_bracket",
+            "{": "open_curly_brace",
+            "}": "close_curly_brace",
+            "<": "open_angle_bracket",
+            ">": "close_angle_bracket"
+        }
+        for name in delimeters:
+            dict_[getattr(self, name_lookup[name])] = name
+        if format_str:
+            interpo = s.interpolation
+            if interpo.allow_identifier_syntax:
+                ident_pref = interpo.identifier_prefix_syntax.get()
+                dict_[getattr(self, name_lookup[ident_pref])] = ident_pref
+            opening_sym = interpo.expression_syntax.start.get()[0]
+            closing_sym = interpo.expression_syntax.end.get()[0]
+            dict_[getattr(self, name_lookup[opening_sym[0]])] = opening_sym[0]
+            dict_[getattr(self, name_lookup[closing_sym])] = closing_sym
+        if not raw_string:
+            p = [("null", "\0"), ("bell", "\a"), ("backscape", "\b"),
+                 ("horizontal_tabulation", "\t"), ("line_feed", "\n"),
+                 ("vertical_tabulation", "\v"), ("form_feed", "\f"),
+                 ("carriage_return", "\r"), ("escape", "\x1b")
+                ]
+            dict_.update({getattr(self, name): char
+                          for name, char in p
+                          if getattr(self, name) is not None})
         return dict_
 
 @dataclass(frozen=True, kw_only=True)
 class StrEscapeCharsConfigCls(CustomConfDatacls):
+    _parent: typing.ClassVar[StringLiteralsConfigCls]
     patterns: StrEscapePatternConfigCls = StrEscapePatternConfigCls()
     unused_patterns_behavior: C[typing.Literal["enforced", "ignore", "unenforced"]] = C(default = "ignore")
 
 @dataclass(frozen=True, kw_only=True)
 class StringLiteralsConfigCls(CustomConfDatacls):
-    delimeters: C[StringDelimeters] = C(default = ["'", "`", '"'])
+    _parent: typing.ClassVar[LiteralsConfigCls]
+    delimeters: C[StringDelimeters] = C(default = ("'", "`", '"'))
     interpolation: StrInterpolationConfigCls = StrInterpolationConfigCls()
     multiline: MultilineStrConfigCls = MultilineStrConfigCls()
     raw_string: RawStrConfigCls = RawStrConfigCls()
@@ -211,10 +265,12 @@ class StringLiteralsConfigCls(CustomConfDatacls):
 
 @dataclass(frozen=True, kw_only=True)
 class EllipsisLiteralConfigCls(CustomConfDatacls):
+    _parent: typing.ClassVar[LiteralsConfigCls]
     pass
 
 @dataclass(frozen=True, kw_only=True)
 class LiteralsConfigCls(CustomConfDatacls):
+    _parent: typing.ClassVar[CustomizationConfigCls]
     numbers: NumberLiteralsConfigCls = NumberLiteralsConfigCls()
     booleans: BooleanLiteralsConfigCls = BooleanLiteralsConfigCls()
     null: NullLiteralConfigCls = NullLiteralConfigCls()

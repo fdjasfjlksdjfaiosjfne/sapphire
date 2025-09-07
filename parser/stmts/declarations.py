@@ -128,13 +128,11 @@ class DeclarationStatements(ParserNamespaceSkeleton):
     def _parse_assignment_pattern(self, ending_tokens: TokenTypeSequence, **context) -> list[Nodes.ExprNode]:
         save_point = self.tokens.save()
         try:
-            if isinstance(ending_tokens, TokenType):
-                ending_tokens = (ending_tokens,)
             elements = []
             self._parse_assignment_pattern_element(elements, **context)
             while self._peek().type == TokenType.Symbols.AssignmentPatternSeparator:
                 self._advance(TokenType.Symbols.AssignmentPatternSeparator)
-                if self._peek().type in ending_tokens: # type: ignore
+                if self._peek().type in self._to_token_sequence(ending_tokens): 
                     break
                 self._parse_assignment_pattern_element(elements, **context)
             return elements

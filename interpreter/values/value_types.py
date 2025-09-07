@@ -125,7 +125,7 @@ class IntValue(RuntimeValue):
                 return val
             raise errors.TypeError(f"__int__ returns non-int value ({value!r})")
         try:
-            py_value = int(value) # type: ignore
+            py_value = int(value)
         except ValueError:
             raise errors.InternalError(f"IntValue recieve invalid value ({value!r})")
         if -5 <= py_value <= 256:
@@ -152,7 +152,7 @@ class FloatValue(RuntimeValue):
                 return val
             raise errors.TypeError(f"__float__ returns non-int value ({value!r})")
         try:
-            py_value = float(value) # type: ignore
+            py_value = float(value)
         except ValueError:
             raise errors.InternalError(f"FloatValue recieve invalid value ({value!r})")
         if -5 <= py_value <= 256:
@@ -179,7 +179,7 @@ class BoolValue(IntValue):
                 return val
             raise errors.TypeError(f"__bool__ returns non-bool value ({value!r})")
         try:
-            py_value = bool(value) # type: ignore
+            py_value = bool(value) 
         except ValueError:
             raise errors.InternalError(f"BoolValue recieve invalid value ({value!r})")
         if py_value not in cls._cache:

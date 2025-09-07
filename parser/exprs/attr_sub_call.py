@@ -41,7 +41,7 @@ class AttributeSubcriptionCall(ParserNamespaceSkeleton):
             else:
                 slice: (
                     list[Nodes.ExprNode | None]
-                ) = [self._parse_expr(**context)]  # pyright: ignore[reportAssignmentType]
+                ) = [self._parse_expr(**context)]
 
                 # $ Slicing
                 if self._peek().type == TokenType.Symbols.SliceSeparator:

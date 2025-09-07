@@ -76,7 +76,7 @@ class MatchCaseStatement(ParserNamespaceSkeleton):
         return self.__parse_structural_match_patterns()
 
     def __parse_class_args(self, **context) -> (
-            tuple[list[Nodes.MatchPatternNode], dict[str, Nodes.MatchPatternNode]]): # type: ignore
+            tuple[list[Nodes.MatchPatternNode], dict[str, Nodes.MatchPatternNode]]):
         self._advance([Parentheses.OpenParen], error = errors.InternalError(
             "MemberSubscriptionCall.parse_call_args() cannot find a '(' token, "
             "even though the only place that call it should've check for it beforehand."

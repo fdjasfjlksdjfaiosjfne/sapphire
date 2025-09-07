@@ -53,7 +53,7 @@ class Token:
     def __str__(self) -> str: return repr(self)
 
     def __repr__(self) -> str:
-        return f"Token(type={self.type.name}{f", value={self.value!r}" if self.value else ""})" # pyright: ignore[reportAttributeAccessIssue]
+        return f"Token(type={self.type.name}{f", value={self.value!r}" if self.value else ""})"
     
     def __ne__(self, other) -> bool:
         if isinstance(other, (TokenTypeEnum, ITTTypeChecking)):

@@ -45,16 +45,24 @@
                         {"start": "#{", "end": "}"},
                         {"start": "\\{", "end": "}"},
                         {"start": "%{", "end": "}"},
+
                         {"start": "[", "end": "]"},
                         {"start": "$[", "end": "]"},
                         {"start": "#[", "end": "]"},
                         {"start": "\\[", "end": "]"},
                         {"start": "%[", "end": "]"},
+                        
                         {"start": "(", "end": ")"},
                         {"start": "$(", "end": ")"},
                         {"start": "#(", "end": ")"},
                         {"start": "\\(", "end": ")"},
-                        {"start": "%(", "end": ")"}
+                        {"start": "%(", "end": ")"},
+
+                        {"start": "<", "end": ">"},
+                        {"start": "$<", "end": ">"},
+                        {"start": "#<", "end": ">"},
+                        {"start": "\\<", "end": ">"},
+                        {"start": "%<", "end": ">"}
                     ],
                     "enumDescriptions": [
                         "Use by Python, Scala, Nim and PHP",

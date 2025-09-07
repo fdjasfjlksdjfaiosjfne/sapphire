@@ -4,8 +4,10 @@ import abc
 import dataclasses
 import typing
 
+if typing.TYPE_CHECKING:
+    from backend.config.dataclass import RootConfigCls
+
 from backend import errors
-from backend.config.dataclass import RootConfigCls
 
 class ConfigDescriptorProtocol[T](typing.Protocol):
     @typing.overload
@@ -56,12 +58,14 @@ class ConfOptWrapper[T](ConfigDescriptorProtocol[T]):
     def __bool__(self):
         return bool(self.get())
 
+_MUTABLE_TYPES: dict[type, typing.Callable[[typing.Any], typing.Any]] = {list: tuple}
+
 class CustomConfDatacls:
     """A custom wrapper for all config dataclasses.
 
     
     """
-    _parent: typing.ClassVar[CustomConfDatacls | None] = dataclasses.field(default = None, init = False)
+    _parent: typing.ClassVar = dataclasses.field(default = None, init = False)
     _root_cache: None | RootConfigCls = dataclasses.field(default = None, init = False)
 
     @abc.abstractmethod
@@ -75,7 +79,6 @@ class CustomConfDatacls:
     
     @typing.final
     def get_root_config_cls(self):
-        from backend.config.dataclass import RootConfigCls
         if self._parent is None:
             return typing.cast(RootConfigCls, self)
         if self._root_cache is None:
@@ -87,6 +90,18 @@ class CustomConfDatacls:
                 c = c._parent
             self._root_cache = typing.cast(RootConfigCls, c)
         return self._root_cache
+
+    def __post_init__(self) -> None:
+        mutable_args: list[str] = getattr(self, "r4cr0q9Vmqd1d8Eb9Emh5pESG2Ts^*")
+        # & Nothing ever happened...
+        delattr(self, "r4cr0q9Vmqd1d8Eb9Emh5pESG2Ts^*")
+
+        for arg_name in mutable_args:
+            arg = getattr(self, arg_name)
+            if isinstance(arg, list):
+                arg = tuple(arg)
+            setattr(self, arg_name, arg)
+        
 
     def __init__(self, **kwargs) -> None:
         if not dataclasses.is_dataclass(self):
@@ -125,8 +140,15 @@ class CustomConfDatacls:
                 object.__setattr__(self, field.name, ConfOptWrapper(value, field.default))
 
         for field in dataclasses.fields(self):
-            if not field.init: 
+            if not field.init:
                 continue
+            typ = field.type
+            if typing.get_origin(typ) is typing.ClassVar:
+                continue
+            if typ in _MUTABLE_TYPES:
+                if not hasattr(self, "r4cr0q9Vmqd1d8Eb9Emh5pESG2Ts^*"):
+                    setattr(self, "r4cr0q9Vmqd1d8Eb9Emh5pESG2Ts^*", [])
+                getattr(self, "r4cr0q9Vmqd1d8Eb9Emh5pESG2Ts^*").append(field.name)
             if field.name not in kwargs:
                 assign_default(field)
             else:

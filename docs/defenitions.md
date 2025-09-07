@@ -16,3 +16,15 @@ If specification is needed, it should be referred to as:
 - `switch`:
   - "Switch-style conditional statement"
   - "Switch statement"
+# "Angle Brackets"/"Less/Greater Sign"
+This refers to `<` and `>`.
+Those should only refer to either of these names in the approiate contexts.
+Angle Bracket:
+```c++
+#include <std.io>
+```
+Less/Greater Sign:
+```py
+5 < 6
+10 > 4
+```

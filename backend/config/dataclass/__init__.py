@@ -96,12 +96,12 @@ FIELD_ALIASES = {
 
 @dataclass(frozen=True, kw_only=True)
 class ConfigVersionCls(CustomConfDatacls):
-    major: ConfOptWrapper[int] = ConfOptWrapper(_UNFILLED, 2)
-    minor: ConfOptWrapper[int] = ConfOptWrapper(_UNFILLED, 1)
-    patch: ConfOptWrapper[int] = ConfOptWrapper(_UNFILLED, 1)
+    major: ConfOptWrapper[int] = ConfOptWrapper(default = 2)
+    minor: ConfOptWrapper[int] = ConfOptWrapper(default = 5)
+    patch: ConfOptWrapper[int] = ConfOptWrapper(default = 0)
     phase: ConfOptWrapper[
            typing.Literal["indev", "alpha",
-                          "beta", "release"]] = "indev" # type: ignore
+                          "beta", "release"]] = ConfOptWrapper(default = "indev")
     def __repr__(self) -> str:
         return (
             f"<ConfigVersionCls: {self.major}.{self.minor}.{self.patch}"
