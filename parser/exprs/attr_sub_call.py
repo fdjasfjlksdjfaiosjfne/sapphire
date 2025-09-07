@@ -11,10 +11,10 @@ class AttributeSubcriptionCall(ParserNamespaceSkeleton):
             Nodes.SubscriptionNode | 
             Nodes.ExprNode
         ):
-        # $ Parses member access (a.b), subscription access (a[b]) and function call (a(b)) expressions.
+        """Parses member access (a.b), subscription access (a[b]) and function call (a(b)) expressions."""
         member = self._parse_member_subscription_expr(**context)
         if self._peek() == TokenType.Parentheses.OpenParenthesis:
-            return self._parse_call_expr(**context)
+            return self._parse_call_expr(member, **context)
         return member
 
     def _parse_member_subscription_expr(self, **context) -> Nodes.AttributeNode | Nodes.SubscriptionNode | Nodes.ExprNode: 

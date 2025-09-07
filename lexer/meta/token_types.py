@@ -68,7 +68,9 @@ def write_file():
         "            return self.value == other",
         "        return super().__eq__(other)",
         "    def __ne__(self, other):",
-        "        return not self.__eq__(other)"
+        "        if isinstance(other, ITTTypeChecking):",
+        "            return self.value != other",
+        "        return super().__ne__(other)",
     ]
     
     lines += write_class(CLASS_NAME, ALIASES)

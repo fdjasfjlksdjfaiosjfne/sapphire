@@ -1,7 +1,7 @@
 import typing
 
 from backend import errors
-from lexer import TokenType
+from lexer import TokenType, TokenTypeEnum
 import parser.nodes as Nodes
 from parser.stmts.declarations import DeclarationStatements
 from parser.stmts.match_case import MatchCaseStatement
@@ -58,14 +58,15 @@ class Stmts(MatchCaseStatement, LoopStatements, DeclarationStatements):
 
     def _parse_if_elif_else(self, **context):
         try:
-            clause = context.pop("clause")
+            clause = typing.cast(TokenTypeEnum, context.pop("clause"))
         except KeyError:
             raise errors.InternalError(
                 f"'clause' is not being passed into 'parse_if_elif_else()' from {__package__}"
             )
         self._advance()
+
         
-        cond = None
+        cond = Nodes.ExprNode() # Placebo
         if clause != TokenType.Statements.Conditional.Fallback:
             cond = self._parse_expr(**context)
         
@@ -83,10 +84,10 @@ class Stmts(MatchCaseStatement, LoopStatements, DeclarationStatements):
 
         # ? Check if there's any other connectable clause (elif/else) behind
         
-        if self.peek().type in (TokenType.Statements.Conditional.FallbackWithCondition, TokenType.Statements.Conditional.Fallback):
+        if self._peek().type in (TokenType.Statements.Conditional.FallbackWithCondition, TokenType.Statements.Conditional.Fallback):
             return Nodes.ConditionalNode(
                 cond, code,
-                self.parse_if_elif_else(clause = self.peek().type, **context))
+                self._parse_if_elif_else(clause = self._peek().type, **context))
         return Nodes.ConditionalNode(cond, code)
 
     def _parse_throw_stmt(self, **context) -> Nodes.ThrowNode:
@@ -118,11 +119,13 @@ class Stmts(MatchCaseStatement, LoopStatements, DeclarationStatements):
                 self._advance([opening_token])
             
             # Do-while loop
+            self._advance_matchings(self._STATEMENT_SEPARATORS)
             while True:
                 code.append(self._parse_stmt(**context))
+                if not self._advance_matchings(self._STATEMENT_SEPARATORS):
+                    raise errors.SyntaxError("Expecting a statement separator (; or new line)")
                 if self._peek().type == closing_token:
                     break
-                self._advance([TokenType.NewLine, TokenType.Symbols.StatementSeparator])
             
             if eat_closing_token:
                 self._advance([closing_token])

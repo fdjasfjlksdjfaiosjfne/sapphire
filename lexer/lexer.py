@@ -88,7 +88,6 @@ class Tokenizer(StringSubLexer):
         else:
             raise errors.SyntaxError(f"Invalid character found: U+{ord(self.src):x}")
 
-
     @staticmethod
     def resolve_itt_tuple(tple: tuple[str, ...]) -> InternalTokenType:
         match tple:
@@ -156,7 +155,6 @@ class Tokenizer(StringSubLexer):
             tok_types = (tok_types, )
         a = []
         while self.peek().type in tok_types:
-            
             a.append(self.advance())
         return a
     

@@ -117,7 +117,10 @@ def write_file():
         "            return self == other.value",
         "        return super().__eq__(other)",
         "    def __ne__(self, other):",
-        "        return not self.__eq__(other)"
+        "        from lexer.token_types import TokenTypeEnum",
+        "        if isinstance(other, TokenTypeEnum):",
+        "            return self != other.value",
+        "        return super().__ne__(other)",
     ]
 
     with open(INTERNAL_TOKEN_TYPES, "w", encoding = "utf-8") as f:
