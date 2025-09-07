@@ -18,10 +18,18 @@ class LoopStatements(ParserNamespaceSkeleton):
             els = self._parse_attached_code_block(**context)
         return Nodes.WhileLoopNode(cond, code, els)
 
+    def _parse_iter_vars(self, **context) -> list[Nodes.ExprNode]:
+        _ = self._parse_assignment_pattern(TokenType.Statements.Loops.IterableVarsAndIterableSeparatorInForLoopFromPython)
+        if isinstance(_, Nodes.TupleNode):
+            _ = _.value
+        else:
+            _ = [_]
+        return _
+
     def _parse_for_stmt(self, **context) -> Nodes.ForLoopNode:
         self._advance(Loops.ForLoopFromPython)
 
-        assignment = self._parse_assignment_pattern(ending_tokens = Loops.IterableVarsAndIterableSeparatorInForLoopFromPython)
+        assignment = self._parse_iter_vars(**context)
         iter_vars = [i.symbol for i in assignment if isinstance(i, Nodes.IdentifierNode)]
         if len(assignment) != len(iter_vars):
             raise errors.SyntaxError("Invalid syntax")

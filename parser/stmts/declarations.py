@@ -117,7 +117,7 @@ class DeclarationStatements(ParserNamespaceSkeleton):
                                    *TokenType.Symbols.AugmentedAssignOpers.Righty.__members__]:
                 op = self._advance()
                 value = self._parse_expr(**context)
-                return Nodes.ModifierAssignmentNode(target[0], op.value, value)
+                return Nodes.ModifierAssignmentNode(target, op.value, value)
             
             raise errors._Backtrack
         
@@ -125,36 +125,36 @@ class DeclarationStatements(ParserNamespaceSkeleton):
             self.tokens.load(start_pos)
             return self._parse_expr(**context)
     
-    def _parse_assignment_pattern(self, ending_tokens: TokenTypeSequence, **context) -> list[Nodes.ExprNode]:
+    def _parse_assignment_pattern(self, ending_tokens: TokenTypeSequence, **context) -> Nodes.ExprNode:
         save_point = self.tokens.save()
         try:
             elements = []
-            self._parse_assignment_pattern_element(elements, **context)
+            elements.append(self._parse_assignment_pattern_element(**context))
             while self._peek().type == TokenType.Symbols.AssignmentPatternSeparator:
                 self._advance(TokenType.Symbols.AssignmentPatternSeparator)
                 if self._peek().type in self._to_token_sequence(ending_tokens): 
                     break
-                self._parse_assignment_pattern_element(elements, **context)
-            return elements
+                elements.append(self._parse_assignment_pattern_element(**context))
+            if len(elements) > 1:
+                return Nodes.TupleNode(elements)
+            return elements[0]
         except errors.SapphireError as e:
             self.tokens.load(save_point)
             raise errors._Backtrack from e
     
-    def _parse_assignment_pattern_element(self, elements: list, **context):
+    def _parse_assignment_pattern_element(self, **context):
         match self._peek().type:
             case TokenType.Identifier:
-                elements.append(self._advance([TokenType.Identifier]))
+                return self._advance([TokenType.Identifier])
             case TokenType.Operators.Unary.PositionalUnpack:
                 a = self._advance()
                 if self._peek().type == TokenType.Identifier:
-                    elements.append(
-                            Nodes.UnaryNode(
-                                expr = Nodes.IdentifierNode(self._advance(TokenType.Identifier).value),
-                                attachment = a.type,
-                                position = "Prefix"
-                            )
+                    return Nodes.UnaryNode(
+                        expr = Nodes.IdentifierNode(self._advance(TokenType.Identifier).value),
+                        attachment = a.type,
+                        position = "Prefix"
                     )
             case Parentheses.OpenParenthesis:
                 self._advance(Parentheses.OpenParenthesis)
-                elmts = self._parse_assignment_pattern(Parentheses.CloseParenthesis)
-                return Nodes.TupleNode(elmts)
+                element = self._parse_assignment_pattern(Parentheses.CloseParenthesis)
+                return element

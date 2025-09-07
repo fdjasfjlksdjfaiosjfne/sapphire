@@ -252,7 +252,7 @@ class StringLiteralsConfigCls(CustomConfDatacls):
         for category, _ in self._():
             if category.accessibility.get().endswith("prefix"):
                 prefixes.append(category.prefix_syntax.get())
-        delis = typing.cast(list[str], self.delimeters.get()[:]) # Pyright just smoke some weed today
+        delis = typing.cast(list[str], list(self.delimeters.get()[:])) # Pyright just smoke some weed today
         if self.multiline.delimeter_syntax.get() == "triple":
             if self.multiline.accessibility.get().endswith("delimeter"):
                 delis.extend(dl*3 for dl in self.delimeters.get())

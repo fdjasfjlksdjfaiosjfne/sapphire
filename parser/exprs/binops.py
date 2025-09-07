@@ -39,8 +39,7 @@ for v in BINARY_NODE_DICT.values():
 
 # TODO: Make a dynamic system that allows for custom operator ordering
 class InfixBinaryOperations(ParserNamespaceSkeleton):
-    def _binary_parser_factory(self,
-                               operator_tokens: TokenTypeSequence,
+    def _binary_parser_factory(self, operator_tokens: TokenTypeSequence,
                                next_in_precendence: typing.Callable[[], Nodes.ExprNode],
                                **context):
         operator_tokens = self._to_token_sequence(operator_tokens)
@@ -110,7 +109,7 @@ class InfixBinaryOperations(ParserNamespaceSkeleton):
     def _parse_binary_and_expr(self, **context) -> Nodes.BinaryNode | Nodes.ExprNode:
         return self._binary_parser_factory(
             operator_tokens = BinaryOperators.BinaryAnd,
-            next_in_precendence = self._parse_binary_and_expr
+            next_in_precendence = self._parse_spaceship_expr
         )(**context)
     
     def _parse_spaceship_expr(self, **context) -> Nodes.BinaryNode | Nodes.ExprNode:

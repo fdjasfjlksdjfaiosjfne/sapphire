@@ -23,3 +23,7 @@ class Parser(Stmts, Exprs):
                 "The lexer has been exhausted prematurely but the "
                 "parser doesn't seems to handle it properly"
             )
+        except errors.BaseSapphireError as e:
+            # Debugging
+            e.add_note(f"Remaining: {self.tokens.remaining()}")
+            raise e

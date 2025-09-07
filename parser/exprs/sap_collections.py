@@ -1,4 +1,6 @@
 import typing
+
+from numpy import isin
 from backend import errors
 from parser.core import ParserNamespaceSkeleton
 from lexer import TokenType, TokenTypeSequence, Parentheses
@@ -164,7 +166,7 @@ class Collections(ParserNamespaceSkeleton):
             loop_type = self._advance([
                 TokenType.Statements.Loops.ForLoopFromPython
             ])
-            var_list = self._parse_assignment_pattern(TokenType.Statements.Loops.IterableVarsAndIterableSeparatorInForLoopFromPython)
+            var_list = self._parse_iter_vars()
             self._advance(TokenType.Statements.Loops.IterableVarsAndIterableSeparatorInForLoopFromPython)
             iterable = self._parse_expr(**context)
             if self._peek().type == TokenType.Symbols.ConditionInComprehension:

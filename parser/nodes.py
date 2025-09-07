@@ -41,7 +41,7 @@ class ModuleNode(StmtNode):
 
 @dataclasses.dataclass
 class VarDeclarationNode(StmtNode):
-    idents: list[list[ExprNode]]
+    idents: list[ExprNode]
     expr: ExprNode
     constant: bool = False
 
@@ -71,7 +71,7 @@ class ModifierAssignmentNode(StmtNode):
 
 @dataclasses.dataclass
 class AssignmentNode(StmtNode):
-    targets: list[list[ExprNode]]
+    targets: list[ExprNode]
     value: ExprNode
 
 @dataclasses.dataclass

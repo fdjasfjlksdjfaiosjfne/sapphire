@@ -5,10 +5,10 @@ from lexer.token_types import TokenTypeEnum
 from lexer.internal_token_types import InternalTokenType, ITTTypeChecking
 from lexer.data.patterns import IDENTIFIER_REGEX
 class StringSubLexer:
-    _str_conf: StringLiteralsConfigCls
+    _strs_conf: StringLiteralsConfigCls
     src: str
     def _parse_str(self) -> InterpolatedStrToken | None:
-        for start in self._str_conf.get_all_possible_starts():
+        for start in self._strs_conf.get_all_possible_starts():
             if self.src.startswith(start):
                 location = self.src.find(start[-1], 0, len(start)+1)
                 prefixes = self.src[:location]
@@ -24,7 +24,7 @@ class StringSubLexer:
                 ls[-1] += i
             ls.append(i)
         
-        interpolation = self._str_conf.interpolation
+        interpolation = self._strs_conf.interpolation
         while self.src.startswith(quote):
             ...
 
