@@ -4,6 +4,7 @@ import typing
 from backend import errors
 from lexer import Token, TokenType, Tokenizer, TokenTypeSequence, TokenTypeEnum
 from backend.config import RootConfigCls, CONFIG
+from lexer.internal_token_types import ITTTypeChecking
 from parser import nodes
 
 class ParserNamespaceSkeleton(ABC):

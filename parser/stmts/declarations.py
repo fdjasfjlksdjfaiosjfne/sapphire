@@ -119,7 +119,8 @@ class DeclarationStatements(ParserNamespaceSkeleton):
                 value = self._parse_expr(**context)
                 return Nodes.ModifierAssignmentNode(target, op.value, value)
             
-            raise errors._Backtrack
+            else:
+                raise errors._Backtrack
         
         except errors._Backtrack:
             self.tokens.load(start_pos)

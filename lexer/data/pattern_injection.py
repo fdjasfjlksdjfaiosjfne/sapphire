@@ -124,7 +124,7 @@ def _single_line_comments(plains: S, regexes: R) -> tuple[S, R]:
         space = " " if ilc.space_required else ""
         regexes.append(RegExTokenPattern(
             regex.compile(f"{ilc.syntax}{space}.*"),
-            ("_IgnoreByTokenizer",)
+            ("_SkipPattern",)
         ))
     return plains, regexes
 

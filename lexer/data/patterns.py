@@ -194,8 +194,8 @@ _default_token_patterns: list[StringTokenPattern | RegExTokenPattern] = [
     StringTokenPattern("=>", ("FatArrow",)),
     RegExTokenPattern(regex.compile(r"is(\s|\\\n)+not"), ("Keywords", "IsNot")),
     RegExTokenPattern(regex.compile(r"not(\s|\\\n)+in"), ("Keywords", "NotIn")),
-    RegExTokenPattern(regex.compile(r"#.*"), ("_IgnoreByTokenizer",)),
+    RegExTokenPattern(regex.compile(r"#.*"), ("_SkipPattern",)),
     RegExTokenPattern(regex.compile(r"[\r\n]+"), ("NewLine",)),
-    RegExTokenPattern(regex.compile(r"(\s|\\\n)+"), ("_IgnoreByTokenizer",)),
+    RegExTokenPattern(regex.compile(r"(\s|\\\n)+"), ("_SkipPattern",)),
     RegExTokenPattern(IDENTIFIER_REGEX, ("Identifier",)),
 ]

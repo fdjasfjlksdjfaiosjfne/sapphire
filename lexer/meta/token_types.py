@@ -59,11 +59,16 @@ def write_file():
     lines = [
         "# Auto-generated token_types.py for IntelliSense",
         "# Beep bop",
-        "from lexer.internal_token_types import InternalTokenType",
+        "from lexer.internal_token_types import InternalTokenType, ITTTypeChecking",
         "import enum", 
         "",
         "class TokenTypeEnum(enum.Enum):",
-        "    pass"
+        "    def __eq__(self, other):",
+        "        if isinstance(other, ITTTypeChecking):",
+        "            return self.value == other",
+        "        return super().__eq__(other)",
+        "    def __ne__(self, other):",
+        "        return not self.__eq__(other)"
     ]
     
     lines += write_class(CLASS_NAME, ALIASES)

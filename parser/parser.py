@@ -24,6 +24,6 @@ class Parser(Stmts, Exprs):
                 "parser doesn't seems to handle it properly"
             )
         except errors.BaseSapphireError as e:
-            # Debugging
+            # Debugging purposes
             e.add_note(f"Remaining: {self.tokens.remaining()}")
             raise e
