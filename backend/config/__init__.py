@@ -20,7 +20,7 @@ def _find_subschema(ref, defs: dict):
     # $ Definition Reference
     if ref.startswith("#/$defs"):
         return {"$ref": ref}
-    ref_path = CONFIG_SUBSCHEMAS / ref
+    ref_path = CONFIG_SUBSCHEMAS/ref
     if not ref_path.exists():
         return _SENTINEL
     with open(ref_path) as f:

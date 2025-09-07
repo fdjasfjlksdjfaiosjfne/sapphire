@@ -1,30 +1,30 @@
 import typing
 from dataclasses import dataclass
 
-from backend.config.dataclass.bases import CustomDataclass, ConfOptWrapper, _UNFILLED
+from backend.config.dataclass.bases import CustomConfDatacls, ConfOptWrapper, _UNFILLED
 from backend.config.dataclass.customization.literals import *
 from backend.config.dataclass.customization.control import *
 from backend.config.dataclass.customization.objects import *
 from backend.config.dataclass.customization.operators import *
 
 @dataclass(frozen=True, kw_only=True)
-class AnnotationsConfigCls(CustomDataclass):
+class AnnotationsConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
-class OOPConfigCls(CustomDataclass):
+class OOPConfigCls(CustomConfDatacls):
     oop_model: C[typing.Literal["class", "prototype", "hybrid"]] = C(_UNFILLED, "class")
     forced_encapsulation: C[bool] = C(_UNFILLED, True)
     encapsulation_method: C[typing.Literal["disabled", "enforced", "hybrid"]] = C(_UNFILLED, "enforced")
 
 @dataclass(frozen=True, kw_only=True)
-class InlineCommentCls(CustomDataclass):
+class InlineCommentCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["#", "//", ";", "--", "%", "::"]] = C(_UNFILLED, "#")
     space_required: C[bool] = C(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
-class MultilineCommentSyntaxConfigCls[Start: str, End: str](CustomDataclass):
+class MultilineCommentSyntaxConfigCls[Start: str, End: str](CustomConfDatacls):
     start: C[Start] = C(default = "/*")
     end: C[End] = C(default = "*/")
 
@@ -45,22 +45,22 @@ MultiLineCommentSyntax: typing.TypeAlias = (
 )
 
 @dataclass(frozen=True, kw_only=True)
-class MultilineCommentConfigCls(CustomDataclass):
+class MultilineCommentConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: MultilineCommentSyntaxConfigCls = MultilineCommentSyntaxConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
-class CommentConfigCls(CustomDataclass):
+class CommentConfigCls(CustomConfDatacls):
     inline_comment: InlineCommentCls = InlineCommentCls()
     multiline_comment: MultilineCommentConfigCls = MultilineCommentConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
-class VariablesConfigCls(CustomDataclass):
+class VariablesConfigCls(CustomConfDatacls):
     implicit_globals: C[bool] = C(_UNFILLED, False)
     function_hoisting: C[bool] = C(_UNFILLED, True)
 
 @dataclass(frozen=True, kw_only=True)
-class UncategorizedConfigCls(CustomDataclass):
+class UncategorizedConfigCls(CustomConfDatacls):
     implicit_return: C[bool] = C(_UNFILLED, False)
     trailing_comma: C[typing.Literal["always", "never", "single_tuple_only"]] = C(_UNFILLED, "always")
     semicolon_required: C[bool] = C(_UNFILLED, False)
@@ -69,7 +69,7 @@ class UncategorizedConfigCls(CustomDataclass):
     mutable_value_assignment_behavior: C[typing.Literal["copy", "reference"]] = C(_UNFILLED, "copy")
 
 @dataclass(frozen=True, kw_only=True)
-class CustomizationConfigCls(CustomDataclass):
+class CustomizationConfigCls(CustomConfDatacls):
     """The configuration class, which contains most the options you might be looking for.
 
     This has 9 subcategories:

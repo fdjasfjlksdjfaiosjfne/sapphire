@@ -1,8 +1,8 @@
 import itertools
 import typing
-from dataclasses import asdict, astuple, dataclass, field
+from dataclasses import dataclass
 
-from backend.config.dataclass.bases import CustomDataclass, ConfOptWrapper as C, _UNFILLED
+from backend.config.dataclass.bases import CustomConfDatacls, ConfOptWrapper as C, _UNFILLED
 from backend import errors
 
 Accessibility: typing.TypeAlias = typing.Literal["never", "always",
@@ -14,12 +14,12 @@ StringDelimeters: typing.TypeAlias = list[typing.Literal["'", '"', "`"]]
 
 
 @dataclass(frozen=True, kw_only=True)
-class NumericSeparatorConfigCls(CustomDataclass):
+class NumericSeparatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(default = True)
     syntax: C[typing.Literal["_", " "]] = C(default = "_")
 
 @dataclass(frozen=True, kw_only=True)
-class IntegerBaseLiteralsConfigCls(CustomDataclass):
+class IntegerBaseLiteralsConfigCls(CustomConfDatacls):
     binary: C[bool] = C(default = True)
     decimal: C[bool] = C(default = True)
     octal: C[bool] = C(default = True)
@@ -34,30 +34,30 @@ class IntegerBaseLiteralsConfigCls(CustomDataclass):
         super().validate_config()
 
 @dataclass(frozen=True, kw_only=True)
-class NumberLiteralsConfigCls(CustomDataclass):
+class NumberLiteralsConfigCls(CustomConfDatacls):
     numeric_separator: NumericSeparatorConfigCls = NumericSeparatorConfigCls()
     integer_base_literals: IntegerBaseLiteralsConfigCls = IntegerBaseLiteralsConfigCls()
     scientific_notation: C[bool] = C(default = True)
 
 @dataclass(frozen=True, kw_only=True)
-class BooleanSyntaxConfigCls(CustomDataclass):
+class BooleanSyntaxConfigCls(CustomConfDatacls):
     true: C[typing.Literal["true", "True", "TRUE", "yes", "Yes", "y", "Y", "Affirmative", "ye", "yup", "yay"]] = C(default = "true")
     false: C[typing.Literal["false", "False", "FALSE", "no", "No", "n", "N", "Negative", "nah", "nope", "nay"]] = C(default = "false")
 
 @dataclass(frozen=True, kw_only=True)
-class BooleanLiteralsConfigCls(CustomDataclass):
+class BooleanLiteralsConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(default = True)
     case_insensivity: C[bool] = C(default = False)
     syntax: BooleanSyntaxConfigCls = BooleanSyntaxConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
-class NullLiteralConfigCls(CustomDataclass):
+class NullLiteralConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(default = True)
     case_insensivity: C[bool] = C(default = False)
     syntax: C[typing.Literal["null", "Null", "NULL", "None", "none", "NOTHING", "nothing", "Nothing", "undefined", "nil"]] = C(default = "null")
 
 @dataclass(frozen=True, kw_only=True)
-class StringInterpolationExpressionSyntaxConfigDataClass[Start: str, End: str](CustomDataclass):
+class StringInterpolationExpressionSyntaxConfigDataClass[Start: str, End: str](CustomConfDatacls):
     start: C[Start] = C(default = "{")
     end: C[End] = C(default = "}")
 
@@ -81,7 +81,7 @@ StringInterpolationExpressionSyntaxConfigDataClassCombinationTypeAlias: typing.T
 )
 
 @dataclass(frozen=True, kw_only=True)
-class StrInterpolationConfigCls(CustomDataclass):
+class StrInterpolationConfigCls(CustomConfDatacls):
     accessibility: C[Accessibility] = C(default = "enable_by_prefix")
     expression_syntax: StringInterpolationExpressionSyntaxConfigDataClassCombinationTypeAlias = StringInterpolationExpressionSyntaxConfigDataClass()
     allow_identifier_syntax: C[bool] = C(default = False)
@@ -91,25 +91,25 @@ class StrInterpolationConfigCls(CustomDataclass):
     prefix_syntax: C[typing.Literal["f", "i", "$"]] = C(default = "f")
 
 @dataclass(frozen=True, kw_only=True)
-class MultilineStrConfigCls(CustomDataclass):
+class MultilineStrConfigCls(CustomConfDatacls):
     accessibility: C[Accessibility] = C(default = "enable_by_delimeter")
     delimeter_syntax: C[StringDelimeters | typing.Literal["triple"]] = C(default = "triple")
     prefix_syntax: C[typing.Literal["m"]] = C(default = "m")
 
 @dataclass(frozen=True, kw_only=True)
-class RawStrConfigCls(CustomDataclass):
+class RawStrConfigCls(CustomConfDatacls):
     accessibility: C[Accessibility] = C(default = "enable_by_delimeter")
     delimeter_syntax: C[StringDelimeters] = C(default = "triple")
     prefix_syntax: C[typing.Literal["r", "l"]] = C(default = "r")
 
 @dataclass(frozen=True, kw_only=True)
-class ByteStrConfigCls(CustomDataclass):
+class ByteStrConfigCls(CustomConfDatacls):
     accessibility: C[Accessibility] = C(default = "enable_by_delimeter")
     delimeter_syntax: C[StringDelimeters] = C(default = "triple")
     prefix_syntax: C[typing.Literal["b"]] = C(default = "b")
 
 @dataclass(frozen=True, kw_only=True)
-class StrEscapePatternConfigCls(CustomDataclass):
+class StrEscapePatternConfigCls(CustomConfDatacls):
     null: C[typing.Literal["\\0", "`0", "^0",
                            "\\@", "`@", "^@",
                            None]] = C(default = "\\0")
@@ -152,18 +152,19 @@ class StrEscapePatternConfigCls(CustomDataclass):
     close_square_bracket: C[typing.Literal["]]", "\\]", "`]", "^]", None]] = C(default = "]]")
     open_curly_brace: C[typing.Literal["{{", "\\{", "`{", "^{", None]] = C(default = "{{")
     close_curly_brace: C[typing.Literal["}}", "\\}", "`}", "^}", None]] = C(default = "}}")
+
     def get_escape_dict(self, format_str: bool = False, raw_string: bool = False) -> dict[str, str]:
         dict_: dict[str, str] = {}
         
         return dict_
 
 @dataclass(frozen=True, kw_only=True)
-class StrEscapeCharsConfigCls(CustomDataclass):
+class StrEscapeCharsConfigCls(CustomConfDatacls):
     patterns: StrEscapePatternConfigCls = StrEscapePatternConfigCls()
     unused_patterns_behavior: C[typing.Literal["enforced", "ignore", "unenforced"]] = C(default = "ignore")
 
 @dataclass(frozen=True, kw_only=True)
-class StringLiteralsConfigCls(CustomDataclass):
+class StringLiteralsConfigCls(CustomConfDatacls):
     delimeters: C[StringDelimeters] = C(default = ["'", "`", '"'])
     interpolation: StrInterpolationConfigCls = StrInterpolationConfigCls()
     multiline: MultilineStrConfigCls = MultilineStrConfigCls()
@@ -208,11 +209,11 @@ class StringLiteralsConfigCls(CustomDataclass):
         return ls
 
 @dataclass(frozen=True, kw_only=True)
-class EllipsisLiteralConfigCls(CustomDataclass):
+class EllipsisLiteralConfigCls(CustomConfDatacls):
     pass
 
 @dataclass(frozen=True, kw_only=True)
-class LiteralsConfigCls(CustomDataclass):
+class LiteralsConfigCls(CustomConfDatacls):
     numbers: NumberLiteralsConfigCls = NumberLiteralsConfigCls()
     booleans: BooleanLiteralsConfigCls = BooleanLiteralsConfigCls()
     null: NullLiteralConfigCls = NullLiteralConfigCls()

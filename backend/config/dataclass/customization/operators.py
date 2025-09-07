@@ -1,46 +1,46 @@
 import typing
 from dataclasses import dataclass
 
-from backend.config.dataclass.bases import CustomDataclass, ConfOptWrapper as C, _UNFILLED
+from backend.config.dataclass.bases import CustomConfDatacls, ConfOptWrapper as C, _UNFILLED
 
 @dataclass(frozen=True, kw_only=True)
-class AdditionOperatorConfigCls(CustomDataclass):
+class AdditionOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["+"]] = C(_UNFILLED, "+")
     allow_string_concanentation: C[bool] = C(_UNFILLED, False)
 
 @dataclass(frozen=True, kw_only=True)
-class SubtractionOperatorConfigCls(CustomDataclass):
+class SubtractionOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["-"]] = C(_UNFILLED, "-")
 
 @dataclass(frozen=True, kw_only=True)
-class MultiplicationOperatorConfigCls(CustomDataclass):
+class MultiplicationOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["*"]] = C(_UNFILLED, "*")
 
 @dataclass(frozen=True, kw_only=True)
-class TrueDivisionOperatorConfigCls(CustomDataclass):
+class TrueDivisionOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["/"]] = C(_UNFILLED, "/")
 
 @dataclass(frozen=True, kw_only=True)
-class FloorDivisionOperatorConfigCls(CustomDataclass):
+class FloorDivisionOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["//", "div"]] = C(_UNFILLED, "//")
 
 @dataclass(frozen=True, kw_only=True)
-class ModulusOperatorConfigCls(CustomDataclass):
+class ModulusOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["%", "mod"]] = C(_UNFILLED, "%")
 
 @dataclass(frozen=True, kw_only=True)
-class ExponentationOperatorConfigCls(CustomDataclass):
+class ExponentationOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["**", "^", "exp", "pow"]] = C(_UNFILLED, "**")
 
 @dataclass(frozen=True, kw_only=True)
-class ArithmeticOperatorsConfigCls(CustomDataclass):
+class ArithmeticOperatorsConfigCls(CustomConfDatacls):
     addition: AdditionOperatorConfigCls = AdditionOperatorConfigCls()
     subtraction: SubtractionOperatorConfigCls = SubtractionOperatorConfigCls()
     multiplication: MultiplicationOperatorConfigCls = MultiplicationOperatorConfigCls()
@@ -50,113 +50,113 @@ class ArithmeticOperatorsConfigCls(CustomDataclass):
     exponentiaion: ExponentationOperatorConfigCls = ExponentationOperatorConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
-class BinaryExclusiveOrOperatorConfigCls(CustomDataclass):
+class BinaryExclusiveOrOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["^^", "b^", "^", "xor"]] = C(_UNFILLED, "b^")
 
 @dataclass(frozen=True, kw_only=True)
-class BinaryInclusiveOrOperatorConfigCls(CustomDataclass):
+class BinaryInclusiveOrOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["||", "b|", "|", "ior", "or"]] = C(_UNFILLED, "b|")
 
 @dataclass(frozen=True, kw_only=True)
-class BinaryAndOperatorConfigCls(CustomDataclass):
+class BinaryAndOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["&&", "b&", "&", "and"]] = C(_UNFILLED, "b&")
 
 @dataclass(frozen=True, kw_only=True)
-class BinaryOperatorsConfigCls(CustomDataclass):
+class BinaryOperatorsConfigCls(CustomConfDatacls):
     exclusive_or: BinaryExclusiveOrOperatorConfigCls = BinaryExclusiveOrOperatorConfigCls()
     inclusive_or: BinaryInclusiveOrOperatorConfigCls = BinaryInclusiveOrOperatorConfigCls()
     and_: BinaryAndOperatorConfigCls = BinaryAndOperatorConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
-class BooleanExclusiveOrOperatorConfigCls(CustomDataclass):
+class BooleanExclusiveOrOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["^^", "b^", "^", "xor"]] = C(_UNFILLED, "^")
 
 @dataclass(frozen=True, kw_only=True)
-class BooleanInclusiveOrOperatorConfigCls(CustomDataclass):
+class BooleanInclusiveOrOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["||", "b|", "|", "ior", "or"]] = C(_UNFILLED, "|")
 
 @dataclass(frozen=True, kw_only=True)
-class BooleanAndOperatorConfigCls(CustomDataclass):
+class BooleanAndOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["&&", "b&", "&", "and"]] = C(_UNFILLED, "&")
 
 @dataclass(frozen=True, kw_only=True)
-class BooleanOperatorsConfigCls(CustomDataclass):
+class BooleanOperatorsConfigCls(CustomConfDatacls):
     exclusive_or: BooleanExclusiveOrOperatorConfigCls = BooleanExclusiveOrOperatorConfigCls()
     inclusive_or: BooleanInclusiveOrOperatorConfigCls = BooleanInclusiveOrOperatorConfigCls()
     and_: BooleanAndOperatorConfigCls = BooleanAndOperatorConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
-class LogicalExclusiveOrOperatorConfigCls(CustomDataclass):
+class LogicalExclusiveOrOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["^^", "^", "xor"]] = C(_UNFILLED, "xor")
 
 @dataclass(frozen=True, kw_only=True)
-class LogicalInclusiveOrOperatorConfigCls(CustomDataclass):
+class LogicalInclusiveOrOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["||", "|", "ior", "or"]] = C(_UNFILLED, "or")
 
 @dataclass(frozen=True, kw_only=True)
-class LogicalAndOperatorConfigCls(CustomDataclass):
+class LogicalAndOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["&&", "&", "and"]] = C(_UNFILLED, "and")
 
 @dataclass(frozen=True, kw_only=True)
-class LogicalOperatorsConfigCls(CustomDataclass):
+class LogicalOperatorsConfigCls(CustomConfDatacls):
     exclusive_or: LogicalExclusiveOrOperatorConfigCls = LogicalExclusiveOrOperatorConfigCls()
     inclusive_or: LogicalInclusiveOrOperatorConfigCls = LogicalInclusiveOrOperatorConfigCls()
     and_: LogicalAndOperatorConfigCls = LogicalAndOperatorConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
-class EqualityOperatorConfigCls(CustomDataclass):
+class EqualityOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["===", "=="]] = C(_UNFILLED, "==")
 
 @dataclass(frozen=True, kw_only=True)
-class InequalityOperatorConfigCls(CustomDataclass):
+class InequalityOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["!==", "!=", "<>", "><"]] = C(_UNFILLED, "!=")
 
 @dataclass(frozen=True, kw_only=True)
-class LooseEqualityOperatorsConfigCls(CustomDataclass):
+class LooseEqualityOperatorsConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     equality_syntax: C[typing.Literal["==", "~="]] = C(_UNFILLED, "~=")
     inequality_syntax: C[typing.Literal["~!=", "!~=", "!=", "~<>", "~><"]] = C(_UNFILLED, "!~=")
 
 @dataclass(frozen=True, kw_only=True)
-class SpaceshipOperatorConfigCls(CustomDataclass):
+class SpaceshipOperatorConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["<=>", ">=<"]] = C(_UNFILLED, "<=>")
 
 @dataclass(frozen=True, kw_only=True)
-class ComparisonOperatorsConfigCls(CustomDataclass):
+class ComparisonOperatorsConfigCls(CustomConfDatacls):
     equality: EqualityOperatorConfigCls = EqualityOperatorConfigCls()
     inequality: InequalityOperatorConfigCls = InequalityOperatorConfigCls()
     loose_equality: LooseEqualityOperatorsConfigCls = LooseEqualityOperatorsConfigCls()
     spaceship_operator: SpaceshipOperatorConfigCls = SpaceshipOperatorConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
-class StringConcanentationConfigCls(CustomDataclass):
+class StringConcanentationConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["..", "||"]] = C(_UNFILLED, "..")
 
 @dataclass(frozen=True, kw_only=True)
-class MatrixMultiplicationConfigCls(CustomDataclass):
+class MatrixMultiplicationConfigCls(CustomConfDatacls):
     enabled: C[bool] = C(_UNFILLED, True)
     syntax: C[typing.Literal["@"]] = C(_UNFILLED, "@")
 
 @dataclass(frozen=True, kw_only=True)
-class OtherOperatorsConfigCls(CustomDataclass):
+class OtherOperatorsConfigCls(CustomConfDatacls):
     string_concanentation: StringConcanentationConfigCls = StringConcanentationConfigCls()
     matrix_multiplication: MatrixMultiplicationConfigCls = MatrixMultiplicationConfigCls()
 
 @dataclass(frozen=True, kw_only=True)
-class OperatorsConfigCls(CustomDataclass):
+class OperatorsConfigCls(CustomConfDatacls):
     arithmetic: ArithmeticOperatorsConfigCls = ArithmeticOperatorsConfigCls()
     binary: BinaryOperatorsConfigCls = BinaryOperatorsConfigCls()
     booleans: BooleanOperatorsConfigCls = BooleanOperatorsConfigCls()

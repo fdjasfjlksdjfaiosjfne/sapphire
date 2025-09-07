@@ -14,10 +14,10 @@ class StringSubLexer:
                 prefixes = self.src[:location]
                 quote = self.src[location:]
                 self.src.removeprefix(start)
-                return self._parse_format_str_content(prefixes, quote)
+                return self._parse_str_content(prefixes, quote)
         return None
 
-    def _parse_format_str_content(self, prefixes: str, quote: str) -> InterpolatedStrToken:
+    def _parse_str_content(self, prefixes: str, quote: str) -> InterpolatedStrToken:
         ls = []
         def append(i):
             if isinstance(i, str) and isinstance(ls[-1], str):
@@ -26,17 +26,17 @@ class StringSubLexer:
         
         interpolation = self._str_conf.interpolation
         while self.src.startswith(quote):
-            
+            ...
 
-            # ^ Un-escaped brackets
-            if self.src.startswith(interpolation.expression_syntax.start.get()):
-                append(self._parse_expr_format_str())
-            # ^ Identifier syntax
-            elif (interpolation.allow_identifier_syntax.get()
-                  and self.src.startswith(interpolation.identifier_prefix_syntax.get())):
-                match = IDENTIFIER_REGEX.match(self.src[1:])
-                if match:
-                    match.group()
+            # # ^ Un-escaped brackets
+            # if self.src.startswith(interpolation.expression_syntax.start.get()):
+            #     append(self._parse_expr_format_str())
+            # # ^ Identifier syntax
+            # elif (interpolation.allow_identifier_syntax.get()
+            #       and self.src.startswith(interpolation.identifier_prefix_syntax.get())):
+            #     match = IDENTIFIER_REGEX.match(self.src[1:])
+            #     if match:
+            #         match.group()
         return InterpolatedStrToken(prefixes, ls)
     
     def _parse_expr_format_str(self):

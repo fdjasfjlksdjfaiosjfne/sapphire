@@ -6,7 +6,7 @@ from dataclasses import dataclass, fields, is_dataclass
 
 
 from backend import errors
-from backend.config.dataclass.bases import CustomDataclass, ConfOptWrapper, _UNFILLED
+from backend.config.dataclass.bases import CustomConfDatacls, ConfOptWrapper, _UNFILLED
 
 from backend.config.dataclass.customization import (
     CustomizationConfigCls,
@@ -95,7 +95,7 @@ FIELD_ALIASES = {
 }
 
 @dataclass(frozen=True, kw_only=True)
-class ConfigVersionCls(CustomDataclass):
+class ConfigVersionCls(CustomConfDatacls):
     major: ConfOptWrapper[int] = ConfOptWrapper(_UNFILLED, 2)
     minor: ConfOptWrapper[int] = ConfOptWrapper(_UNFILLED, 1)
     patch: ConfOptWrapper[int] = ConfOptWrapper(_UNFILLED, 1)
@@ -109,13 +109,13 @@ class ConfigVersionCls(CustomDataclass):
         )
 
 @dataclass(frozen=True, kw_only=True)
-class TemplatesCls(CustomDataclass):
+class TemplatesCls(CustomConfDatacls):
     inverted_comparisons: ConfOptWrapper[bool] = ConfOptWrapper(default = False)
     methify: ConfOptWrapper[bool] = ConfOptWrapper(default = False)
 
 
 @dataclass(frozen=True, kw_only=True)
-class RootConfigCls(CustomDataclass):
+class RootConfigCls(CustomConfDatacls):
     """The very root of the configuration dataclass object.
 
     This field itself contains five attributes:

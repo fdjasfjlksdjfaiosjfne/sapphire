@@ -5,6 +5,7 @@ import dataclasses
 import typing
 
 from backend import errors
+from backend.config.dataclass import RootConfigCls
 
 class ConfigDescriptorProtocol[T](typing.Protocol):
     @typing.overload
@@ -55,19 +56,24 @@ class ConfOptWrapper[T](ConfigDescriptorProtocol[T]):
     def __bool__(self):
         return bool(self.get())
 
-class CustomDataclass:
+class CustomConfDatacls:
+    """A custom wrapper for all config dataclasses.
+
+    
+    """
+    _parent: typing.ClassVar[CustomConfDatacls | None] = dataclasses.field(default = None, init = False)
+    _root_cache: None | RootConfigCls = dataclasses.field(default = None, init = False)
+
     @abc.abstractmethod
     def validate_config(self) -> None:
         """Checks for any configuration errors that cannot be catched by the schema.
         """
         assert dataclasses.is_dataclass(self)
         for field in dataclasses.astuple(self):
-            if isinstance(field, CustomDataclass):
+            if isinstance(field, CustomConfDatacls):
                 field.validate_config()
-    _parent: CustomDataclass | None = None
-
-    _root_cache = None
     
+    @typing.final
     def get_root_config_cls(self):
         from backend.config.dataclass import RootConfigCls
         if self._parent is None:
@@ -87,35 +93,47 @@ class CustomDataclass:
             raise errors.InternalError(
                 "Any subclasses of CustomDataclass must be a dataclass"
             )
-        for field in dataclasses.fields(self):
-            if field.name not in kwargs:
-                default = field.default
-                if default is not dataclasses.MISSING:
-                    if dataclasses.is_dataclass(field.default):
-                        continue
-                    if not isinstance(default, ConfOptWrapper):
-                        default = ConfOptWrapper(_UNFILLED, default)
-                    object.__setattr__(self, field.name, default)
-                
-                elif field.default_factory is not dataclasses.MISSING:
-                    val = field.default_factory()
-                    if dataclasses.is_dataclass(val):
-                        continue
-                    if not isinstance(field.default, ConfOptWrapper):
-                        default = ConfOptWrapper(_UNFILLED, val)
-                    object.__setattr__(self, field.name, default)
-                
-                else:
-                    raise errors.InternalError(
-                        f"Missing attribute without any default value: {field.name} in {type(self).__name__}"
-                    )
-            elif isinstance(kwargs[field.name], CustomDataclass):
-                datacls = kwargs.pop(field.name)
-                object.__setattr__(datacls, "parent", self)
-                object.__setattr__(self, field.name, datacls)
-            else:
-                object.__setattr__(self, field.name, ConfOptWrapper(kwargs.pop(field.name), field.default))
-        if kwargs:
-            raise AttributeError(
-                f"{type(self).__name__}.__init__() recieve redundant keyword arguments ({",".join(kwargs.keys())})"
+
+        def assign_default(field):
+            default = field.default
+            if default is not dataclasses.MISSING:
+                if dataclasses.is_dataclass(default):
+                    return  # skip dataclass defaults
+                if not isinstance(default, ConfOptWrapper):
+                    default = ConfOptWrapper(_UNFILLED, default)
+                object.__setattr__(self, field.name, default)
+                return
+
+            if field.default_factory is not dataclasses.MISSING:
+                val = field.default_factory()
+                if dataclasses.is_dataclass(val):
+                    return  # skip dataclass defaults
+                if not isinstance(val, ConfOptWrapper):
+                    val = ConfOptWrapper(_UNFILLED, val)
+                object.__setattr__(self, field.name, val)
+                return
+
+            raise errors.InternalError(
+                f"Missing attribute without any default value: {field.name} in {type(self).__name__}"
             )
+
+        def assign_value(field, value):
+            if isinstance(value, CustomConfDatacls):
+                object.__setattr__(value, "parent", self)
+                object.__setattr__(self, field.name, value)
+            else:
+                object.__setattr__(self, field.name, ConfOptWrapper(value, field.default))
+
+        for field in dataclasses.fields(self):
+            if not field.init: 
+                continue
+            if field.name not in kwargs:
+                assign_default(field)
+            else:
+                assign_value(field, kwargs.pop(field.name))
+
+        if kwargs:
+            raise errors.InternalError(
+                f"{type(self).__name__}.__init__() recieve redundant keyword arguments ({','.join(kwargs.keys())})"
+            )
+        self.validate_config()
