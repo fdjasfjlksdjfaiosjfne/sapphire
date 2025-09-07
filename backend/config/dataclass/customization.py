@@ -1,11 +1,11 @@
 import typing
 from dataclasses import dataclass
 
-from backend.config.dataclass.bases import CustomConfDatacls, ConfOptWrapper, _UNFILLED
-from backend.config.dataclass.customization.literals import *
-from backend.config.dataclass.customization.control import *
-from backend.config.dataclass.customization.objects import *
-from backend.config.dataclass.customization.operators import *
+from backend.config.dataclass.bases import CustomConfDatacls, ConfOptWrapper as C, _UNFILLED
+from backend.config.dataclass.literals import *
+from backend.config.dataclass.control import *
+from backend.config.dataclass.objects import *
+from backend.config.dataclass.operators import *
 
 @dataclass(frozen=True, kw_only=True)
 class AnnotationsConfigCls(CustomConfDatacls):
