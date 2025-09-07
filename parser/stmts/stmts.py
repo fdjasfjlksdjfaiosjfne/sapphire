@@ -9,7 +9,7 @@ from parser.stmts.loops import LoopStatements
 
 class Stmts(MatchCaseStatement, LoopStatements, DeclarationStatements):
     def _parse_stmt(self, **context) -> Nodes.StmtNode:
-        match self._peek():
+        match self._peek().type:
             case TokenType.Statements.Declarations.MutableVariable | TokenType.Statements.Declarations.ConstantVariable:
                 return self._parse_var_declaration(**context)
             case TokenType.Statements.Conditional.Condition:
@@ -83,7 +83,7 @@ class Stmts(MatchCaseStatement, LoopStatements, DeclarationStatements):
 
         # ? Check if there's any other connectable clause (elif/else) behind
         
-        if self.peek().type in {TokenType.Statements.Conditional.FallbackWithCondition, TokenType.Statements.Conditional.Fallback}:
+        if self.peek().type in (TokenType.Statements.Conditional.FallbackWithCondition, TokenType.Statements.Conditional.Fallback):
             return Nodes.ConditionalNode(
                 cond, code,
                 self.parse_if_elif_else(clause = self.peek().type, **context))
@@ -94,14 +94,8 @@ class Stmts(MatchCaseStatement, LoopStatements, DeclarationStatements):
         err = None
         cause = None
         
-        save_point = self.tokens.save()
-        try:
+        if self._peek() not in self._STATEMENT_SEPARATORS:
             err = self._parse_expr(**context)
-        except errors.SapphireError:
-            # & FIND ERROR EXPRESSION FAILED. BACK OFF.
-            # $ If the expression is wrong, it'll know next time it parses it
-            self.tokens.load(save_point)
-        else:
             if self._peek().type == TokenType.Statements.ExceptionHandling.SourceOfThrowingError:
                 self._advance(TokenType.Statements.ExceptionHandling.SourceOfThrowingError)
                 cause = self._parse_expr(**context)

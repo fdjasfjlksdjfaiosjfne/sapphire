@@ -154,8 +154,11 @@ class Tokenizer(StringSubLexer):
             tok_types = (tok_types,)
         elif isinstance(tok_types, ITTTypeChecking):
             tok_types = (tok_types, )
+        a = []
         while self.peek().type in tok_types:
-            self.advance()
+            
+            a.append(self.advance())
+        return a
     
     def remaining(self) -> str:
         return self.src[:]

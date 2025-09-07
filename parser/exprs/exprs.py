@@ -79,12 +79,12 @@ class Exprs(Collections, BinaryOperations, AttributeSubcriptionCall, Strings):
         - Postfix: '++', '--'
         """
         ## Prefix
-        if self._peek() in {
+        if self._peek() in (
                 UnaryOperators.Positive, UnaryOperators.Negative, 
                 UnaryOperators.BinaryInversion, UnaryOperators.LogicalNot, 
                 UnaryOperators.HybridNot, UnaryOperators.Increment, UnaryOperators.Decrement,
                 UnaryOperators.PositionalUnpack, UnaryOperators.KeywordUnpack
-                }:
+            ):
             attachment = self._advance().type
             expr = self._parse_member_subscription_call_expr(**context)
             return Nodes.UnaryNode(expr, attachment, "Prefix")
@@ -93,7 +93,7 @@ class Exprs(Collections, BinaryOperations, AttributeSubcriptionCall, Strings):
         # $ Time to parse it
         expr = self._parse_member_subscription_call_expr(**context)
         
-        if self._peek() in {UnaryOperators.Increment, UnaryOperators.Decrement}:
+        if self._peek() in (UnaryOperators.Increment, UnaryOperators.Decrement):
             return Nodes.UnaryNode(expr, self._advance().type, "Postfix")
         return expr
 

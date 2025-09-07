@@ -19,9 +19,9 @@ class AttributeSubcriptionCall(ParserNamespaceSkeleton):
 
     def _parse_member_subscription_expr(self, **context) -> Nodes.AttributeNode | Nodes.SubscriptionNode | Nodes.ExprNode: 
         obj = self._parse_primary_expr(**context)
-        while self._peek() in {TokenType.Symbols.AttributeAccess,
+        while self._peek() in (TokenType.Symbols.AttributeAccess,
                                TokenType.Symbols.ClassAttributeAccess,
-                               TokenType.Parentheses.OpenSquareBracket}:
+                               TokenType.Parentheses.OpenSquareBracket):
             if self._advance() == TokenType.Symbols.AttributeAccess:
                 attr = typing.cast(Nodes.ExprNode | None, None)
                 if self._peek() == TokenType.Identifier:

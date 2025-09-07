@@ -120,7 +120,7 @@ class DeclarationStatements(ParserNamespaceSkeleton):
                 return Nodes.ModifierAssignmentNode(target, op.value, value)
             
             else:
-                raise errors._Backtrack
+                raise errors._Backtrack(self._peek())
         
         except errors._Backtrack:
             self.tokens.load(start_pos)

@@ -110,7 +110,14 @@ def write_file():
         "class ITTTypeChecking(enum.Enum):",
         "    @staticmethod",
         "    def _generate_next_value_(name, start, count, last_values):",
-        "        return next(_global_counter)"
+        "        return next(_global_counter)",
+        "    def __eq__(self, other):",
+        "        from lexer.token_types import TokenTypeEnum",
+        "        if isinstance(other, TokenTypeEnum):",
+        "            return self == other.value",
+        "        return super().__eq__(other)",
+        "    def __ne__(self, other):",
+        "        return not self.__eq__(other)"
     ]
 
     with open(INTERNAL_TOKEN_TYPES, "w", encoding = "utf-8") as f:

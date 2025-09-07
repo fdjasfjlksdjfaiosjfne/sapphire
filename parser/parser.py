@@ -15,8 +15,10 @@ class Parser(Stmts, Exprs):
     def parse_module(self) -> Nodes.ModuleNode:
         program = Nodes.ModuleNode()
         try:
-            while self.tokens.peek() != TokenType.EoF:
+            while self._peek().type != TokenType.EoF:
                 program.body.append(self._parse_stmt())
+                if self._advance_matchings(self._STATEMENT_SEPARATORS):
+                    raise errors.SyntaxError("Expecting a statement separator (; or new line)")
             return program
         except StopIteration:
             raise errors.InternalError(
@@ -25,5 +27,6 @@ class Parser(Stmts, Exprs):
             )
         except errors.BaseSapphireError as e:
             # Debugging purposes
-            e.add_note(f"Remaining: {self.tokens.remaining()}")
+            e.add_note(f"Remaining:\n{self.tokens.remaining()}")
+            e.add_note(f"Current token: {self.tokens.peek().type}")
             raise e

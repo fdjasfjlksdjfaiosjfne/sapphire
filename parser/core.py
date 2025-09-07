@@ -10,10 +10,11 @@ from parser import nodes
 class ParserNamespaceSkeleton(ABC):
     tokens: Tokenizer
     conf: RootConfigCls
+    _STATEMENT_SEPARATORS: tuple[TokenTypeEnum, ...]
     if CONFIG.customization.uncategorized.semicolon_required:
-        _STATEMENT_SEPARATORS = [TokenType.Symbols.StatementSeparator]
+        _STATEMENT_SEPARATORS = (TokenType.Symbols.StatementSeparator,)
     else:
-        _STATEMENT_SEPARATORS = [TokenType.Symbols.StatementSeparator, TokenType.NewLine]
+        _STATEMENT_SEPARATORS = (TokenType.Symbols.StatementSeparator, TokenType.NewLine)
 
     @typing.final
     def __getattribute__(self, attr: str):
@@ -35,8 +36,8 @@ class ParserNamespaceSkeleton(ABC):
     ) -> Token:
         return self.tokens.advance(ts, error = error)
     
-    def _advance_matchings(self, ts: typing.Sequence[TokenType] = []):
-        self._advance_matchings(ts)
+    def _advance_matchings(self, ts: TokenTypeSequence = []):
+        return self.tokens.advance_matchings(self._to_token_sequence(ts))
     
     @staticmethod
     def _to_token_sequence(t: TokenTypeSequence, **context) -> tuple[TokenTypeEnum, ...]:
