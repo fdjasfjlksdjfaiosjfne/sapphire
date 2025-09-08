@@ -7,6 +7,7 @@ itt.write_file()
 token_types.write_file()
 
 from lexer.lexer import Tokenizer, Token
+from lexer.strings import StringSubLexer, StrToken, FormattedValue
 from lexer.internal_token_types import *
 from lexer.token_types import *
 

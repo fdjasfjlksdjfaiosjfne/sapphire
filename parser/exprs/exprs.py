@@ -17,12 +17,11 @@ import typing
 #     __package__ = "parser.parsing.exprs"
 
 from backend import errors
-from lexer import TokenType, UnaryOperators, TernaryOperators
+from lexer import TokenType, UnaryOperators, TernaryOperators, StrToken
 import parser.nodes as Nodes
 from backend.config import CONFIG
 from parser.exprs.sap_collections import Collections
 from parser.exprs.attr_sub_call import AttributeSubcriptionCall
-from parser.exprs.strs import Strings
 from parser.exprs.binops import BinaryOperations
 
 # ^ The order of precendence, the top being the one that is processed first
@@ -49,7 +48,7 @@ from parser.exprs.binops import BinaryOperations
 ## [x] Assignment Operator (':=')
 ## [x] '[1, 2, 3, 4]' '{1, 2, 3, 4}' '{"a": "b"}'
 
-class Exprs(Collections, BinaryOperations, AttributeSubcriptionCall, Strings):
+class Exprs(Collections, BinaryOperations, AttributeSubcriptionCall):
 
     def _parse_expr(self, **context) -> Nodes.ExprNode:
         return self._parse_collections_expr(**context)
@@ -108,7 +107,9 @@ class Exprs(Collections, BinaryOperations, AttributeSubcriptionCall, Strings):
             case TokenType.Primitives.Float if TokenType.Primitives.Float not in exclude:
                 return Nodes.FloatNode(float(token.value))
             case TokenType.Primitives.String if TokenType.Primitives.String not in exclude:
-                return self._process_string(token.value)
+                if isinstance(token, StrToken):
+                    return Nodes.StrNode.convert_from_token(token)
+                raise errors.InternalError
             case TokenType.Primitives.Boolean if TokenType.Primitives.Boolean not in exclude:
                 return Nodes.BoolNode(self._advance().value == "true")
             case TokenType.Primitives.Null if TokenType.Primitives.Null not in exclude:

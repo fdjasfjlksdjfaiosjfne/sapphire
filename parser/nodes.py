@@ -3,8 +3,8 @@ import dataclasses
 import enum
 import typing
 
-from lexer.internal_token_types import ITTTypeChecking, InternalTokenType
-from lexer import TokenTypeEnum
+if typing.TYPE_CHECKING:
+    from lexer import StrToken, ITTTypeChecking, TokenTypeEnum, FormattedValue as TokenFV
 
 class ExprContext(enum.Enum):
     Load = 0
@@ -257,16 +257,42 @@ class FloatNode(LiteralNode):
 @dataclasses.dataclass
 class StrNode(LiteralNode):
     value: str
+    @staticmethod
+    def convert_from_token(token: StrToken) -> FormattedStrNode | StrNode:
+        return FormattedStrNode.convert_from_token(token)
 
 @dataclasses.dataclass
 class FormattedStrNode(ExprNode):
     values: list[StrNode | FormattedValue]
 
+    @staticmethod
+    def convert_from_token(token: StrToken) -> FormattedStrNode | StrNode:
+        ls = []
+        is_format_str = False
+        for i in token.ls:
+            if isinstance(i, str):
+                ls.append(StrNode(i))
+            elif isinstance(i, TokenFV):
+                is_format_str = True
+                ls.append(FormattedValue.convert(i))
+            else:
+                typing.assert_never(i)
+        return FormattedStrNode(ls) if is_format_str else StrNode("".join(ls))
+
 @dataclasses.dataclass
 class FormattedValue(ExprNode):
     value: ExprNode
     conversion: int
-    formatting: FormattedStrNode | None
+    formatting: FormattedStrNode | StrNode | None
+    @staticmethod
+    def convert(tok: TokenFV) -> FormattedValue:
+        if tok.formatting is not None:
+            f = StrNode.convert_from_token(tok.formatting)
+        else:
+            f = None
+        return FormattedValue(value = tok.value,
+                              conversion = tok.conversion,
+                              formatting = f)
 
 @dataclasses.dataclass
 class BoolNode(LiteralNode):

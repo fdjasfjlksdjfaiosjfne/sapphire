@@ -1,3 +1,7 @@
+
+# @ DEPRECATED
+raise DeprecationWarning
+
 import string
 import typing
 

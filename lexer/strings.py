@@ -7,7 +7,7 @@ from lexer.data.patterns import IDENTIFIER_REGEX
 class StringSubLexer:
     _strs_conf: StringLiteralsConfigCls
     src: str
-    def _parse_str(self) -> InterpolatedStrToken | None:
+    def _parse_str(self) -> StrToken | None:
         for start in self._strs_conf.get_all_possible_starts():
             if self.src.startswith(start):
                 location = self.src.find(start[-1], 0, len(start)+1)
@@ -17,7 +17,7 @@ class StringSubLexer:
                 return self._parse_str_content(prefixes, quote)
         return None
 
-    def _parse_str_content(self, prefixes: str, quote: str) -> InterpolatedStrToken:
+    def _parse_str_content(self, prefixes: str, quote: str) -> StrToken:
         ls = []
         def append(i):
             if isinstance(i, str) and isinstance(ls[-1], str):
@@ -37,11 +37,10 @@ class StringSubLexer:
             #     match = IDENTIFIER_REGEX.match(self.src[1:])
             #     if match:
             #         match.group()
-        return InterpolatedStrToken(prefixes, ls)
+        return StrToken(prefixes, ls)
     
     def _parse_expr_format_str(self):
         pass
-
 class Token:
     def __init__(self, 
                  type: TokenTypeEnum | ITTTypeChecking, 
@@ -72,7 +71,7 @@ class Token:
     def __hash__(self) -> int:
         return hash(self.type)
 
-class InterpolatedStrToken(Token):
+class StrToken(Token):
     def __init__(self, prefixes: str, ls: list[str | FormattedValue]):
         self.type = InternalTokenType.Primitives.String
         self.prefixes = prefixes
@@ -82,7 +81,7 @@ class InterpolatedStrToken(Token):
 class FormattedValue:
     def __init__(self, value, 
                  conversion: int, 
-                 formatting: InterpolatedStrToken | None = None):
+                 formatting: StrToken | None = None):
         self.value = value
         self.conversion = conversion
         self.formatting = formatting
